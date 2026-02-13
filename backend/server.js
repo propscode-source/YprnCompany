@@ -26,21 +26,9 @@ if (!process.env.DATABASE_URL) {
 }
 
 // Middleware
-const allowedOrigins = [
-  'https://yayasan-pemerhati.vercel.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
-]
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, Postman, etc)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
