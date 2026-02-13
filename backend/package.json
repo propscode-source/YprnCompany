@@ -4,7 +4,11 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "start:prod": "cross-env NODE_ENV=production node src/server.js",
+    "migrate": "node scripts/migrate.js",
+    "db:setup": "psql -U postgres -f database/admin.sql",
+    "clean": "node -e \"const fs = require('fs'); if(fs.existsSync('dist')) fs.rmSync('dist', {recursive: true, force: true});\""
   },
   "dependencies": {
     "cors": "^2.8.5",
