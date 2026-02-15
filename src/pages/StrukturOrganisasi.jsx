@@ -1,34 +1,38 @@
+import { useLanguage } from '../context/LanguageContext'
+
 const StrukturOrganisasi = () => {
+  const { t } = useLanguage()
+
   const atas = [
     {
       name: 'Yuliusman, S.H, M.H ',
-      role: 'Pembina',
-      image: '/assets/images/Struktur/pembina.jpg'
+      roleKey: 'struktur.pembina',
+      image: '/assets/images/Struktur/pembina.jpg',
     },
     {
       name: 'Dr. Syafrul Yunardy, S.Hut., M.E',
-      role: 'Pengawas',
-      image: '/assets/images/Struktur/pengawas.jpg'
-    }
+      roleKey: 'struktur.pengawas',
+      image: '/assets/images/Struktur/pengawas.jpg',
+    },
   ]
 
   const ketua = {
     name: 'Dr. M Subardin, S.E., M.Si',
-    role: 'Ketua',
-    image: '/assets/images/Struktur/ketua.jpg'
+    roleKey: 'struktur.ketua',
+    image: '/assets/images/Struktur/ketua.jpg',
   }
 
   const bawah = [
     {
       name: 'Dr. Imam Asngari S.E., M.Si',
-      role: 'Sekretaris',
-      image: '/assets/images/Struktur/sekretaris.jpg'
+      roleKey: 'struktur.sekretaris',
+      image: '/assets/images/Struktur/sekretaris.jpg',
     },
     {
       name: 'Mega Debiyanti S.E',
-      role: 'Bendahara',
-      image: '/assets/images/Struktur/bendahara.jpg'
-    }
+      roleKey: 'struktur.bendahara',
+      image: '/assets/images/Struktur/bendahara.jpg',
+    },
   ]
 
   const PersonCard = ({ member, size = 'md' }) => {
@@ -40,13 +44,13 @@ const StrukturOrganisasi = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full blur-md opacity-40"></div>
             <img
               src={member.image}
-              alt={member.role}
+              alt={t(member.roleKey)}
               className={`relative ${sizeClass} rounded-full object-cover border-2 border-primary/30`}
             />
           </div>
           <div>
             <h3 className="text-lg font-bold text-text-heading">{member.name}</h3>
-            <p className="text-primary font-medium text-sm">{member.role}</p>
+            <p className="text-primary font-medium text-sm">{t(member.roleKey)}</p>
           </div>
         </div>
       </div>
@@ -63,13 +67,12 @@ const StrukturOrganisasi = () => {
         </div>
         <div className="container-custom relative z-10">
           <div className="text-center max-w-3xl mx-auto">
-            <span className="text-primary font-semibold">Tentang Kami</span>
+            <span className="text-primary font-semibold">{t('struktur.heroLabel')}</span>
             <h1 className="heading-primary mt-2 mb-6">
-              Struktur <span className="gradient-text">Organisasi</span>
+              {t('struktur.heroTitle1')}{' '}
+              <span className="gradient-text">{t('struktur.heroTitle2')}</span>
             </h1>
-            <p className="text-body">
-              Struktur organisasi Yayasan Pemerhati Rimba Nusantara dirancang untuk mendukung efektivitas program dan kegiatan kami.
-            </p>
+            <p className="text-body">{t('struktur.heroDesc')}</p>
           </div>
         </div>
       </section>
@@ -78,9 +81,10 @@ const StrukturOrganisasi = () => {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-primary font-semibold">Pengurus</span>
+            <span className="text-primary font-semibold">{t('struktur.pengurusLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
-              Susunan <span className="gradient-text">Pengurus</span>
+              {t('struktur.pengurusTitle1')}{' '}
+              <span className="gradient-text">{t('struktur.pengurusTitle2')}</span>
             </h2>
           </div>
 

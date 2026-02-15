@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Home, ArrowLeft } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const NotFound = () => {
+  const { t } = useLanguage()
+
   return (
     <div className="min-h-screen bg-dark flex items-center justify-center relative overflow-hidden">
       {/* Background decorations */}
@@ -18,21 +21,19 @@ const NotFound = () => {
 
         {/* Message */}
         <h2 className="text-2xl md:text-3xl font-bold text-text-heading mb-4">
-          Halaman Tidak Ditemukan
+          {t('notFound.title')}
         </h2>
-        <p className="text-text-body text-lg max-w-md mx-auto mb-10">
-          Maaf, halaman yang Anda cari tidak ada atau telah dipindahkan.
-        </p>
+        <p className="text-text-body text-lg max-w-md mx-auto mb-10">{t('notFound.description')}</p>
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/" className="btn-primary group">
             <Home className="mr-2" size={20} />
-            Kembali ke Beranda
+            {t('notFound.btnHome')}
           </Link>
           <button onClick={() => window.history.back()} className="btn-glow group">
             <ArrowLeft className="mr-2" size={20} />
-            Halaman Sebelumnya
+            {t('notFound.btnBack')}
           </button>
         </div>
       </div>

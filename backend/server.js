@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
+import compression from 'compression'
 import pg from 'pg'
 import multer from 'multer'
 import jwt from 'jsonwebtoken'
@@ -14,6 +16,7 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = process.env.PORT || 5000
 const JWT_SECRET = process.env.JWT_SECRET
+const isProduction = process.env.NODE_ENV === 'production'
 
 if (!JWT_SECRET) {
   console.error('❌ JWT_SECRET belum diatur di .env!')
@@ -24,6 +27,17 @@ if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL belum diatur di .env!')
   process.exit(1)
 }
+
+// ==================== PRODUCTION MIDDLEWARE ====================
+if (isProduction) {
+  app.set('trust proxy', 1)
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  )
+}
+app.use(compression())
 
 // Middleware
 app.use(
@@ -277,5 +291,6 @@ app.delete('/api/kegiatan/:id', authMiddleware, async (req, res) => {
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
   console.log(`✅ Server berjalan di http://localhost:${PORT}`)
+  console.log(`🌍 Mode: ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'}`)
   console.log(`📁 Upload folder: ${uploadsDir}`)
 })

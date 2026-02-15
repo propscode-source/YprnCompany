@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 
 import { API_URL, getImageUrl } from '../config/api'
 const ITEMS_PER_PAGE = 6
@@ -30,7 +31,6 @@ const ImageSlider = ({ images }) => {
     setCurrent((prev) => (prev - 1 + images.length) % images.length)
   }
 
-  // Auto-slide setiap 4 detik
   useEffect(() => {
     const timer = setInterval(next, 4000)
     return () => clearInterval(timer)
@@ -38,7 +38,6 @@ const ImageSlider = ({ images }) => {
 
   return (
     <div className="relative group rounded-2xl overflow-hidden border border-dark-200 bg-dark-100">
-      {/* Images — object-contain agar foto tidak terpotong */}
       <div className="relative w-full overflow-hidden">
         {images.map((img, index) => (
           <img
@@ -55,7 +54,6 @@ const ImageSlider = ({ images }) => {
         ))}
       </div>
 
-      {/* Prev / Next buttons */}
       <button
         onClick={prev}
         className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-dark/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-dark transition-all duration-300 opacity-0 group-hover:opacity-100"
@@ -69,7 +67,6 @@ const ImageSlider = ({ images }) => {
         <ChevronRight size={22} />
       </button>
 
-      {/* Dots indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
         {images.map((_, index) => (
           <button
@@ -92,6 +89,7 @@ const SocialReturnOnInvestment = () => {
   const [loadingGaleri, setLoadingGaleri] = useState(true)
   const [selectedItem, setSelectedItem] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const { t, language } = useLanguage()
 
   const totalPages = Math.ceil(galeri.length / ITEMS_PER_PAGE)
   const paginatedGaleri = galeri.slice(
@@ -124,7 +122,7 @@ const SocialReturnOnInvestment = () => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString('id-ID', {
+    return new Date(dateStr).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -137,67 +135,31 @@ const SocialReturnOnInvestment = () => {
     { src: '/assets/images/SROI/SROI 1.jpg', alt: 'Kegiatan SROI' },
   ]
 
-  const benefits = [
-    'Mengukur nilai sosial dan lingkungan secara kuantitatif',
-    'Membantu pengambilan keputusan berbasis bukti',
-    'Meningkatkan akuntabilitas dan transparansi program',
-    'Mengidentifikasi dampak terbesar dari investasi sosial',
-    'Memberikan narasi kuat bagi pemangku kepentingan',
-    'Mendukung perencanaan program yang lebih efektif',
+  const stageIcons = [BarChart3, TrendingUp, DollarSign, PieChart]
+  const benefits = t('sroiPage.benefits')
+  const stages = t('sroiPage.stages')
+  const projects = t('sroiPage.projects')
+
+  const projectImages = [
+    'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=500&fit=crop',
+    'https://images.unsplash.com/photo-1593113630400-ea4288922497?w=800&h=500&fit=crop',
+    'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&h=500&fit=crop',
   ]
 
-  const stages = [
-    {
-      icon: BarChart3,
-      title: 'Menetapkan Ruang Lingkup',
-      description: 'Menentukan batas analisis, stakeholder utama, dan periode kajian SROI.',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Memetakan Outcome',
-      description:
-        'Mengidentifikasi input, output, dan outcome dari program atau investasi yang dikaji.',
-    },
-    {
-      icon: DollarSign,
-      title: 'Monetisasi Dampak',
-      description:
-        'Memberikan nilai moneter (proxy) terhadap dampak sosial dan lingkungan yang dihasilkan.',
-    },
-    {
-      icon: PieChart,
-      title: 'Menghitung SROI Ratio',
-      description:
-        'Menghitung rasio antara nilai dampak sosial yang dihasilkan dengan total investasi yang dikeluarkan.',
-    },
-  ]
+  const projectRatios = ['1 : 4.2', '1 : 3.8', '1 : 5.1']
 
-  const projects = [
-    {
-      title: 'SROI Program Rehabilitasi Lahan',
-      description:
-        'Analisis pengembalian investasi sosial dari program rehabilitasi lahan bekas tambang di Sumatera Selatan.',
-      image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=500&fit=crop',
-      ratio: '1 : 4.2',
-      tags: ['Rehabilitasi Lahan', 'Tambang'],
-    },
-    {
-      title: 'SROI Pemberdayaan Ekonomi Lokal',
-      description:
-        'Kajian nilai sosial dari program pemberdayaan ekonomi masyarakat sekitar kawasan hutan.',
-      image: 'https://images.unsplash.com/photo-1593113630400-ea4288922497?w=800&h=500&fit=crop',
-      ratio: '1 : 3.8',
-      tags: ['Pemberdayaan', 'Ekonomi Lokal'],
-    },
-    {
-      title: 'SROI Program Edukasi Lingkungan',
-      description:
-        'Pengukuran dampak sosial dari program edukasi lingkungan untuk masyarakat dan generasi muda.',
-      image: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&h=500&fit=crop',
-      ratio: '1 : 5.1',
-      tags: ['Edukasi', 'Lingkungan'],
-    },
-  ]
+  const projectTags =
+    language === 'id'
+      ? [
+          ['Rehabilitasi Lahan', 'Tambang'],
+          ['Pemberdayaan', 'Ekonomi Lokal'],
+          ['Edukasi', 'Lingkungan'],
+        ]
+      : [
+          ['Land Rehabilitation', 'Mining'],
+          ['Empowerment', 'Local Economy'],
+          ['Education', 'Environment'],
+        ]
 
   return (
     <div className="pt-20 bg-dark">
@@ -210,23 +172,20 @@ const SocialReturnOnInvestment = () => {
         <div className="container-custom relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <span className="text-primary font-semibold">Kegiatan</span>
+              <span className="text-primary font-semibold">{t('sroiPage.heroLabel')}</span>
               <h1 className="heading-primary">
-                Social Return on <span className="gradient-text">Investment</span>
+                {t('sroiPage.heroTitle1')}{' '}
+                <span className="gradient-text">{t('sroiPage.heroTitle2')}</span>
               </h1>
-              <p className="text-body">
-                Social Return on Investment (SROI) adalah kerangka kerja untuk mengukur dan memahami
-                nilai sosial, lingkungan, dan ekonomi yang dihasilkan oleh suatu program atau
-                investasi, melampaui sekadar pengembalian finansial.
-              </p>
+              <p className="text-body">{t('sroiPage.heroDesc')}</p>
               <div className="flex items-center space-x-6 pt-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-primary text-glow">10+</p>
-                  <p className="text-text-body text-sm">Kajian SROI</p>
+                  <p className="text-text-body text-sm">{t('sroiPage.kajianSROI')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-secondary text-glow-secondary">1:4.5</p>
-                  <p className="text-text-body text-sm">Rata-rata Rasio SROI</p>
+                  <p className="text-text-body text-sm">{t('sroiPage.rataRataRasio')}</p>
                 </div>
               </div>
             </div>
@@ -245,37 +204,36 @@ const SocialReturnOnInvestment = () => {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <span className="text-primary font-semibold">Mengapa SROI?</span>
+              <span className="text-primary font-semibold">{t('sroiPage.whyLabel')}</span>
               <h2 className="heading-primary">
-                Manfaat Analisis <span className="gradient-text">SROI</span>
+                {t('sroiPage.whyTitle1')}{' '}
+                <span className="gradient-text">{t('sroiPage.whyTitle2')}</span>
               </h2>
-              <p className="text-body">
-                SROI membantu organisasi dan pemangku kepentingan memahami nilai sesungguhnya dari
-                investasi sosial mereka, dengan mengkonversi dampak sosial dan lingkungan menjadi
-                nilai moneter.
-              </p>
+              <p className="text-body">{t('sroiPage.whyDesc')}</p>
               <div className="space-y-3">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <CheckCircle className="text-primary flex-shrink-0 mt-0.5" size={20} />
-                    <span className="text-text-body">{benefit}</span>
-                  </div>
-                ))}
+                {Array.isArray(benefits) &&
+                  benefits.map((benefit, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <CheckCircle className="text-primary flex-shrink-0 mt-0.5" size={20} />
+                      <span className="text-text-body">{benefit}</span>
+                    </div>
+                  ))}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {stages.map((stage, index) => {
-                const IconComponent = stage.icon
-                return (
-                  <div key={index} className="card-glow p-5 card-lift">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center mb-3 shadow-glow-primary">
-                      <IconComponent className="text-dark" size={20} />
+              {Array.isArray(stages) &&
+                stages.map((stage, index) => {
+                  const IconComponent = stageIcons[index] || BarChart3
+                  return (
+                    <div key={index} className="card-glow p-5 card-lift">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center mb-3 shadow-glow-primary">
+                        <IconComponent className="text-dark" size={20} />
+                      </div>
+                      <h4 className="text-sm font-bold text-text-heading mb-1">{stage.title}</h4>
+                      <p className="text-text-body text-xs">{stage.description}</p>
                     </div>
-                    <h4 className="text-sm font-bold text-text-heading mb-1">{stage.title}</h4>
-                    <p className="text-text-body text-xs">{stage.description}</p>
-                  </div>
-                )
-              })}
+                  )
+                })}
             </div>
           </div>
         </div>
@@ -285,42 +243,44 @@ const SocialReturnOnInvestment = () => {
       <section className="section-padding bg-dark">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-primary font-semibold">Kajian</span>
+            <span className="text-primary font-semibold">{t('sroiPage.projectLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
-              Proyek <span className="gradient-text">SROI Kami</span>
+              {t('sroiPage.projectTitle1')}{' '}
+              <span className="gradient-text">{t('sroiPage.projectTitle2')}</span>
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <div key={index} className="card-glow overflow-hidden card-lift group">
-                <div className="relative overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-60"></div>
-                  <div className="absolute bottom-4 left-4 bg-primary/90 text-dark px-3 py-1 rounded-lg font-bold text-sm">
-                    Rasio SROI: {project.ratio}
+            {Array.isArray(projects) &&
+              projects.map((project, index) => (
+                <div key={index} className="card-glow overflow-hidden card-lift group">
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={projectImages[index]}
+                      alt={project.title}
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-60"></div>
+                    <div className="absolute bottom-4 left-4 bg-primary/90 text-dark px-3 py-1 rounded-lg font-bold text-sm">
+                      Rasio SROI: {projectRatios[index]}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {projectTags[index]?.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-lg font-bold text-text-heading mb-2">{project.title}</h3>
+                    <p className="text-text-body text-sm">{project.description}</p>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {project.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <h3 className="text-lg font-bold text-text-heading mb-2">{project.title}</h3>
-                  <p className="text-text-body text-sm">{project.description}</p>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </section>
@@ -331,14 +291,13 @@ const SocialReturnOnInvestment = () => {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-primary font-semibold flex items-center justify-center gap-2">
               <Camera size={18} />
-              Dokumentasi
+              {t('sroiPage.galeriLabel')}
             </span>
             <h2 className="heading-primary mt-2 mb-4">
-              Galeri <span className="gradient-text">Kegiatan SROI</span>
+              {t('sroiPage.galeriTitle1')}{' '}
+              <span className="gradient-text">{t('sroiPage.galeriTitle2')}</span>
             </h2>
-            <p className="text-body">
-              Dokumentasi kegiatan analisis Social Return on Investment yang telah kami laksanakan.
-            </p>
+            <p className="text-body">{t('sroiPage.galeriDesc')}</p>
           </div>
 
           {loadingGaleri ? (
@@ -348,7 +307,7 @@ const SocialReturnOnInvestment = () => {
           ) : galeri.length === 0 ? (
             <div className="text-center py-20">
               <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
-              <p className="text-text-body text-lg">Belum ada dokumentasi SROI</p>
+              <p className="text-text-body text-lg">{t('sroiPage.noGaleri')}</p>
             </div>
           ) : (
             <>
@@ -388,7 +347,7 @@ const SocialReturnOnInvestment = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-white/60 text-xs mt-2">Klik untuk lihat detail</p>
+                        <p className="text-white/60 text-xs mt-2">{t('sroiPage.clickDetail')}</p>
                       </div>
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-dark/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
@@ -438,9 +397,9 @@ const SocialReturnOnInvestment = () => {
               {galeri.length > 0 && (
                 <div className="text-center mt-4">
                   <p className="text-text-muted text-sm">
-                    Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
-                    {Math.min(currentPage * ITEMS_PER_PAGE, galeri.length)} dari {galeri.length}{' '}
-                    dokumentasi
+                    {t('sroiPage.showingInfo')} {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
+                    {Math.min(currentPage * ITEMS_PER_PAGE, galeri.length)} {t('sroiPage.fromInfo')}{' '}
+                    {galeri.length} {t('sroiPage.docInfo')}
                   </p>
                 </div>
               )}
@@ -511,14 +470,11 @@ const SocialReturnOnInvestment = () => {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-text-heading mb-6">
-              Tertarik dengan Layanan SROI Kami?
+              {t('sroiPage.ctaTitle')}
             </h2>
-            <p className="text-lg text-text-body mb-8">
-              Hubungi kami untuk konsultasi mengenai analisis Social Return on Investment untuk
-              program atau investasi sosial Anda.
-            </p>
+            <p className="text-lg text-text-body mb-8">{t('sroiPage.ctaDesc')}</p>
             <Link to="/kegiatan/social-impact-assessment" className="btn-primary inline-flex group">
-              Lihat juga SIA
+              {t('sroiPage.ctaBtn')}
               <ArrowRight
                 className="ml-2 group-hover:translate-x-1 transition-transform"
                 size={20}

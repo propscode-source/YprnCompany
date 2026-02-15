@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 import { API_URL, getImageUrl } from '../config/api'
 const ITEMS_PER_PAGE = 6
@@ -19,6 +20,7 @@ const Kegiatan = () => {
   const [loading, setLoading] = useState(true)
   const [selectedItem, setSelectedItem] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const { t, language } = useLanguage()
 
   const totalPages = Math.ceil(kegiatan.length / ITEMS_PER_PAGE)
   const paginatedKegiatan = kegiatan.slice(
@@ -51,7 +53,7 @@ const Kegiatan = () => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString('id-ID', {
+    return new Date(dateStr).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -70,11 +72,9 @@ const Kegiatan = () => {
         <div className="container-custom relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="heading-primary mt-2 mb-4">
-              <span className="gradient-text">Dokumentasi Kegiatan</span>
+              <span className="gradient-text">{t('kegiatanPage.heroTitle')}</span>
             </h1>
-            <p className="text-body">
-              Dokumentasi berbagai kegiatan Yayasan Pemerhati Rimba Nusantara di berbagai wilayah.
-            </p>
+            <p className="text-body">{t('kegiatanPage.heroDesc')}</p>
           </div>
         </div>
       </section>
@@ -95,7 +95,7 @@ const Kegiatan = () => {
             {kegiatan.length === 0 ? (
               <div className="text-center py-20">
                 <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
-                <p className="text-text-body text-lg">Belum ada dokumentasi kegiatan</p>
+                <p className="text-text-body text-lg">{t('kegiatanPage.noData')}</p>
               </div>
             ) : (
               <>
@@ -136,7 +136,9 @@ const Kegiatan = () => {
                               </span>
                             )}
                           </div>
-                          <p className="text-white/60 text-xs mt-2">Klik untuk lihat detail</p>
+                          <p className="text-white/60 text-xs mt-2">
+                            {t('kegiatanPage.clickDetail')}
+                          </p>
                         </div>
                       </div>
                       {/* Default label */}
@@ -199,11 +201,9 @@ const Kegiatan = () => {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-text-heading mb-6">
-              Ingin Tahu Lebih Detail?
+              {t('kegiatanPage.ctaTitle')}
             </h2>
-            <p className="text-lg text-text-body mb-8">
-              Jelajahi program Social Impact Assessment dan Social Return on Investment kami.
-            </p>
+            <p className="text-lg text-text-body mb-8">{t('kegiatanPage.ctaDesc')}</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 to="/kegiatan/social-impact-assessment"
@@ -281,9 +281,7 @@ const Kegiatan = () => {
                   {selectedItem.deskripsi}
                 </p>
               ) : (
-                <p className="text-text-muted italic">
-                  Belum ada informasi detail untuk kegiatan ini.
-                </p>
+                <p className="text-text-muted italic">{t('kegiatanPage.noDetailInfo')}</p>
               )}
             </div>
           </div>

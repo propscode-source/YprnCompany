@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { LogIn, Eye, EyeOff, Shield } from 'lucide-react'
 
 const Login = () => {
@@ -10,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -21,7 +23,7 @@ const Login = () => {
       await login(username, password)
       navigate('/admin/dashboard')
     } catch (err) {
-      setError(err.message || 'Login gagal. Periksa username dan password.')
+      setError(err.message || t('loginPage.errorDefault'))
     } finally {
       setIsLoading(false)
     }
@@ -43,10 +45,8 @@ const Login = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-2xl mb-4">
               <Shield className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-text-heading mb-2">Admin Login</h1>
-            <p className="text-text-body text-sm">
-              Masuk untuk mengelola konten website
-            </p>
+            <h1 className="text-2xl font-bold text-text-heading mb-2">{t('loginPage.title')}</h1>
+            <p className="text-text-body text-sm">{t('loginPage.description')}</p>
           </div>
 
           {/* Error Alert */}
@@ -60,13 +60,13 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-text-heading mb-2">
-                Username
+                {t('loginPage.username')}
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Masukkan username"
+                placeholder={t('loginPage.usernamePlaceholder')}
                 className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 required
               />
@@ -74,14 +74,14 @@ const Login = () => {
 
             <div>
               <label className="block text-sm font-medium text-text-heading mb-2">
-                Password
+                {t('loginPage.password')}
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Masukkan password"
+                  placeholder={t('loginPage.passwordPlaceholder')}
                   className="w-full px-4 py-3 pr-12 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   required
                 />
@@ -105,7 +105,7 @@ const Login = () => {
               ) : (
                 <>
                   <LogIn size={20} />
-                  <span>Masuk</span>
+                  <span>{t('loginPage.btnLogin')}</span>
                 </>
               )}
             </button>

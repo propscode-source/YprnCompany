@@ -230,9 +230,9 @@ const AdminDashboard = () => {
       )}
 
       {/* Content */}
-      <div className="container-custom py-8">
+      <div className="px-0 md:px-6 lg:px-8 max-w-7xl mx-auto py-4 md:py-8">
         {/* Action Bar */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 md:mb-8 px-4 md:px-0">
           <div>
             <h2 className="text-2xl font-bold text-text-heading">Kelola Kegiatan</h2>
             <p className="text-text-body text-sm mt-1">
@@ -241,10 +241,11 @@ const AdminDashboard = () => {
           </div>
           <button
             onClick={openCreateModal}
-            className="flex items-center space-x-2 px-5 py-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+            className="flex items-center space-x-2 px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 text-sm sm:text-base"
           >
-            <Plus size={20} />
-            <span>Tambah Kegiatan</span>
+            <Plus size={18} />
+            <span className="hidden sm:inline">Tambah Kegiatan</span>
+            <span className="sm:hidden">Tambah</span>
           </button>
         </div>
 
@@ -254,7 +255,7 @@ const AdminDashboard = () => {
             <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
           </div>
         ) : kegiatan.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-20 px-4">
             <Image className="mx-auto text-text-muted mb-4" size={48} />
             <p className="text-text-body text-lg">Belum ada kegiatan</p>
             <p className="text-text-muted text-sm mt-1">
@@ -263,14 +264,14 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-6">
               {paginatedKegiatan.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-dark-50/80 rounded-2xl border border-dark-200/50 overflow-hidden group hover:border-primary/30 transition-all duration-300"
+                  className="bg-dark-50/80 rounded-none md:rounded-2xl border-b md:border border-dark-200/50 overflow-hidden group hover:border-primary/30 transition-all duration-300"
                 >
                   {/* Image */}
-                  <div className="relative h-48 bg-dark-200/30">
+                  <div className="relative h-52 sm:h-48 bg-dark-200/30">
                     {item.gambar ? (
                       <img
                         src={getImageUrl(item.gambar)}
@@ -290,7 +291,7 @@ const AdminDashboard = () => {
                   </div>
 
                   {/* Info */}
-                  <div className="p-5">
+                  <div className="p-4 md:p-5">
                     <h3 className="text-lg font-bold text-text-heading mb-2 line-clamp-1">
                       {item.judul}
                     </h3>
@@ -343,7 +344,7 @@ const AdminDashboard = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center mt-8 space-x-2">
+              <div className="flex items-center justify-center mt-8 space-x-2 px-4 md:px-0">
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
@@ -435,7 +436,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Tanggal & Lokasi */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-text-heading mb-2">
                     Tanggal

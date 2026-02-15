@@ -1,7 +1,10 @@
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 import { companyInfo } from '../data/companyData'
+import { useLanguage } from '../context/LanguageContext'
 
 const Kontak = () => {
+  const { t } = useLanguage()
+
   return (
     <div className="pt-20 bg-dark">
       {/* Hero Section */}
@@ -12,13 +15,12 @@ const Kontak = () => {
         </div>
         <div className="container-custom relative z-10">
           <div className="text-center max-w-3xl mx-auto">
-            <span className="text-primary font-semibold">Hubungi Kami</span>
+            <span className="text-primary font-semibold">{t('kontakPage.heroLabel')}</span>
             <h1 className="heading-primary mt-2 mb-6">
-              Kontak <span className="gradient-text">Kami</span>
+              {t('kontakPage.heroTitle1')}{' '}
+              <span className="gradient-text">{t('kontakPage.heroTitle2')}</span>
             </h1>
-            <p className="text-body">
-              Jangan ragu untuk menghubungi kami. Kami siap membantu dan menjawab pertanyaan Anda.
-            </p>
+            <p className="text-body">{t('kontakPage.heroDesc')}</p>
           </div>
         </div>
       </section>
@@ -31,11 +33,10 @@ const Kontak = () => {
             <div className="space-y-8">
               <div>
                 <h2 className="text-2xl font-bold text-text-heading mb-6">
-                  Informasi <span className="gradient-text">Kontak</span>
+                  {t('kontakPage.infoTitle1')}{' '}
+                  <span className="gradient-text">{t('kontakPage.infoTitle2')}</span>
                 </h2>
-                <p className="text-text-body mb-8">
-                  Hubungi kami untuk informasi lebih lanjut mengenai kegiatan, program, atau kerjasama dengan Yayasan Pemerhati Rimba Nusantara.
-                </p>
+                <p className="text-text-body mb-8">{t('kontakPage.infoDesc')}</p>
               </div>
 
               <div className="space-y-6">
@@ -44,7 +45,9 @@ const Kontak = () => {
                     <MapPin className="text-dark" size={22} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-heading mb-1">Alamat</h3>
+                    <h3 className="text-lg font-semibold text-text-heading mb-1">
+                      {t('kontakPage.alamat')}
+                    </h3>
                     <p className="text-text-body text-sm">{companyInfo.address}</p>
                   </div>
                 </div>
@@ -54,7 +57,9 @@ const Kontak = () => {
                     <Phone className="text-dark" size={22} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-heading mb-1">Telepon</h3>
+                    <h3 className="text-lg font-semibold text-text-heading mb-1">
+                      {t('kontakPage.telepon')}
+                    </h3>
                     <p className="text-text-body text-sm">{companyInfo.phone}</p>
                   </div>
                 </div>
@@ -64,7 +69,9 @@ const Kontak = () => {
                     <Mail className="text-dark" size={22} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-heading mb-1">Email</h3>
+                    <h3 className="text-lg font-semibold text-text-heading mb-1">
+                      {t('kontakPage.email')}
+                    </h3>
                     <p className="text-text-body text-sm">{companyInfo.email}</p>
                   </div>
                 </div>
@@ -74,9 +81,11 @@ const Kontak = () => {
                     <Clock className="text-dark" size={22} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-heading mb-1">Jam Operasional</h3>
-                    <p className="text-text-body text-sm">Senin - Jumat: 08.00 - 17.00 WIB</p>
-                    <p className="text-text-body text-sm">Sabtu - Minggu: Tutup</p>
+                    <h3 className="text-lg font-semibold text-text-heading mb-1">
+                      {t('kontakPage.jamOperasional')}
+                    </h3>
+                    <p className="text-text-body text-sm">{t('kontakPage.jamKerja')}</p>
+                    <p className="text-text-body text-sm">{t('kontakPage.jamLibur')}</p>
                   </div>
                 </div>
               </div>
@@ -85,7 +94,8 @@ const Kontak = () => {
             {/* Google Maps */}
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-text-heading mb-6">
-                Lokasi <span className="gradient-text">Kantor</span>
+                {t('kontakPage.lokasiTitle1')}{' '}
+                <span className="gradient-text">{t('kontakPage.lokasiTitle2')}</span>
               </h2>
               <div className="card-glow overflow-hidden rounded-2xl">
                 <iframe
@@ -96,13 +106,11 @@ const Kontak = () => {
                   allowFullScreen=""
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Lokasi Kantor"
+                  title={t('kontakPage.lokasiTitle1') + ' ' + t('kontakPage.lokasiTitle2')}
                   className="w-full"
                 ></iframe>
               </div>
-              <p className="text-text-muted text-xs text-center">
-                * Klik peta untuk melihat lokasi lebih detail di Google Maps
-              </p>
+              <p className="text-text-muted text-xs text-center">{t('kontakPage.mapNote')}</p>
             </div>
           </div>
         </div>

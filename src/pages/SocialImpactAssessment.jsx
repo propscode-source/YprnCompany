@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  BarChart3,
-  Users,
-  FileText,
-  CheckCircle,
   Camera,
   ArrowRight,
   ChevronLeft,
@@ -15,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { API_URL, getImageUrl } from '../config/api'
+import { useLanguage } from '../context/LanguageContext'
 
 const ITEMS_PER_PAGE = 6
 
@@ -29,7 +26,6 @@ const ImageSlider = ({ images }) => {
     setCurrent((prev) => (prev - 1 + images.length) % images.length)
   }
 
-  // Auto-slide setiap 4 detik
   useEffect(() => {
     const timer = setInterval(next, 4000)
     return () => clearInterval(timer)
@@ -37,7 +33,6 @@ const ImageSlider = ({ images }) => {
 
   return (
     <div className="relative group rounded-2xl overflow-hidden border border-dark-200 bg-dark-100">
-      {/* Images — object-contain agar foto tidak terpotong */}
       <div className="relative w-full overflow-hidden">
         {images.map((img, index) => (
           <img
@@ -54,7 +49,6 @@ const ImageSlider = ({ images }) => {
         ))}
       </div>
 
-      {/* Prev / Next buttons */}
       <button
         onClick={prev}
         className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-dark/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-dark transition-all duration-300 opacity-0 group-hover:opacity-100"
@@ -68,7 +62,6 @@ const ImageSlider = ({ images }) => {
         <ChevronRight size={22} />
       </button>
 
-      {/* Dots indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
         {images.map((_, index) => (
           <button
@@ -91,6 +84,7 @@ const SocialImpactAssessment = () => {
   const [loadingGaleri, setLoadingGaleri] = useState(true)
   const [selectedItem, setSelectedItem] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const { t, language } = useLanguage()
 
   const totalPages = Math.ceil(galeri.length / ITEMS_PER_PAGE)
   const paginatedGaleri = galeri.slice(
@@ -123,7 +117,7 @@ const SocialImpactAssessment = () => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString('id-ID', {
+    return new Date(dateStr).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -135,32 +129,8 @@ const SocialImpactAssessment = () => {
     { src: '/assets/images/SIA/SIA.jpg', alt: 'Social Impact Assessment' },
     { src: '/assets/images/SIA/SIA 1.jpg', alt: 'Kegiatan SIA' },
   ]
-  const steps = [
-    {
-      step: '01',
-      title: 'Identifikasi Stakeholder',
-      description:
-        'Mengidentifikasi seluruh pihak yang terdampak oleh suatu proyek atau kegiatan, termasuk masyarakat lokal, pemerintah, dan sektor swasta.',
-    },
-    {
-      step: '02',
-      title: 'Pengumpulan Data',
-      description:
-        'Melakukan survei, wawancara mendalam, Focus Group Discussion (FGD), dan observasi lapangan untuk mengumpulkan data primer dan sekunder.',
-    },
-    {
-      step: '03',
-      title: 'Analisis Dampak',
-      description:
-        'Menganalisis dampak sosial, ekonomi, dan lingkungan dari kegiatan atau proyek terhadap masyarakat dan lingkungan sekitar.',
-    },
-    {
-      step: '04',
-      title: 'Rekomendasi & Mitigasi',
-      description:
-        'Menyusun rekomendasi dan strategi mitigasi untuk meminimalkan dampak negatif dan memaksimalkan dampak positif.',
-    },
-  ]
+
+  const steps = t('siaPage.steps')
 
   return (
     <div className="pt-20 bg-dark">
@@ -173,27 +143,24 @@ const SocialImpactAssessment = () => {
         <div className="container-custom relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <span className="text-primary font-semibold">Kegiatan</span>
+              <span className="text-primary font-semibold">{t('siaPage.heroLabel')}</span>
               <h1 className="heading-primary">
-                Social Impact <span className="gradient-text">Assessment</span>
+                {t('siaPage.heroTitle1')}{' '}
+                <span className="gradient-text">{t('siaPage.heroTitle2')}</span>
               </h1>
-              <p className="text-body">
-                Social Impact Assessment (SIA) adalah proses sistematis untuk menganalisis,
-                memonitor, dan mengelola dampak sosial dari suatu proyek, kebijakan, atau program
-                pembangunan terhadap masyarakat.
-              </p>
+              <p className="text-body">{t('siaPage.heroDesc')}</p>
               <div className="flex items-center space-x-6 pt-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-primary text-glow">15+</p>
-                  <p className="text-text-body text-sm">Kajian SIA</p>
+                  <p className="text-text-body text-sm">{t('siaPage.kajianSIA')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-secondary text-glow-secondary">50+</p>
-                  <p className="text-text-body text-sm">Komunitas Terdampingi</p>
+                  <p className="text-text-body text-sm">{t('siaPage.komunitasTerdampingi')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-primary text-glow">5</p>
-                  <p className="text-text-body text-sm">Provinsi</p>
+                  <p className="text-text-body text-sm">{t('siaPage.provinsi')}</p>
                 </div>
               </div>
             </div>
@@ -211,25 +178,25 @@ const SocialImpactAssessment = () => {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-primary font-semibold">Metodologi</span>
+            <span className="text-primary font-semibold">{t('siaPage.metodeLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
-              Tahapan <span className="gradient-text">Pelaksanaan SIA</span>
+              {t('siaPage.metodeTitle1')}{' '}
+              <span className="gradient-text">{t('siaPage.metodeTitle2')}</span>
             </h2>
-            <p className="text-body">
-              Kami menerapkan metodologi yang terstruktur dan partisipatif dalam setiap kajian SIA.
-            </p>
+            <p className="text-body">{t('siaPage.metodeDesc')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {steps.map((step, index) => (
-              <div key={index} className="card-glow p-6 card-lift relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4 shadow-glow-primary">
-                  <span className="text-dark font-bold text-lg">{step.step}</span>
+            {Array.isArray(steps) &&
+              steps.map((step, index) => (
+                <div key={index} className="card-glow p-6 card-lift relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4 shadow-glow-primary">
+                    <span className="text-dark font-bold text-lg">{step.step}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-text-heading mb-2">{step.title}</h3>
+                  <p className="text-text-body text-sm">{step.description}</p>
                 </div>
-                <h3 className="text-lg font-bold text-text-heading mb-2">{step.title}</h3>
-                <p className="text-text-body text-sm">{step.description}</p>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </section>
@@ -238,14 +205,12 @@ const SocialImpactAssessment = () => {
       <section id="galeri-sia" className="section-padding bg-dark">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-primary font-semibold">Dokumentasi</span>
+            <span className="text-primary font-semibold">{t('siaPage.galeriLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
-              Galeri <span className="gradient-text">Kegiatan SIA</span>
+              {t('siaPage.galeriTitle1')}{' '}
+              <span className="gradient-text">{t('siaPage.galeriTitle2')}</span>
             </h2>
-            <p className="text-body">
-              Dokumentasi kegiatan Social Impact Assessment yang telah kami laksanakan di berbagai
-              wilayah.
-            </p>
+            <p className="text-body">{t('siaPage.galeriDesc')}</p>
           </div>
 
           {loadingGaleri ? (
@@ -255,7 +220,7 @@ const SocialImpactAssessment = () => {
           ) : galeri.length === 0 ? (
             <div className="text-center py-20">
               <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
-              <p className="text-text-body text-lg">Belum ada dokumentasi SIA</p>
+              <p className="text-text-body text-lg">{t('siaPage.noGaleri')}</p>
             </div>
           ) : (
             <>
@@ -295,7 +260,7 @@ const SocialImpactAssessment = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-white/60 text-xs mt-2">Klik untuk lihat detail</p>
+                        <p className="text-white/60 text-xs mt-2">{t('siaPage.clickDetail')}</p>
                       </div>
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-dark/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
@@ -345,9 +310,9 @@ const SocialImpactAssessment = () => {
               {galeri.length > 0 && (
                 <div className="text-center mt-4">
                   <p className="text-text-muted text-sm">
-                    Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
-                    {Math.min(currentPage * ITEMS_PER_PAGE, galeri.length)} dari {galeri.length}{' '}
-                    dokumentasi
+                    {t('siaPage.showingInfo')} {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
+                    {Math.min(currentPage * ITEMS_PER_PAGE, galeri.length)} {t('siaPage.fromInfo')}{' '}
+                    {galeri.length} {t('siaPage.docInfo')}
                   </p>
                 </div>
               )}
@@ -418,17 +383,14 @@ const SocialImpactAssessment = () => {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-text-heading mb-6">
-              Tertarik dengan Layanan SIA Kami?
+              {t('siaPage.ctaTitle')}
             </h2>
-            <p className="text-lg text-text-body mb-8">
-              Hubungi kami untuk konsultasi mengenai kajian Social Impact Assessment untuk proyek
-              atau program Anda.
-            </p>
+            <p className="text-lg text-text-body mb-8">{t('siaPage.ctaDesc')}</p>
             <Link
               to="/kegiatan/social-return-on-investment"
               className="btn-primary inline-flex group"
             >
-              Lihat juga SROI
+              {t('siaPage.ctaBtn')}
               <ArrowRight
                 className="ml-2 group-hover:translate-x-1 transition-transform"
                 size={20}

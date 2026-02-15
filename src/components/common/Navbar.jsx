@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X, ChevronDown, LogIn, LogOut, LayoutDashboard } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
+import LanguageSwitcher from './LanguageSwitcher'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -11,6 +13,7 @@ const Navbar = () => {
   const navigate = useNavigate()
   const dropdownRef = useRef(null)
   const { isAuthenticated, logout } = useAuth()
+  const { t } = useLanguage()
 
   const handleLogout = () => {
     logout()
@@ -18,24 +21,24 @@ const Navbar = () => {
   }
 
   const navItems = [
-    { name: 'Beranda', path: '/' },
+    { name: t('nav.beranda'), path: '/' },
     {
-      name: 'Tentang Kami',
+      name: t('nav.tentangKami'),
       dropdown: [
-        { name: 'Visi & Misi', path: '/tentang/visi-misi' },
-        { name: 'Struktur Organisasi', path: '/tentang/struktur-organisasi' },
+        { name: t('nav.visiMisi'), path: '/tentang/visi-misi' },
+        { name: t('nav.strukturOrganisasi'), path: '/tentang/struktur-organisasi' },
       ],
     },
     {
-      name: 'Kegiatan',
+      name: t('nav.kegiatan'),
       path: '/kegiatan',
       dropdown: [
-        { name: 'Galeri Kegiatan', path: '/kegiatan' },
-        { name: 'Social Impact Assessment', path: '/kegiatan/social-impact-assessment' },
-        { name: 'Social Return on Investment', path: '/kegiatan/social-return-on-investment' },
+        { name: t('nav.galeriKegiatan'), path: '/kegiatan' },
+        { name: t('nav.sia'), path: '/kegiatan/social-impact-assessment' },
+        { name: t('nav.sroi'), path: '/kegiatan/social-return-on-investment' },
       ],
     },
-    { name: 'Kontak', path: '/kontak' },
+    { name: t('nav.kontak'), path: '/kontak' },
   ]
 
   useEffect(() => {
@@ -184,6 +187,7 @@ const Navbar = () => {
 
           {/* Auth Buttons Desktop */}
           <div className="hidden md:flex items-center space-x-2">
+            <LanguageSwitcher />
             {isAuthenticated ? (
               <>
                 <Link
@@ -191,14 +195,14 @@ const Navbar = () => {
                   className="flex items-center space-x-1.5 px-3 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all duration-300"
                 >
                   <LayoutDashboard size={16} />
-                  <span>Dashboard</span>
+                  <span>{t('nav.dashboard')}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-1.5 px-3 py-2 text-sm font-medium text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-all duration-300"
                 >
                   <LogOut size={16} />
-                  <span>Keluar</span>
+                  <span>{t('nav.keluar')}</span>
                 </button>
               </>
             ) : (
@@ -207,7 +211,7 @@ const Navbar = () => {
                 className="flex items-center space-x-1.5 px-4 py-2 text-sm font-medium text-text-body hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300"
               >
                 <LogIn size={16} />
-                <span>Login</span>
+                <span>{t('nav.login')}</span>
               </Link>
             )}
           </div>
@@ -319,6 +323,9 @@ const Navbar = () => {
             )}
             {/* Auth Buttons Mobile */}
             <div className="pt-4 mt-4 border-t border-dark-200/30">
+              <div className="mb-3">
+                <LanguageSwitcher className="w-full justify-center" />
+              </div>
               {isAuthenticated ? (
                 <>
                   <Link
@@ -326,14 +333,14 @@ const Navbar = () => {
                     className="flex items-center space-x-2 text-base font-medium py-3 px-4 rounded-lg text-primary bg-primary/10 mb-2"
                   >
                     <LayoutDashboard size={18} />
-                    <span>Dashboard</span>
+                    <span>{t('nav.dashboard')}</span>
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center space-x-2 w-full text-base font-medium py-3 px-4 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all"
                   >
                     <LogOut size={18} />
-                    <span>Keluar</span>
+                    <span>{t('nav.keluar')}</span>
                   </button>
                 </>
               ) : (
@@ -342,7 +349,7 @@ const Navbar = () => {
                   className="flex items-center space-x-2 text-base font-medium py-3 px-4 rounded-lg text-text-body hover:text-primary hover:bg-primary/5 transition-all"
                 >
                   <LogIn size={18} />
-                  <span>Login</span>
+                  <span>{t('nav.login')}</span>
                 </Link>
               )}
             </div>{' '}

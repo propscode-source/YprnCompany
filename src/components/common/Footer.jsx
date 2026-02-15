@@ -1,19 +1,21 @@
 import { Link } from 'react-router-dom'
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
 import { companyInfo } from '../../data/companyData'
+import { useLanguage } from '../../context/LanguageContext'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
+  const { t } = useLanguage()
 
   const menuTentang = [
-    { name: 'Visi & Misi', path: '/tentang/visi-misi' },
-    { name: 'Struktur Organisasi', path: '/tentang/struktur-organisasi' },
+    { name: t('nav.visiMisi'), path: '/tentang/visi-misi' },
+    { name: t('nav.strukturOrganisasi'), path: '/tentang/struktur-organisasi' },
   ]
 
   const menuKegiatan = [
-    { name: 'Galeri Kegiatan', path: '/kegiatan' },
-    { name: 'Social Impact Assessment', path: '/kegiatan/social-impact-assessment' },
-    { name: 'Social Return on Investment', path: '/kegiatan/social-return-on-investment' },
+    { name: t('nav.galeriKegiatan'), path: '/kegiatan' },
+    { name: t('nav.sia'), path: '/kegiatan/social-impact-assessment' },
+    { name: t('nav.sroi'), path: '/kegiatan/social-return-on-investment' },
   ]
 
   return (
@@ -35,7 +37,9 @@ const Footer = () => {
 
           {/* Tentang Kami */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">Tentang Kami</h4>
+            <h4 className="text-lg font-semibold mb-6 text-text-heading">
+              {t('footer.tentangKami')}
+            </h4>
             <ul className="space-y-3">
               {menuTentang.map((link) => (
                 <li key={link.path}>
@@ -52,7 +56,7 @@ const Footer = () => {
 
           {/* Kegiatan */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">Kegiatan</h4>
+            <h4 className="text-lg font-semibold mb-6 text-text-heading">{t('footer.kegiatan')}</h4>
             <ul className="space-y-3">
               {menuKegiatan.map((link) => (
                 <li key={link.path}>
@@ -69,7 +73,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">Kontak</h4>
+            <h4 className="text-lg font-semibold mb-6 text-text-heading">{t('footer.kontak')}</h4>
             <ul className="space-y-4">
               <li className="flex items-start space-x-3">
                 <MapPin size={20} className="text-primary flex-shrink-0 mt-1" />
