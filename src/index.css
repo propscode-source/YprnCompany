@@ -74,24 +74,6 @@ body {
   }
 }
 
-/* Custom scrollbar - dark theme */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #020C1B;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1A3A5C;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #00FFA3;
-}
-
 /* Animation classes */
 .animate-on-scroll {
   opacity: 0;
