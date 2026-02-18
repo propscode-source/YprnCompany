@@ -70,14 +70,18 @@ const pool = new pg.Pool({
   max: 20, // Maksimum koneksi bersamaan
   min: 2, // Minimum koneksi idle yang selalu siap (warm pool)
 
-  // === Timeout (performa <1ms) ===
+  // === Timeout ===
   idleTimeoutMillis: 30000, // Koneksi idle ditutup setelah 30 detik
-  connectionTimeoutMillis: 5000, // Gagal jika tidak dapat koneksi dalam 5 detik
+  connectionTimeoutMillis: 10000, // Waktu tunggu mendapatkan koneksi dari pool
   allowExitOnIdle: false, // Jangan tutup pool saat idle (keep connections warm)
 
   // === Query Safety ===
-  statement_timeout: 10000, // Timeout query setelah 10 detik (anti long-running query)
-  query_timeout: 10000, // Client-side query timeout
+  // Catatan:
+  // - Di Supabase / layanan managed lain, cold start atau network kadang >10s
+  // - Jika timeout terlalu agresif, query sederhana seperti SELECT bisa gagal
+  // - Kita naikkan batas ke 30 detik agar lebih stabil, tapi tetap ada batas atas
+  statement_timeout: 30000, // Timeout query di sisi server (PostgreSQL)
+  query_timeout: 30000, // Timeout query di sisi client (node-postgres)
 })
 
 // Pool warm-up: buat koneksi awal saat server start

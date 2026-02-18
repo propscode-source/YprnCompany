@@ -36,7 +36,7 @@ const Footer = () => {
           <motion.div variants={staggerItem} className="space-y-6">
             <div className="flex items-center space-x-3">
               <img
-                src="/assets/Logo.svg"
+                src="/kegiatan.jpg"
                 alt="Logo Yayasan"
                 className="h-10 w-auto object-contain"
               />

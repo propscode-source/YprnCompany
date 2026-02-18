@@ -84,7 +84,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
             <img
-              src="/kegiatan.jpg"
+              src="../kegiatan.jpg"
               alt="Logo Rimba Nusantara"
               className="h-10 md:h-12 w-auto object-contain"
             />
