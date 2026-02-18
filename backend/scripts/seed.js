@@ -6,9 +6,12 @@ import process from 'process'
 const SALT_ROUNDS = 12
 
 // Admin default yang akan dibuat
+// PENTING: Password default akan ditampilkan di console saat seeding
+// Untuk production, gunakan environment variable atau generate password random
+const DEFAULT_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123'
 const DEFAULT_ADMIN = {
   username: 'admin',
-  password: 'admin123', // Password default - SEGERA GANTI setelah login pertama!
+  password: DEFAULT_PASSWORD,
   nama_lengkap: 'Administrator',
   email: 'admin@rimbanusantara.com',
   role: 'superadmin',
@@ -53,12 +56,13 @@ async function seed() {
       [DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.nama_lengkap, DEFAULT_ADMIN.email, DEFAULT_ADMIN.role]
     )
 
-    console.log('\nAdmin berhasil dibuat:')
+    console.log('\n✅ Admin berhasil dibuat:')
     console.log(`  Username : ${inserted[0].username}`)
     console.log(`  Nama     : ${inserted[0].nama_lengkap}`)
     console.log(`  Role     : ${inserted[0].role}`)
     console.log(`  Password : ${DEFAULT_ADMIN.password}`)
-    console.log('\n  PENTING: Segera ganti password setelah login pertama!')
+    console.log('\n⚠️  PENTING: Segera ganti password setelah login pertama!')
+    console.log('   Gunakan: npm run db:reset-password')
   } catch (error) {
     console.error('Seed gagal:', error.message)
     process.exit(1)

@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import compression from 'compression'
+import rateLimit from 'express-rate-limit'
 import pg from 'pg'
 import multer from 'multer'
 import jwt from 'jsonwebtoken'
@@ -11,6 +12,8 @@ import process from 'node:process'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
+import { validateRequired, validateLength, validateNumber, sanitizeInput } from './middleware/validation.js'
+import { safeDeleteFile } from './utils/fileUtils.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -41,10 +44,20 @@ if (isProduction) {
 }
 app.use(compression())
 
-// Middleware
+// CORS Configuration
+const allowedOrigins = isProduction
+  ? (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean)
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000']
+
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -99,6 +112,15 @@ pool
 // Pool error handler — cegah crash jika koneksi idle terputus
 pool.on('error', (err) => {
   console.error('Pool idle client error:', err.message)
+})
+
+// Rate limiter untuk file uploads (mencegah spam/DoS)
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 50, // maksimal 50 uploads per IP dalam 15 menit
+  message: { message: 'Terlalu banyak upload. Coba lagi dalam 15 menit.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 })
 
 // Buat subfolder uploads per kategori
@@ -186,8 +208,17 @@ app.get('/api/health', async (req, res) => {
 
 // ==================== AUTH ROUTES ====================
 
+// Rate limiter untuk login endpoint (mencegah brute force)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 5, // maksimal 5 percobaan per IP
+  message: { message: 'Terlalu banyak percobaan login. Coba lagi dalam 15 menit.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // Login (tanpa register)
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body
 
@@ -322,10 +353,7 @@ app.put('/api/hero-beranda/:id', authMiddleware, uploadHero.single('gambar'), as
     if (req.file) {
       // Hapus gambar lama
       if (gambar) {
-        const oldPath = path.join(__dirname, gambar)
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath)
-        }
+        safeDeleteFile(gambar)
       }
       gambar = `/uploads/beranda/${req.file.filename}`
     }
@@ -354,10 +382,7 @@ app.delete('/api/hero-beranda/:id', authMiddleware, async (req, res) => {
 
     // Hapus file gambar
     if (existing[0].gambar) {
-      const imgPath = path.join(__dirname, existing[0].gambar)
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath)
-      }
+      safeDeleteFile(existing[0].gambar)
     }
 
     await pool.query('DELETE FROM hero_beranda WHERE id = $1', [req.params.id])
@@ -396,7 +421,8 @@ app.get('/api/kegiatan/:id', async (req, res) => {
 })
 
 // Create kegiatan (admin only)
-app.post('/api/kegiatan', authMiddleware, upload.single('gambar'), async (req, res) => {
+// Create kegiatan (admin only)
+app.post('/api/kegiatan', authMiddleware, uploadLimiter, sanitizeInput, validateRequired(['judul', 'deskripsi']), validateLength('judul', 3, 200), upload.single('gambar'), async (req, res) => {
   try {
     const { judul, deskripsi, tanggal, lokasi, kategori } = req.body
     const kat = kategori || 'kegiatan'
@@ -426,7 +452,7 @@ app.post('/api/kegiatan', authMiddleware, upload.single('gambar'), async (req, r
 })
 
 // Update kegiatan (admin only)
-app.put('/api/kegiatan/:id', authMiddleware, upload.single('gambar'), async (req, res) => {
+app.put('/api/kegiatan/:id', authMiddleware, uploadLimiter, sanitizeInput, validateRequired(['judul', 'deskripsi']), validateLength('judul', 3, 200), upload.single('gambar'), async (req, res) => {
   try {
     const { judul, deskripsi, tanggal, lokasi, kategori } = req.body
     const id = req.params.id
@@ -442,10 +468,7 @@ app.put('/api/kegiatan/:id', authMiddleware, upload.single('gambar'), async (req
     if (req.file) {
       // Hapus gambar lama jika ada
       if (gambar) {
-        const oldPath = path.join(__dirname, gambar)
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath)
-        }
+        safeDeleteFile(gambar)
       }
       gambar = `/uploads/${kat}/${req.file.filename}`
     }
@@ -474,10 +497,7 @@ app.delete('/api/kegiatan/:id', authMiddleware, async (req, res) => {
 
     // Hapus gambar
     if (existing[0].gambar) {
-      const imgPath = path.join(__dirname, existing[0].gambar)
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath)
-      }
+      safeDeleteFile(existing[0].gambar)
     }
 
     await pool.query('DELETE FROM kegiatan WHERE id = $1', [req.params.id])
@@ -614,10 +634,7 @@ app.put('/api/proyek/:id', authMiddleware, uploadProyek.single('gambar'), async 
     const kat = kategori || 'sia'
     if (req.file) {
       if (gambar) {
-        const oldPath = path.join(__dirname, gambar)
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath)
-        }
+        safeDeleteFile(gambar)
       }
       // Move file to correct kategori folder if needed
       const correctDir = path.join(uploadsDir, kat)
@@ -664,10 +681,7 @@ app.delete('/api/proyek/:id', authMiddleware, async (req, res) => {
     }
 
     if (existing[0].gambar) {
-      const imgPath = path.join(__dirname, existing[0].gambar)
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath)
-      }
+      safeDeleteFile(existing[0].gambar)
     }
 
     await pool.query('DELETE FROM proyek WHERE id = $1', [req.params.id])
@@ -780,10 +794,7 @@ app.put('/api/video-beranda/:id', authMiddleware, uploadVideo.single('video'), a
     if (req.file) {
       // Hapus video lama
       if (video) {
-        const oldPath = path.join(__dirname, video)
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath)
-        }
+        safeDeleteFile(video)
       }
       video = `/uploads/video/${req.file.filename}`
     }
@@ -810,9 +821,11 @@ app.put('/api/video-beranda/:id/activate', authMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'Video tidak ditemukan' })
     }
 
-    // Nonaktifkan semua, lalu aktifkan yang dipilih
-    await pool.query('UPDATE video_beranda SET is_active = false')
-    await pool.query('UPDATE video_beranda SET is_active = true WHERE id = $1', [id])
+    // Aktifkan video yang dipilih dan nonaktifkan yang lain secara atomic
+    await pool.query(
+      'UPDATE video_beranda SET is_active = (id = $1)',
+      [id]
+    )
 
     res.json({ message: 'Video berhasil diaktifkan' })
   } catch (error) {
@@ -833,10 +846,7 @@ app.delete('/api/video-beranda/:id', authMiddleware, async (req, res) => {
 
     // Hapus file video
     if (existing[0].video) {
-      const videoPath = path.join(__dirname, existing[0].video)
-      if (fs.existsSync(videoPath)) {
-        fs.unlinkSync(videoPath)
-      }
+      safeDeleteFile(existing[0].video)
     }
 
     await pool.query('DELETE FROM video_beranda WHERE id = $1', [req.params.id])
