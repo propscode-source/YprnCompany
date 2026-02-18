@@ -123,6 +123,15 @@ const uploadLimiter = rateLimit({
   legacyHeaders: false,
 })
 
+// Rate limiter untuk API endpoints umum (mencegah spam/DoS)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 100, // maksimal 100 requests per IP dalam 15 menit
+  message: { message: 'Terlalu banyak request. Coba lagi dalam 15 menit.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // Buat subfolder uploads per kategori
 const kategoriDirs = ['kegiatan', 'sia', 'sroi', 'beranda', 'video']
 kategoriDirs.forEach((dir) => {
@@ -314,7 +323,7 @@ app.get('/api/hero-beranda', async (req, res) => {
 })
 
 // Create hero image (admin only)
-app.post('/api/hero-beranda', authMiddleware, uploadHero.single('gambar'), async (req, res) => {
+app.post('/api/hero-beranda', authMiddleware, uploadLimiter, uploadHero.single('gambar'), async (req, res) => {
   try {
     const { judul, deskripsi, urutan } = req.body
     const gambar = req.file ? `/uploads/beranda/${req.file.filename}` : null
@@ -339,7 +348,7 @@ app.post('/api/hero-beranda', authMiddleware, uploadHero.single('gambar'), async
 })
 
 // Update hero image (admin only)
-app.put('/api/hero-beranda/:id', authMiddleware, uploadHero.single('gambar'), async (req, res) => {
+app.put('/api/hero-beranda/:id', authMiddleware, uploadLimiter, uploadHero.single('gambar'), async (req, res) => {
   try {
     const { judul, deskripsi, urutan } = req.body
     const id = req.params.id
@@ -371,7 +380,7 @@ app.put('/api/hero-beranda/:id', authMiddleware, uploadHero.single('gambar'), as
 })
 
 // Delete hero image (admin only)
-app.delete('/api/hero-beranda/:id', authMiddleware, async (req, res) => {
+app.delete('/api/hero-beranda/:id', authMiddleware, apiLimiter, async (req, res) => {
   try {
     const { rows: existing } = await pool.query('SELECT * FROM hero_beranda WHERE id = $1', [
       req.params.id,
@@ -486,7 +495,7 @@ app.put('/api/kegiatan/:id', authMiddleware, uploadLimiter, sanitizeInput, valid
 })
 
 // Delete kegiatan (admin only)
-app.delete('/api/kegiatan/:id', authMiddleware, async (req, res) => {
+app.delete('/api/kegiatan/:id', authMiddleware, apiLimiter, async (req, res) => {
   try {
     const { rows: existing } = await pool.query('SELECT * FROM kegiatan WHERE id = $1', [
       req.params.id,
@@ -575,7 +584,7 @@ app.get('/api/proyek/:id', async (req, res) => {
 })
 
 // Create proyek (admin only)
-app.post('/api/proyek', authMiddleware, uploadProyek.single('gambar'), async (req, res) => {
+app.post('/api/proyek', authMiddleware, uploadLimiter, uploadProyek.single('gambar'), async (req, res) => {
   try {
     const { judul, deskripsi, detail, tags, kategori } = req.body
     const kat = kategori || 'sia'
@@ -620,7 +629,7 @@ app.post('/api/proyek', authMiddleware, uploadProyek.single('gambar'), async (re
 })
 
 // Update proyek (admin only)
-app.put('/api/proyek/:id', authMiddleware, uploadProyek.single('gambar'), async (req, res) => {
+app.put('/api/proyek/:id', authMiddleware, uploadLimiter, uploadProyek.single('gambar'), async (req, res) => {
   try {
     const { judul, deskripsi, detail, tags, kategori } = req.body
     const id = req.params.id
@@ -671,7 +680,7 @@ app.put('/api/proyek/:id', authMiddleware, uploadProyek.single('gambar'), async 
 })
 
 // Delete proyek (admin only)
-app.delete('/api/proyek/:id', authMiddleware, async (req, res) => {
+app.delete('/api/proyek/:id', authMiddleware, apiLimiter, async (req, res) => {
   try {
     const { rows: existing } = await pool.query('SELECT * FROM proyek WHERE id = $1', [
       req.params.id,
@@ -752,7 +761,7 @@ app.get('/api/video-beranda/all', authMiddleware, async (req, res) => {
 })
 
 // Create video (admin only)
-app.post('/api/video-beranda', authMiddleware, uploadVideo.single('video'), async (req, res) => {
+app.post('/api/video-beranda', authMiddleware, uploadLimiter, uploadVideo.single('video'), async (req, res) => {
   try {
     const { judul, deskripsi } = req.body
     const video = req.file ? `/uploads/video/${req.file.filename}` : null
@@ -780,7 +789,7 @@ app.post('/api/video-beranda', authMiddleware, uploadVideo.single('video'), asyn
 })
 
 // Update video (admin only)
-app.put('/api/video-beranda/:id', authMiddleware, uploadVideo.single('video'), async (req, res) => {
+app.put('/api/video-beranda/:id', authMiddleware, uploadLimiter, uploadVideo.single('video'), async (req, res) => {
   try {
     const { judul, deskripsi } = req.body
     const id = req.params.id
@@ -812,7 +821,7 @@ app.put('/api/video-beranda/:id', authMiddleware, uploadVideo.single('video'), a
 })
 
 // Set active video (admin only)
-app.put('/api/video-beranda/:id/activate', authMiddleware, async (req, res) => {
+app.put('/api/video-beranda/:id/activate', authMiddleware, apiLimiter, async (req, res) => {
   try {
     const id = req.params.id
 
@@ -835,7 +844,7 @@ app.put('/api/video-beranda/:id/activate', authMiddleware, async (req, res) => {
 })
 
 // Delete video (admin only)
-app.delete('/api/video-beranda/:id', authMiddleware, async (req, res) => {
+app.delete('/api/video-beranda/:id', authMiddleware, apiLimiter, async (req, res) => {
   try {
     const { rows: existing } = await pool.query('SELECT * FROM video_beranda WHERE id = $1', [
       req.params.id,
