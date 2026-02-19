@@ -6,16 +6,10 @@ import { compression } from 'vite-plugin-compression2'
 export default defineConfig({
   plugins: [
     react(),
-    // Gzip compression untuk production
+    // Pre-compression: gzip + brotli untuk production
     compression({
-      algorithm: 'gzip',
+      algorithms: ['gzip', 'brotliCompress'],
       threshold: 1024, // Hanya kompresi file > 1KB
-      exclude: [/\.(png|jpg|jpeg|gif|webp|svg|mp4)$/i],
-    }),
-    // Brotli compression (lebih kecil dari gzip)
-    compression({
-      algorithm: 'brotliCompress',
-      threshold: 1024,
       exclude: [/\.(png|jpg|jpeg|gif|webp|svg|mp4)$/i],
     }),
   ],
