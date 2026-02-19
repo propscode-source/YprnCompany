@@ -12,8 +12,12 @@ node_modules
 # Build output (otomatis dibuat oleh build, aman dihapus)
 dist/
 dist-ssr/
+dist-rollup/
 build/
 *.local
+
+# Bundle analysis reports
+reports/
 
 # Environment variables (credentials, secrets — jangan push ke GitHub!)
 .env

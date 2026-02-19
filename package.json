@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "cross-env ANALYZE=true vite build",
+    "build:rollup": "cross-env NODE_ENV=production rollup -c rollup.config.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -24,7 +26,14 @@
     "vite-plugin-compression2": "^2.4.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-replace": "^6.0.3",
+    "@rollup/plugin-strip": "^3.0.4",
+    "@rollup/plugin-terser": "^0.4.4",
+    "cross-env": "^10.1.0",
     "rollup": "4.57.1",
+    "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
     "terser": "^5.46.0"
   }
