@@ -40,3 +40,6 @@ folder database
 *.njsproj
 *.sln
 *.sw?
+
+# github prompt ignore
+.github/

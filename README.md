@@ -1,105 +1,73 @@
 # 🌿 Yayasan Pemerhati Rimba Nusantara (YPRN)
 
-Website resmi **Yayasan Pemerhati Rimba Nusantara** — organisasi nirlaba yang berdedikasi untuk menjaga lingkungan dan kelestarian hutan Indonesia melalui pemberdayaan masyarakat, penelitian, advokasi kebijakan, dan edukasi lingkungan.
+Full-stack web application for **Yayasan Pemerhati Rimba Nusantara** — an Indonesian nonprofit dedicated to environmental conservation and forest preservation through community empowerment, research, policy advocacy, and environmental education.
 
-## 📸 Preview
+Built with **React 19 + Vite 7** on the frontend and **Express 4 + PostgreSQL** on the backend.
 
-| Beranda                 | Visi & Misi                  | SIA                      |
-| ----------------------- | ---------------------------- | ------------------------ |
-| Hero + Program Kegiatan | Visi, Misi, Nilai Organisasi | Social Impact Assessment |
+## Features
 
-## 🛠️ Tech Stack
+- **Bilingual UI** — Indonesian and English with runtime language switching
+- **Animated page transitions** — Framer Motion with lazy-loaded routes
+- **Admin dashboard** — JWT-authenticated CRUD for activities, projects, hero banners, and videos
+- **Image uploads** — Multer-based file uploads organized by category
+- **Social Impact Assessment (SIA)** — Methodology pages and project gallery
+- **Social Return on Investment (SROI)** — Analysis pages and project gallery
+- **Performance optimized** — Gzip/Brotli pre-compression, code splitting, Terser minification, database connection pooling
+- **Security hardened** — Helmet headers, bcrypt password hashing, parameterized SQL queries, CORS configuration
+- **Vercel-ready frontend** — Pre-configured deployment with SPA rewrites and cache headers
 
-### Frontend
+## Tech Stack
 
-- **React 19** + **Vite 7**
-- **Tailwind CSS 3** — styling utility-first
-- **React Router DOM 7** — client-side routing
-- **Lucide React** — icon library
+| Layer    | Technology                                                      |
+| -------- | --------------------------------------------------------------- |
+| Frontend | React 19, Vite 7, Tailwind CSS 3, React Router 7, Framer Motion |
+| Backend  | Express 4, PostgreSQL (Supabase), JWT, Multer, Helmet           |
+| Language | JavaScript (JSX) — no TypeScript                                |
+| Deploy   | Vercel (frontend), any Node.js host (backend)                   |
 
-### Backend
-
-- **Express.js 4** — REST API server
-- **PostgreSQL** (Supabase) — database
-- **JSON Web Token (JWT)** — autentikasi admin
-- **Multer** — upload file/gambar
-
-## 📁 Struktur Proyek
-
-```
-MyCompany/
-├── public/
-│   └── assets/
-│       ├── Logo.svg
-│       └── images/
-│           ├── Beranda/         # Gambar halaman beranda
-│           ├── Layout/          # Background layout
-│           ├── SIA/             # Gambar Social Impact Assessment
-│           ├── SROI/            # Gambar Social Return on Investment
-│           └── Struktur/        # Foto pengurus organisasi
-├── src/
-│   ├── components/
-│   │   ├── admin/               # ProtectedRoute
-│   │   ├── common/              # Navbar, Footer
-│   │   └── home/                # Hero, About, Stats
-│   ├── context/
-│   │   └── AuthContext.jsx      # Context autentikasi admin
-│   ├── data/
-│   │   └── companyData.js       # Data organisasi, statistik, navigasi
-│   ├── pages/
-│   │   ├── Home.jsx             # Beranda
-│   │   ├── VisiMisi.jsx         # Visi, Misi, & Nilai
-│   │   ├── StrukturOrganisasi.jsx
-│   │   ├── Kegiatan.jsx         # Galeri kegiatan (dari DB)
-│   │   ├── SocialImpactAssessment.jsx
-│   │   ├── SocialReturnOnInvestment.jsx
-│   │   ├── Kontak.jsx           # Informasi kontak + Google Maps
-│   │   ├── Login.jsx            # Login admin
-│   │   ├── AdminDashboard.jsx   # Dashboard admin (CRUD kegiatan)
-│   │   └── NotFound.jsx         # Halaman 404
-│   ├── App.jsx                  # Router utama
-│   ├── App.css                  # Custom CSS (card-glow, animations, dll)
-│   └── index.css                # Base styles
-├── backend/
-│   ├── server.js                # Express API server
-│   ├── .env                     # Environment variables (TIDAK di-commit)
-│   └── assets/                  # Upload gambar kegiatan
-├── database/
-│   └── admin.sql                # Schema PostgreSQL
-└── package.json
-```
-
-## 🚀 Cara Menjalankan
-
-### Prasyarat
+## Prerequisites
 
 - **Node.js** >= 18
-- **PostgreSQL** database (atau akun [Supabase](https://supabase.com))
+- **npm**
+- **PostgreSQL** database (or a [Supabase](https://supabase.com) project)
 
-### 1. Clone Repository
+## Getting Started
+
+### 1. Clone the repository
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/wildanapendi/MyCompany.git
 cd MyCompany
 ```
 
-### 2. Setup Frontend
+### 2. Frontend setup
 
 ```bash
 npm install
+```
+
+Create a `.env` file in the project root (optional — defaults to `http://localhost:5000/api`):
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Start the dev server:
+
+```bash
 npm run dev
 ```
 
-Frontend akan berjalan di `http://localhost:5173`
+The frontend runs at `http://localhost:5173`.
 
-### 3. Setup Backend
+### 3. Backend setup
 
 ```bash
 cd backend
 npm install
 ```
 
-Buat file `.env` di folder `backend/`:
+Create a `.env` file in the `backend/` folder:
 
 ```env
 PORT=5000
@@ -108,90 +76,167 @@ JWT_EXPIRES_IN=24h
 DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres
 ```
 
-> ⚠️ **Penting:** Jika password mengandung karakter khusus seperti `[` atau `]`, encode terlebih dahulu (`%5B`, `%5D`).
+> **Note:** If your password contains special characters like `[` or `]`, URL-encode them first (e.g. `%5B`, `%5D`).
 
-### 4. Setup Database
+### 4. Database setup
 
-Jalankan SQL schema ke PostgreSQL/Supabase:
-
-```bash
-psql -h <host> -U <user> -d <database> -f database/admin.sql
-```
-
-Atau copy-paste isi `admin.sql` ke SQL Editor Supabase.
-
-### 5. Jalankan Backend
+Run the migration and seed scripts:
 
 ```bash
 cd backend
-npm start
-# atau untuk development:
-npm run dev
+npm run db:setup        # runs migrate + seed
 ```
 
-Backend akan berjalan di `http://localhost:5000`
-
-## 🗺️ Halaman & Route
-
-| Route                                   | Halaman             | Deskripsi                                      |
-| --------------------------------------- | ------------------- | ---------------------------------------------- |
-| `/`                                     | Beranda             | Hero, About, Statistik, Program Kegiatan, CTA  |
-| `/tentang/visi-misi`                    | Visi & Misi         | Visi, Misi, Nilai-nilai, Tentang Yayasan       |
-| `/tentang/struktur-organisasi`          | Struktur Organisasi | Bagan pengurus (Pembina, Pengawas, Ketua, dll) |
-| `/kegiatan`                             | Galeri Kegiatan     | Dokumentasi kegiatan dari database             |
-| `/kegiatan/social-impact-assessment`    | SIA                 | Metodologi & galeri kegiatan SIA               |
-| `/kegiatan/social-return-on-investment` | SROI                | Metodologi & galeri kegiatan SROI              |
-| `/kontak`                               | Kontak              | Info kontak, alamat, Google Maps embed         |
-| `/login`                                | Login Admin         | Autentikasi JWT                                |
-| `/admin/dashboard`                      | Dashboard Admin     | CRUD kegiatan (protected route)                |
-| `*`                                     | 404                 | Halaman tidak ditemukan                        |
-
-## 🔒 API Endpoints
-
-| Method   | Endpoint            | Auth | Deskripsi            |
-| -------- | ------------------- | ---- | -------------------- |
-| `POST`   | `/api/login`        | ❌   | Login admin          |
-| `GET`    | `/api/kegiatan`     | ❌   | Ambil semua kegiatan |
-| `POST`   | `/api/kegiatan`     | ✅   | Tambah kegiatan baru |
-| `PUT`    | `/api/kegiatan/:id` | ✅   | Update kegiatan      |
-| `DELETE` | `/api/kegiatan/:id` | ✅   | Hapus kegiatan       |
-
-## ⚙️ Environment Variables
-
-| Variable         | Deskripsi                    | Contoh                    |
-| ---------------- | ---------------------------- | ------------------------- |
-| `PORT`           | Port backend server          | `5000`                    |
-| `JWT_SECRET`     | Secret key untuk JWT         | `<64-char random string>` |
-| `JWT_EXPIRES_IN` | Masa berlaku token           | `24h`                     |
-| `DATABASE_URL`   | PostgreSQL connection string | `postgresql://...`        |
-
-## 📝 Scripts
-
-### Frontend
+Or apply the migration SQL directly:
 
 ```bash
-npm run dev      # Development server (Vite)
-npm run build    # Build production
-npm run preview  # Preview production build
-npm run lint     # ESLint check
+psql -h <host> -U <user> -d <database> -f backend/database/migration.sql
 ```
+
+### 5. Start the backend
+
+```bash
+cd backend
+npm run dev             # development with auto-reload
+```
+
+The API runs at `http://localhost:5000`.
+
+## Available Scripts
+
+### Frontend (run from repo root)
+
+| Command                 | Description                             |
+| ----------------------- | --------------------------------------- |
+| `npm run dev`           | Start Vite dev server                   |
+| `npm run build`         | Production build → `dist/`              |
+| `npm run build:analyze` | Production build with bundle visualizer |
+| `npm run preview`       | Preview production build locally        |
+
+### Backend (run from `backend/`)
+
+| Command                     | Description                             |
+| --------------------------- | --------------------------------------- |
+| `npm run dev`               | Dev server with `--watch`               |
+| `npm start`                 | Start Express server                    |
+| `npm run start:prod`        | Production mode (`NODE_ENV=production`) |
+| `npm run migrate`           | Run database migrations                 |
+| `npm run seed`              | Seed the database                       |
+| `npm run db:setup`          | Migrate + seed in sequence              |
+| `npm run db:reset-password` | Reset admin password                    |
+
+## Project Structure
+
+```
+├── src/                        # React frontend
+│   ├── components/
+│   │   ├── admin/              # ProtectedRoute
+│   │   ├── common/             # Navbar, Footer, Button, PageTransition
+│   │   ├── contact/            # ContactForm, ContactInfo
+│   │   ├── home/               # Hero, About, Stats, VideoSection
+│   │   ├── portfolio/          # PortfolioCard, PortfolioGrid
+│   │   └── team/               # TeamCard, TeamGrid
+│   ├── config/api.js           # API URL configuration
+│   ├── context/                # AuthContext, LanguageContext
+│   ├── data/                   # Static data & translations (id/en)
+│   ├── hooks/useLanguage.js    # Language hook
+│   ├── pages/                  # Route-level page components
+│   ├── utils/animations.js     # Shared animation variants
+│   ├── App.jsx                 # Router & layout
+│   └── main.jsx                # Entry point
+├── backend/
+│   ├── server.js               # Express API server
+│   ├── database/migration.sql  # PostgreSQL schema
+│   ├── scripts/                # migrate, seed, reset-password
+│   └── uploads/                # Uploaded images (by category)
+├── public/assets/              # Static images & SVGs
+├── package.json                # Frontend dependencies
+├── vite.config.js              # Vite build configuration
+├── tailwind.config.js          # Tailwind CSS configuration
+└── vercel.json                 # Vercel deployment config
+```
+
+## Routes
+
+| Path                                    | Page               | Description                          |
+| --------------------------------------- | ------------------ | ------------------------------------ |
+| `/`                                     | Home               | Hero, about, stats, programs, CTA    |
+| `/tentang/visi-misi`                    | Vision & Mission   | Organization values and mission      |
+| `/tentang/struktur-organisasi`          | Org. Structure     | Board and management chart           |
+| `/kegiatan`                             | Activities Gallery | Activity documentation from DB       |
+| `/kegiatan/social-impact-assessment`    | SIA                | SIA methodology and project gallery  |
+| `/kegiatan/social-return-on-investment` | SROI               | SROI methodology and project gallery |
+| `/kontak`                               | Contact            | Contact info, address, Google Maps   |
+| `/login`                                | Admin Login        | JWT authentication                   |
+| `/admin/dashboard`                      | Admin Dashboard    | CRUD operations (protected)          |
+
+## API Endpoints
+
+All endpoints are prefixed with `/api`.
+
+| Method   | Endpoint             | Auth | Description              |
+| -------- | -------------------- | ---- | ------------------------ |
+| `GET`    | `/health`            | No   | Health check & DB status |
+| `POST`   | `/login`             | No   | Admin login              |
+| `GET`    | `/verify`            | Yes  | Verify JWT token         |
+| `GET`    | `/kegiatan`          | No   | List all activities      |
+| `POST`   | `/kegiatan`          | Yes  | Create activity          |
+| `PUT`    | `/kegiatan/:id`      | Yes  | Update activity          |
+| `DELETE` | `/kegiatan/:id`      | Yes  | Delete activity          |
+| `GET`    | `/hero-beranda`      | No   | List hero banners        |
+| `POST`   | `/hero-beranda`      | Yes  | Create hero banner       |
+| `PUT`    | `/hero-beranda/:id`  | Yes  | Update hero banner       |
+| `DELETE` | `/hero-beranda/:id`  | Yes  | Delete hero banner       |
+| `GET`    | `/proyek`            | No   | List projects (SIA/SROI) |
+| `POST`   | `/proyek`            | Yes  | Create project           |
+| `PUT`    | `/proyek/:id`        | Yes  | Update project           |
+| `DELETE` | `/proyek/:id`        | Yes  | Delete project           |
+| `GET`    | `/video-beranda`     | No   | List homepage videos     |
+| `POST`   | `/video-beranda`     | Yes  | Upload video             |
+| `DELETE` | `/video-beranda/:id` | Yes  | Delete video             |
+
+**Auth** = requires `Authorization: Bearer <token>` header.
+
+## Environment Variables
+
+### Frontend (`.env` in project root)
+
+| Variable       | Description          | Default                     |
+| -------------- | -------------------- | --------------------------- |
+| `VITE_API_URL` | Backend API base URL | `http://localhost:5000/api` |
+
+### Backend (`.env` in `backend/`)
+
+| Variable         | Description                | Example                          |
+| ---------------- | -------------------------- | -------------------------------- |
+| `PORT`           | Server port                | `5000`                           |
+| `DATABASE_URL`   | PostgreSQL connection URI  | `postgresql://user:pass@host/db` |
+| `JWT_SECRET`     | Secret key for signing JWT | 64-character random string       |
+| `JWT_EXPIRES_IN` | Token expiration duration  | `24h`                            |
+| `NODE_ENV`       | Runtime environment        | `development` or `production`    |
+
+## Deployment
+
+### Frontend (Vercel)
+
+The repo includes a `vercel.json` with SPA rewrites and caching headers. Connect the repo to [Vercel](https://vercel.com) and set the `VITE_API_URL` environment variable to your production backend URL.
 
 ### Backend
 
+Deploy the `backend/` directory to any Node.js hosting platform (Render, Railway, Fly.io, etc.). Set the environment variables listed above and run:
+
 ```bash
-npm start        # Jalankan server
-npm run dev      # Development dengan auto-reload
+npm start
 ```
 
-## 👥 Tentang YPRN
+## Contributing
 
-**Yayasan Pemerhati Rimba Nusantara (YPRN)** didirikan tahun 2024, berkedudukan di Kota Palembang, Provinsi Sumatera Selatan. Kami memiliki kompetensi di bidang riset dan kajian yang berguna dalam pengambilan keputusan strategis, termasuk:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -m "Add my feature"`)
+4. Push to your branch (`git push origin feature/my-feature`)
+5. Open a Pull Request
 
-- **Social Impact Assessment (SIA)** — Kajian dampak sosial
-- **Social Return on Investment (SROI)** — Analisis nilai sosial investasi
-- Pendampingan dan pemberdayaan masyarakat
-- Advokasi kebijakan tata kelola sumber daya alam
+## License
 
-## 📄 Lisensi
-
-© 2024 Yayasan Pemerhati Rimba Nusantara. All rights reserved.
+© 2026 Yayasan Pemerhati Rimba Nusantara. All rights reserved.
