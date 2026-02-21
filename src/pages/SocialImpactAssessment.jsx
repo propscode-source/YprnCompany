@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowRight,
   Calendar,
@@ -15,6 +16,54 @@ import { API_URL, getImageUrl } from '../config/api'
 import { useLanguage } from '../hooks/useLanguage'
 
 const ITEMS_PER_PAGE = 6
+
+// === Reusable animation variants ===
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0 },
+}
+
+const fadeInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0 },
+}
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+}
+
+const popupOverlay = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+}
+
+const popupContent = {
+  hidden: { opacity: 0, scale: 0.92, y: 30 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { type: 'spring', damping: 25, stiffness: 300 },
+  },
+  exit: { opacity: 0, scale: 0.92, y: 30, transition: { duration: 0.2 } },
+}
 
 const ImageSlider = ({ images }) => {
   const [current, setCurrent] = useState(0)
@@ -159,34 +208,69 @@ const SocialImpactAssessment = () => {
         </div>
         <div className="container-custom relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
+            {/* Hero Text - slide in from left */}
+            <motion.div
+              className="space-y-6"
+              variants={fadeInLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+            >
               <span className="text-primary font-semibold">{t('siaPage.heroLabel')}</span>
               <h1 className="heading-primary">
                 {t('siaPage.heroTitle1')}{' '}
                 <span className="gradient-text">{t('siaPage.heroTitle2')}</span>
               </h1>
               <p className="text-body">{t('siaPage.heroDesc')}</p>
-              <div className="flex items-center space-x-6 pt-4">
-                <div className="text-center">
+              <motion.div
+                className="flex items-center space-x-6 pt-4"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                <motion.div
+                  className="text-center"
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5 }}
+                >
                   <p className="text-3xl font-bold text-primary text-glow">15+</p>
                   <p className="text-text-body text-sm">{t('siaPage.kajianSIA')}</p>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div
+                  className="text-center"
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5 }}
+                >
                   <p className="text-3xl font-bold text-secondary text-glow-secondary">50+</p>
                   <p className="text-text-body text-sm">{t('siaPage.komunitasTerdampingi')}</p>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div
+                  className="text-center"
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5 }}
+                >
                   <p className="text-3xl font-bold text-primary text-glow">5</p>
                   <p className="text-text-body text-sm">{t('siaPage.provinsi')}</p>
-                </div>
-              </div>
-            </div>
-            <div className="relative">
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+            {/* Hero Image - slide in from right */}
+            <motion.div
+              className="relative"
+              variants={fadeInRight}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
+            >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl blur-2xl"></div>
               <div className="relative">
                 <ImageSlider images={heroImages} />
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -194,40 +278,68 @@ const SocialImpactAssessment = () => {
       {/* Metodologi */}
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          {/* Section header - fade in from bottom */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-16"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
             <span className="text-primary font-semibold">{t('siaPage.metodeLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
               {t('siaPage.metodeTitle1')}{' '}
               <span className="gradient-text">{t('siaPage.metodeTitle2')}</span>
             </h2>
             <p className="text-body">{t('siaPage.metodeDesc')}</p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Steps - staggered cards */}
+          <motion.div
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
             {Array.isArray(steps) &&
               steps.map((step, index) => (
-                <div key={index} className="card-glow p-6 card-lift relative">
+                <motion.div
+                  key={index}
+                  className="card-glow p-6 card-lift relative"
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                >
                   <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4 shadow-glow-primary">
                     <span className="text-dark font-bold text-lg">{step.step}</span>
                   </div>
                   <h3 className="text-lg font-bold text-text-heading mb-2">{step.title}</h3>
                   <p className="text-text-body text-sm">{step.description}</p>
-                </div>
+                </motion.div>
               ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Project SIA */}
       <section className="section-padding bg-dark">
         <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          {/* Section header */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-16"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
             <span className="text-primary font-semibold">{t('siaPage.projectLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
               {t('siaPage.projectTitle1')}{' '}
               <span className="gradient-text">{t('siaPage.projectTitle2')}</span>
             </h2>
-          </div>
+          </motion.div>
 
           {loadingProjects ? (
             <div className="flex justify-center py-10">
@@ -238,12 +350,21 @@ const SocialImpactAssessment = () => {
               <p className="text-text-body text-lg">{t('siaPage.noProject')}</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-8">
+            <motion.div
+              className="grid md:grid-cols-3 gap-8"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+            >
               {projects.map((project) => (
-                <div
+                <motion.div
                   key={project.id}
                   onClick={() => setSelectedProject(project)}
                   className="card-glow overflow-hidden card-lift group cursor-pointer"
+                  variants={scaleIn}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  whileHover={{ y: -5 }}
                 >
                   <div className="relative overflow-hidden">
                     {project.gambar ? (
@@ -278,9 +399,9 @@ const SocialImpactAssessment = () => {
                       {t('siaPage.clickDetail')}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
@@ -288,32 +409,56 @@ const SocialImpactAssessment = () => {
       {/* Galeri Kegiatan SIA */}
       <section id="galeri-sia" className="section-padding bg-dark-50">
         <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          {/* Section header */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-16"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
             <span className="text-primary font-semibold">{t('siaPage.galeriLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
               {t('siaPage.galeriTitle1')}{' '}
               <span className="gradient-text">{t('siaPage.galeriTitle2')}</span>
             </h2>
             <p className="text-body">{t('siaPage.galeriDesc')}</p>
-          </div>
+          </motion.div>
 
           {loadingGaleri ? (
             <div className="flex justify-center py-10">
               <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
             </div>
           ) : galeri.length === 0 ? (
-            <div className="text-center py-20">
+            <motion.div
+              className="text-center py-20"
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
               <p className="text-text-body text-lg">{t('siaPage.noGaleri')}</p>
-            </div>
+            </motion.div>
           ) : (
             <>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+              >
                 {paginatedGaleri.map((item) => (
-                  <div
+                  <motion.div
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
                     className="group relative rounded-2xl overflow-hidden border border-dark-200 card-lift cursor-pointer"
+                    variants={scaleIn}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    whileHover={{ y: -5 }}
                   >
                     {item.gambar ? (
                       <img
@@ -353,9 +498,9 @@ const SocialImpactAssessment = () => {
                         <span className="text-sm font-medium">{item.judul}</span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -405,116 +550,136 @@ const SocialImpactAssessment = () => {
         </div>
       </section>
 
-      {/* Popup Detail */}
-      {selectedItem && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
-          onClick={() => setSelectedItem(null)}
-        >
-          <div
-            className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      {/* Popup Detail - Animated with AnimatePresence */}
+      <AnimatePresence>
+        {selectedItem && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
+            onClick={() => setSelectedItem(null)}
+            variants={popupOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <div className="relative">
-              {selectedItem.gambar ? (
-                <img
-                  src={getImageUrl(selectedItem.gambar)}
-                  alt={selectedItem.judul}
-                  className="w-full h-72 object-cover rounded-t-2xl"
-                />
-              ) : (
-                <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
-                  <ImageIcon className="text-text-muted" size={64} />
-                </div>
-              )}
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <h3 className="text-2xl font-bold text-text-heading">{selectedItem.judul}</h3>
-              <div className="flex flex-wrap gap-4 text-sm text-text-muted">
-                {selectedItem.tanggal && (
-                  <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
-                    <Calendar size={14} className="text-primary" />
-                    <span>{formatDate(selectedItem.tanggal)}</span>
-                  </span>
+            <motion.div
+              className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              variants={popupContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="relative">
+                {selectedItem.gambar ? (
+                  <img
+                    src={getImageUrl(selectedItem.gambar)}
+                    alt={selectedItem.judul}
+                    className="w-full h-72 object-cover rounded-t-2xl"
+                  />
+                ) : (
+                  <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
+                    <ImageIcon className="text-text-muted" size={64} />
+                  </div>
                 )}
-                {selectedItem.lokasi && (
-                  <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
-                    <MapPin size={14} className="text-primary" />
-                    <span>{selectedItem.lokasi}</span>
-                  </span>
+                <button
+                  onClick={() => setSelectedItem(null)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <h3 className="text-2xl font-bold text-text-heading">{selectedItem.judul}</h3>
+                <div className="flex flex-wrap gap-4 text-sm text-text-muted">
+                  {selectedItem.tanggal && (
+                    <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
+                      <Calendar size={14} className="text-primary" />
+                      <span>{formatDate(selectedItem.tanggal)}</span>
+                    </span>
+                  )}
+                  {selectedItem.lokasi && (
+                    <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
+                      <MapPin size={14} className="text-primary" />
+                      <span>{selectedItem.lokasi}</span>
+                    </span>
+                  )}
+                </div>
+                {selectedItem.deskripsi && (
+                  <p className="text-text-body leading-relaxed">{selectedItem.deskripsi}</p>
                 )}
               </div>
-              {selectedItem.deskripsi && (
-                <p className="text-text-body leading-relaxed">{selectedItem.deskripsi}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Project Detail Popup */}
-      {selectedProject && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
-          onClick={() => setSelectedProject(null)}
-        >
-          <div
-            className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      {/* Project Detail Popup - Animated with AnimatePresence */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
+            onClick={() => setSelectedProject(null)}
+            variants={popupOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <div className="relative">
-              {selectedProject.gambar ? (
-                <img
-                  src={getImageUrl(selectedProject.gambar)}
-                  alt={selectedProject.judul}
-                  className="w-full h-72 object-cover rounded-t-2xl"
-                />
-              ) : (
-                <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
-                  <ImageIcon className="text-text-muted" size={64} />
-                </div>
-              )}
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <h3 className="text-2xl font-bold text-text-heading">{selectedProject.judul}</h3>
-              {Array.isArray(selectedProject.tags) && selectedProject.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {selectedProject.deskripsi && (
-                <p className="text-text-body leading-relaxed">{selectedProject.deskripsi}</p>
-              )}
-              {selectedProject.detail && (
-                <div className="bg-dark/30 rounded-xl p-4">
-                  <p className="text-text-body leading-relaxed whitespace-pre-line">
-                    {selectedProject.detail}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            <motion.div
+              className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              variants={popupContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="relative">
+                {selectedProject.gambar ? (
+                  <img
+                    src={getImageUrl(selectedProject.gambar)}
+                    alt={selectedProject.judul}
+                    className="w-full h-72 object-cover rounded-t-2xl"
+                  />
+                ) : (
+                  <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
+                    <ImageIcon className="text-text-muted" size={64} />
+                  </div>
+                )}
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <h3 className="text-2xl font-bold text-text-heading">{selectedProject.judul}</h3>
+                {Array.isArray(selectedProject.tags) && selectedProject.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedProject.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {selectedProject.deskripsi && (
+                  <p className="text-text-body leading-relaxed">{selectedProject.deskripsi}</p>
+                )}
+                {selectedProject.detail && (
+                  <div className="bg-dark/30 rounded-xl p-4">
+                    <p className="text-text-body leading-relaxed whitespace-pre-line">
+                      {selectedProject.detail}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* CTA */}
       <section className="section-padding bg-dark relative overflow-hidden">
@@ -523,22 +688,35 @@ const SocialImpactAssessment = () => {
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px]"></div>
         </div>
         <div className="container-custom relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            className="max-w-3xl mx-auto text-center"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-text-heading mb-6">
               {t('siaPage.ctaTitle')}
             </h2>
             <p className="text-lg text-text-body mb-8">{t('siaPage.ctaDesc')}</p>
-            <Link
-              to="/kegiatan/social-return-on-investment"
-              className="btn-primary inline-flex group"
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-block"
             >
-              {t('siaPage.ctaBtn')}
-              <ArrowRight
-                className="ml-2 group-hover:translate-x-1 transition-transform"
-                size={20}
-              />
-            </Link>
-          </div>
+              <Link
+                to="/kegiatan/social-return-on-investment"
+                className="btn-primary inline-flex group"
+              >
+                {t('siaPage.ctaBtn')}
+                <ArrowRight
+                  className="ml-2 group-hover:translate-x-1 transition-transform"
+                  size={20}
+                />
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
     </div>

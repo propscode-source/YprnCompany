@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowRight,
   BarChart3,
@@ -19,6 +20,54 @@ import { useLanguage } from '../hooks/useLanguage'
 
 import { API_URL, getImageUrl } from '../config/api'
 const ITEMS_PER_PAGE = 6
+
+// === Reusable animation variants ===
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0 },
+}
+
+const fadeInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0 },
+}
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+}
+
+const popupOverlay = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+}
+
+const popupContent = {
+  hidden: { opacity: 0, scale: 0.92, y: 30 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { type: 'spring', damping: 25, stiffness: 300 },
+  },
+  exit: { opacity: 0, scale: 0.92, y: 30, transition: { duration: 0.2 } },
+}
 
 const ImageSlider = ({ images }) => {
   const [current, setCurrent] = useState(0)
@@ -165,30 +214,61 @@ const SocialReturnOnInvestment = () => {
         </div>
         <div className="container-custom relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
+            {/* Hero Text - slide in from left */}
+            <motion.div
+              className="space-y-6"
+              variants={fadeInLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+            >
               <span className="text-primary font-semibold">{t('sroiPage.heroLabel')}</span>
               <h1 className="heading-primary">
                 {t('sroiPage.heroTitle1')}{' '}
                 <span className="gradient-text">{t('sroiPage.heroTitle2')}</span>
               </h1>
               <p className="text-body">{t('sroiPage.heroDesc')}</p>
-              <div className="flex items-center space-x-6 pt-4">
-                <div className="text-center">
+              <motion.div
+                className="flex items-center space-x-6 pt-4"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                <motion.div
+                  className="text-center"
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5 }}
+                >
                   <p className="text-3xl font-bold text-primary text-glow">10+</p>
                   <p className="text-text-body text-sm">{t('sroiPage.kajianSROI')}</p>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div
+                  className="text-center"
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5 }}
+                >
                   <p className="text-3xl font-bold text-secondary text-glow-secondary">1:4.5</p>
                   <p className="text-text-body text-sm">{t('sroiPage.rataRataRasio')}</p>
-                </div>
-              </div>
-            </div>
-            <div className="relative">
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+            {/* Hero Image - slide in from right */}
+            <motion.div
+              className="relative"
+              variants={fadeInRight}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
+            >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl blur-2xl"></div>
               <div className="relative">
                 <ImageSlider images={heroImages} />
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -197,38 +277,70 @@ const SocialReturnOnInvestment = () => {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
+            {/* SROI Info Text - slide in from left */}
+            <motion.div
+              className="space-y-6"
+              variants={fadeInLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+            >
               <span className="text-primary font-semibold">{t('sroiPage.whyLabel')}</span>
               <h2 className="heading-primary">
                 {t('sroiPage.whyTitle1')}{' '}
                 <span className="gradient-text">{t('sroiPage.whyTitle2')}</span>
               </h2>
               <p className="text-body">{t('sroiPage.whyDesc')}</p>
-              <div className="space-y-3">
+              <motion.div
+                className="space-y-3"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 {Array.isArray(benefits) &&
                   benefits.map((benefit, index) => (
-                    <div key={index} className="flex items-start space-x-3">
+                    <motion.div
+                      key={index}
+                      className="flex items-start space-x-3"
+                      variants={fadeInUp}
+                      transition={{ duration: 0.4 }}
+                    >
                       <CheckCircle className="text-primary flex-shrink-0 mt-0.5" size={20} />
                       <span className="text-text-body">{benefit}</span>
-                    </div>
+                    </motion.div>
                   ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+              </motion.div>
+            </motion.div>
+
+            {/* Stages grid - staggered cards, slide in from right */}
+            <motion.div
+              className="grid grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
               {Array.isArray(stages) &&
                 stages.map((stage, index) => {
                   const IconComponent = stageIcons[index] || BarChart3
                   return (
-                    <div key={index} className="card-glow p-5 card-lift">
+                    <motion.div
+                      key={index}
+                      className="card-glow p-5 card-lift"
+                      variants={scaleIn}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    >
                       <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center mb-3 shadow-glow-primary">
                         <IconComponent className="text-dark" size={20} />
                       </div>
                       <h4 className="text-sm font-bold text-text-heading mb-1">{stage.title}</h4>
                       <p className="text-text-body text-xs">{stage.description}</p>
-                    </div>
+                    </motion.div>
                   )
                 })}
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -236,13 +348,21 @@ const SocialReturnOnInvestment = () => {
       {/* Project SROI */}
       <section className="section-padding bg-dark">
         <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          {/* Section header */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-16"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
             <span className="text-primary font-semibold">{t('sroiPage.projectLabel')}</span>
             <h2 className="heading-primary mt-2 mb-4">
               {t('sroiPage.projectTitle1')}{' '}
               <span className="gradient-text">{t('sroiPage.projectTitle2')}</span>
             </h2>
-          </div>
+          </motion.div>
 
           {loadingProjects ? (
             <div className="flex justify-center py-10">
@@ -253,12 +373,21 @@ const SocialReturnOnInvestment = () => {
               <p className="text-text-body text-lg">{t('sroiPage.noProject')}</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-8">
+            <motion.div
+              className="grid md:grid-cols-3 gap-8"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+            >
               {projects.map((project) => (
-                <div
+                <motion.div
                   key={project.id}
                   onClick={() => setSelectedProject(project)}
                   className="card-glow overflow-hidden card-lift group cursor-pointer flex flex-col"
+                  variants={scaleIn}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  whileHover={{ y: -5 }}
                 >
                   <div className="relative overflow-hidden bg-dark-100">
                     {project.gambar ? (
@@ -293,9 +422,9 @@ const SocialReturnOnInvestment = () => {
                       {t('sroiPage.clickDetail')}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
@@ -303,7 +432,15 @@ const SocialReturnOnInvestment = () => {
       {/* Galeri Kegiatan SROI */}
       <section id="galeri-sroi" className="section-padding bg-dark-50">
         <div className="container-custom">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          {/* Section header */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-16"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
             <span className="text-primary font-semibold flex items-center justify-center gap-2">
               <Camera size={18} />
               {t('sroiPage.galeriLabel')}
@@ -313,25 +450,41 @@ const SocialReturnOnInvestment = () => {
               <span className="gradient-text">{t('sroiPage.galeriTitle2')}</span>
             </h2>
             <p className="text-body">{t('sroiPage.galeriDesc')}</p>
-          </div>
+          </motion.div>
 
           {loadingGaleri ? (
             <div className="flex justify-center py-10">
               <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
             </div>
           ) : galeri.length === 0 ? (
-            <div className="text-center py-20">
+            <motion.div
+              className="text-center py-20"
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
               <p className="text-text-body text-lg">{t('sroiPage.noGaleri')}</p>
-            </div>
+            </motion.div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+              >
                 {paginatedGaleri.map((item) => (
-                  <div
+                  <motion.div
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
                     className="group relative overflow-hidden rounded-2xl border border-dark-200 hover:border-primary/30 transition-all duration-300 cursor-pointer card-lift"
+                    variants={scaleIn}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    whileHover={{ y: -5 }}
                   >
                     {item.gambar ? (
                       <img
@@ -371,9 +524,9 @@ const SocialReturnOnInvestment = () => {
                         <span className="text-sm font-medium">{item.judul}</span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -423,116 +576,136 @@ const SocialReturnOnInvestment = () => {
         </div>
       </section>
 
-      {/* Popup Detail */}
-      {selectedItem && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
-          onClick={() => setSelectedItem(null)}
-        >
-          <div
-            className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      {/* Popup Detail - Animated with AnimatePresence */}
+      <AnimatePresence>
+        {selectedItem && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
+            onClick={() => setSelectedItem(null)}
+            variants={popupOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <div className="relative">
-              {selectedItem.gambar ? (
-                <img
-                  src={getImageUrl(selectedItem.gambar)}
-                  alt={selectedItem.judul}
-                  className="w-full h-72 object-cover rounded-t-2xl"
-                />
-              ) : (
-                <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
-                  <ImageIcon className="text-text-muted" size={64} />
-                </div>
-              )}
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <h3 className="text-2xl font-bold text-text-heading">{selectedItem.judul}</h3>
-              <div className="flex flex-wrap gap-4 text-sm text-text-muted">
-                {selectedItem.tanggal && (
-                  <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
-                    <Calendar size={14} className="text-primary" />
-                    <span>{formatDate(selectedItem.tanggal)}</span>
-                  </span>
+            <motion.div
+              className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              variants={popupContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="relative">
+                {selectedItem.gambar ? (
+                  <img
+                    src={getImageUrl(selectedItem.gambar)}
+                    alt={selectedItem.judul}
+                    className="w-full h-72 object-cover rounded-t-2xl"
+                  />
+                ) : (
+                  <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
+                    <ImageIcon className="text-text-muted" size={64} />
+                  </div>
                 )}
-                {selectedItem.lokasi && (
-                  <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
-                    <MapPin size={14} className="text-primary" />
-                    <span>{selectedItem.lokasi}</span>
-                  </span>
+                <button
+                  onClick={() => setSelectedItem(null)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <h3 className="text-2xl font-bold text-text-heading">{selectedItem.judul}</h3>
+                <div className="flex flex-wrap gap-4 text-sm text-text-muted">
+                  {selectedItem.tanggal && (
+                    <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
+                      <Calendar size={14} className="text-primary" />
+                      <span>{formatDate(selectedItem.tanggal)}</span>
+                    </span>
+                  )}
+                  {selectedItem.lokasi && (
+                    <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
+                      <MapPin size={14} className="text-primary" />
+                      <span>{selectedItem.lokasi}</span>
+                    </span>
+                  )}
+                </div>
+                {selectedItem.deskripsi && (
+                  <p className="text-text-body leading-relaxed">{selectedItem.deskripsi}</p>
                 )}
               </div>
-              {selectedItem.deskripsi && (
-                <p className="text-text-body leading-relaxed">{selectedItem.deskripsi}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Project Detail Popup */}
-      {selectedProject && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
-          onClick={() => setSelectedProject(null)}
-        >
-          <div
-            className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      {/* Project Detail Popup - Animated with AnimatePresence */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
+            onClick={() => setSelectedProject(null)}
+            variants={popupOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <div className="relative">
-              {selectedProject.gambar ? (
-                <img
-                  src={getImageUrl(selectedProject.gambar)}
-                  alt={selectedProject.judul}
-                  className="w-full h-72 object-cover rounded-t-2xl"
-                />
-              ) : (
-                <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
-                  <ImageIcon className="text-text-muted" size={64} />
-                </div>
-              )}
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <h3 className="text-2xl font-bold text-text-heading">{selectedProject.judul}</h3>
-              {Array.isArray(selectedProject.tags) && selectedProject.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {selectedProject.deskripsi && (
-                <p className="text-text-body leading-relaxed">{selectedProject.deskripsi}</p>
-              )}
-              {selectedProject.detail && (
-                <div className="bg-dark/30 rounded-xl p-4">
-                  <p className="text-text-body leading-relaxed whitespace-pre-line">
-                    {selectedProject.detail}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            <motion.div
+              className="bg-dark-50 rounded-2xl border border-dark-200/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              variants={popupContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="relative">
+                {selectedProject.gambar ? (
+                  <img
+                    src={getImageUrl(selectedProject.gambar)}
+                    alt={selectedProject.judul}
+                    className="w-full h-72 object-cover rounded-t-2xl"
+                  />
+                ) : (
+                  <div className="w-full h-72 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
+                    <ImageIcon className="text-text-muted" size={64} />
+                  </div>
+                )}
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-dark/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <h3 className="text-2xl font-bold text-text-heading">{selectedProject.judul}</h3>
+                {Array.isArray(selectedProject.tags) && selectedProject.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedProject.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {selectedProject.deskripsi && (
+                  <p className="text-text-body leading-relaxed">{selectedProject.deskripsi}</p>
+                )}
+                {selectedProject.detail && (
+                  <div className="bg-dark/30 rounded-xl p-4">
+                    <p className="text-text-body leading-relaxed whitespace-pre-line">
+                      {selectedProject.detail}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* CTA */}
       <section className="section-padding bg-dark relative overflow-hidden">
@@ -541,19 +714,35 @@ const SocialReturnOnInvestment = () => {
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px]"></div>
         </div>
         <div className="container-custom relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            className="max-w-3xl mx-auto text-center"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-text-heading mb-6">
               {t('sroiPage.ctaTitle')}
             </h2>
             <p className="text-lg text-text-body mb-8">{t('sroiPage.ctaDesc')}</p>
-            <Link to="/kegiatan/social-impact-assessment" className="btn-primary inline-flex group">
-              {t('sroiPage.ctaBtn')}
-              <ArrowRight
-                className="ml-2 group-hover:translate-x-1 transition-transform"
-                size={20}
-              />
-            </Link>
-          </div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-block"
+            >
+              <Link
+                to="/kegiatan/social-impact-assessment"
+                className="btn-primary inline-flex group"
+              >
+                {t('sroiPage.ctaBtn')}
+                <ArrowRight
+                  className="ml-2 group-hover:translate-x-1 transition-transform"
+                  size={20}
+                />
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
     </div>
