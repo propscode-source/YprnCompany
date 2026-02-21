@@ -12,6 +12,7 @@
 --   node scripts/seed.js
 -- ============================================
 
+
 -- ============================================
 -- Extension: pgcrypto
 -- Digunakan untuk hashing password langsung di level database.
