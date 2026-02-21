@@ -194,4 +194,4 @@ npm run dev      # Development dengan auto-reload
 
 ## 📄 Lisensi
 
-© 2024 Yayasan Pemerhati Rimba Nusantara. All rights reserved.
+© 2026 Yayasan Pemerhati Rimba Nusantara. All rights reserved.
