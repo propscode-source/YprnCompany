@@ -229,14 +229,15 @@ Deploy the `backend/` directory to any Node.js hosting platform (Render, Railway
 npm start
 ```
 
-## Contributing
+## 👥 Tentang YPRN
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes (`git commit -m "Add my feature"`)
-4. Push to your branch (`git push origin feature/my-feature`)
-5. Open a Pull Request
+**Yayasan Pemerhati Rimba Nusantara (YPRN)** didirikan tahun 2024, berkedudukan di Kota Palembang, Provinsi Sumatera Selatan. Kami memiliki kompetensi di bidang riset dan kajian yang berguna dalam pengambilan keputusan strategis, termasuk:
 
-## License
+- **Social Impact Assessment (SIA)** — Kajian dampak sosial
+- **Social Return on Investment (SROI)** — Analisis nilai sosial investasi
+- Pendampingan dan pemberdayaan masyarakat
+- Advokasi kebijakan tata kelola sumber daya alam
 
-© 2026 Yayasan Pemerhati Rimba Nusantara. All rights reserved.
+## 📄 Lisensi
+
+© 2024 Yayasan Pemerhati Rimba Nusantara. All rights reserved.
