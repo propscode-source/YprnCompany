@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+.git
+.gitignore
+.vscode
+*.md
+migrate-photos.js
+migrate-to-subfolders.js
+uploads/**/*
+!uploads/.gitkeep
+TROUBLESHOOTING_DATABASE.md

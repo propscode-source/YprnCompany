@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+backend/node_modules
+
+# Build output (akan di-build ulang di container)
+dist
+dist-ssr
+dist-rollup
+build
+reports
+
+# Git
+.git
+.gitignore
+
+# Environment files (jangan masuk ke image)
+.env
+.env.*
+backend/.env
+
+# Editor & OS
+.vscode
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Backend (tidak diperlukan untuk frontend build)
+backend/
+
+# Docker files sendiri
+Dockerfile
+docker-compose.yml
+docker-compose.yaml
+
+# Documentation
+*.md
+AGENTS.md
+README.md
+
+# Misc
+*.log
+npm-debug.log*
+Nixpacks.toml
+scripts/
+database/
