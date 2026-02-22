@@ -907,6 +907,34 @@ app.delete('/api/video-beranda/:id', authMiddleware, async (req, res) => {
   }
 })
 
+// ==================== SERVE FRONTEND (SPA) ====================
+// Jika folder dist/ ada (hasil build Vite), serve sebagai static files.
+// Ini digunakan untuk single-service deployment (nixpacks/Railway/Render)
+// dimana Express serve frontend + API dalam satu proses.
+const frontendDist = path.join(__dirname, 'dist')
+if (fs.existsSync(frontendDist)) {
+  // Serve static assets (JS, CSS, gambar) dengan cache headers
+  app.use(express.static(frontendDist, {
+    maxAge: '7d',
+    etag: true,
+    lastModified: true,
+    // Jangan cache index.html agar update langsung terlihat
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache')
+      }
+    },
+  }))
+
+  // SPA fallback: semua route yang bukan /api atau /uploads → index.html
+  // Ini penting agar client-side routing (react-router) berfungsi
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'))
+  })
+
+  console.log(`📦 Frontend served from: ${frontendDist}`)
+}
+
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
   console.log(`✅ Server berjalan di http://localhost:${PORT}`)

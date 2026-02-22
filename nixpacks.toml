@@ -1,0 +1,76 @@
+# ==============================================================================
+# Nixpacks Configuration — Single Service Deployment
+# ==============================================================================
+# Strategi: Build frontend React (Vite) → salin ke backend → Express serve semua
+# Cocok untuk Railway, Render, Coolify, dan platform lain yang support nixpacks.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Provider & Node version
+# ------------------------------------------------------------------------------
+providers = ["node"]
+
+[phases.setup]
+# Node.js 20 LTS sebagai runtime utama
+nixPkgs = ["nodejs-20_x"]
+
+# Packages sistem yang dibutuhkan untuk compile native modules (bcrypt)
+aptPkgs = ["python3", "make", "g++"]
+
+# ------------------------------------------------------------------------------
+# Environment variables saat build
+# ------------------------------------------------------------------------------
+[variables]
+NODE_ENV = "production"
+# Frontend API URL — karena single service, gunakan path relatif
+VITE_API_URL = "/api"
+# Pastikan npm tidak menjalankan lifecycle scripts yang tidak perlu
+NPM_CONFIG_PRODUCTION = "false"
+# Cegah npm audit (mempercepat install)
+NPM_CONFIG_AUDIT = "false"
+# Cegah npm fund messages
+NPM_CONFIG_FUND = "false"
+
+# ------------------------------------------------------------------------------
+# Install phase — install dependencies untuk frontend DAN backend
+# ------------------------------------------------------------------------------
+[phases.install]
+cmds = [
+  # Install frontend dependencies (dari root package.json)
+  "npm ci --prefer-offline",
+
+  # Install backend dependencies (dari backend/package.json)
+  # --ignore-scripts dihapus karena bcrypt butuh postinstall untuk compile
+  "cd backend && npm ci --prefer-offline",
+]
+
+# Paths yang mempengaruhi cache install (jika file berubah, cache di-invalidate)
+paths = ["package.json", "package-lock.json", "backend/package.json", "backend/package-lock.json"]
+
+# ------------------------------------------------------------------------------
+# Build phase — build frontend lalu salin ke backend
+# ------------------------------------------------------------------------------
+[phases.build]
+# Fase build bergantung pada fase install
+dependsOn = ["install"]
+
+cmds = [
+  # Build frontend React dengan Vite → output ke dist/
+  "npm run build",
+
+  # Salin hasil build ke dalam folder backend/dist
+  # Express akan serve static files dari sini
+  "cp -r dist backend/dist",
+
+  # Bersihkan node_modules frontend untuk mengurangi ukuran image
+  "rm -rf node_modules",
+
+  # Bersihkan devDependencies backend yang tidak diperlukan saat runtime
+  "cd backend && npm prune --production",
+]
+
+# ------------------------------------------------------------------------------
+# Start phase — jalankan Express server
+# ------------------------------------------------------------------------------
+[start]
+cmd = "cd backend && node server.js"
