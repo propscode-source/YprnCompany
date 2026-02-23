@@ -11,8 +11,8 @@
 providers = ["node"]
 
 [phases.setup]
-# Node.js 20 LTS sebagai runtime utama
-nixPkgs = ["nodejs-20_x"]
+# Node.js 22 LTS sebagai runtime utama
+nixPkgs = ["nodejs-22_x"]
 
 # Packages sistem yang dibutuhkan untuk compile native modules (bcrypt)
 aptPkgs = ["python3", "make", "g++"]

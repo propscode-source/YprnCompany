@@ -22,6 +22,7 @@ reports/
 # Environment variables (credentials, secrets — jangan push ke GitHub!)
 .env
 .env.*
+!.env.production
 backend/.env
 
 #assets
