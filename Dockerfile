@@ -25,7 +25,9 @@ COPY public/ ./public/
 COPY src/ ./src/
 
 # Build argument untuk API URL (bisa di-override saat build)
-ARG VITE_API_URL=http://localhost:5000/api
+# DEFAULT: /api (relative path) — aman untuk production (nginx reverse proxy)
+# Jangan pernah gunakan localhost sebagai default di sini!
+ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Build production

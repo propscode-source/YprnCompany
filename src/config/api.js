@@ -1,33 +1,57 @@
 // API Configuration
-// Di development: VITE_API_URL=http://localhost:5000/api
-// Di production (single service / nixpacks): VITE_API_URL=/api
-//   atau set via Environment Variables dashboard hosting provider
+// ─────────────────────────────────────────────────────────────
+// VITE_API_URL di-bake ke bundle saat Vite build (import.meta.env).
+//
+// Production (Docker/Coolify): VITE_API_URL=/api
+//   → Nginx reverse proxy meneruskan /api/* ke backend container.
+//   → Tidak perlu domain absolut, cukup relative path.
+//
+// Development lokal (tanpa Docker): VITE_API_URL tidak di-set
+//   → Otomatis fallback ke http://localhost:5000/api
+//
+// PENTING: Default SELALU /api (aman untuk production).
+//          localhost hanya digunakan jika browser benar-benar di localhost
+//          DAN tidak ada VITE_API_URL yang di-set saat build.
+// ─────────────────────────────────────────────────────────────
 
-// Smart fallback: jika VITE_API_URL tidak di-set saat build,
-// deteksi otomatis — jika bukan localhost, gunakan /api (relative path)
+const isLocalhostOrigin = () => {
+  if (typeof window === 'undefined') return false
+  const { hostname } = window.location
+  return hostname === 'localhost' || hostname === '127.0.0.1'
+}
+
 const getApiUrl = () => {
-  // 1. Prioritas: env var yang di-set saat build
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL
-  }
+  const buildTimeUrl = import.meta.env.VITE_API_URL
 
-  // 2. Fallback: deteksi apakah sedang di production atau development
-  //    Di production (domain publik), gunakan /api (relative)
-  //    Di development (localhost), gunakan http://localhost:5000/api
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1'
-    if (!isLocal) {
+  if (buildTimeUrl) {
+    // Guard: jika build-time URL mengandung localhost tapi browser BUKAN
+    // di localhost, abaikan dan gunakan /api (relative).
+    // Ini mencegah error jika Dockerfile/CI salah menyuntikkan localhost.
+    const pointsToLocalhost =
+      buildTimeUrl.includes('localhost') || buildTimeUrl.includes('127.0.0.1')
+
+    if (pointsToLocalhost && !isLocalhostOrigin()) {
       return '/api'
     }
+
+    return buildTimeUrl
   }
 
-  return 'http://localhost:5000/api'
+  // Tidak ada env var → deteksi runtime
+  // Hanya gunakan localhost:5000 jika browser benar-benar di localhost
+  if (isLocalhostOrigin()) {
+    return 'http://localhost:5000/api'
+  }
+
+  // Default aman untuk production
+  return '/api'
 }
 
 export const API_URL = getApiUrl()
 
-// Base URL (tanpa /api) untuk gambar/uploads
+// Base URL untuk static assets (gambar/uploads)
+// Jika API_URL relative (/api) → base kosong (same-origin via nginx proxy)
+// Jika API_URL absolut (http://...) → strip /api untuk dapat base URL
 const BASE_URL = API_URL.startsWith('/') ? '' : API_URL.replace(/\/api$/, '')
 
 export const getImageUrl = (path) => {

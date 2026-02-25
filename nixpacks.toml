@@ -12,7 +12,7 @@ providers = ["node"]
 
 [phases.setup]
 # Node.js 22 LTS sebagai runtime utama
-nixPkgs = ["nodejs-22_x"]
+nixPkgs = ["nodejs"]
 
 # Packages sistem yang dibutuhkan untuk compile native modules (bcrypt)
 aptPkgs = ["python3", "make", "g++"]
@@ -32,41 +32,41 @@ NPM_CONFIG_AUDIT = "false"
 NPM_CONFIG_FUND = "false"
 
 # ------------------------------------------------------------------------------
-# Install phase — install dependencies untuk frontend DAN backend
+# Install phase — install dependencies untuk frontend saja
 # ------------------------------------------------------------------------------
 [phases.install]
 cmds = [
   # Install frontend dependencies (dari root package.json)
-  "npm ci --prefer-offline",
-
-  # Install backend dependencies (dari backend/package.json)
-  # --ignore-scripts dihapus karena bcrypt butuh postinstall untuk compile
-  "cd backend && npm ci --prefer-offline",
+  # Jangan taruh instalasi backend di sini karena folder belum disalin oleh Nixpacks
+  "npm ci --prefer-offline"
 ]
 
 # Paths yang mempengaruhi cache install (jika file berubah, cache di-invalidate)
 paths = ["package.json", "package-lock.json", "backend/package.json", "backend/package-lock.json"]
 
 # ------------------------------------------------------------------------------
-# Build phase — build frontend lalu salin ke backend
+# Build phase — instal backend, build frontend, lalu salin ke backend
 # ------------------------------------------------------------------------------
 [phases.build]
 # Fase build bergantung pada fase install
 dependsOn = ["install"]
 
 cmds = [
-  # Build frontend React dengan Vite → output ke dist/
+  # 1. Pindahkan instalasi backend ke sini (karena semua folder sudah disalin)
+  "cd backend && npm ci --prefer-offline",
+
+  # 2. Build frontend React dengan Vite → output ke dist/
   "npm run build",
 
-  # Salin hasil build ke dalam folder backend/dist
+  # 3. Salin hasil build ke dalam folder backend/dist
   # Express akan serve static files dari sini
   "cp -r dist backend/dist",
 
-  # Bersihkan node_modules frontend untuk mengurangi ukuran image
+  # 4. Bersihkan node_modules frontend untuk mengurangi ukuran image
   "rm -rf node_modules",
 
-  # Bersihkan devDependencies backend yang tidak diperlukan saat runtime
-  "cd backend && npm prune --production",
+  # 5. Bersihkan devDependencies backend yang tidak diperlukan saat runtime
+  "cd backend && npm prune --production"
 ]
 
 # ------------------------------------------------------------------------------

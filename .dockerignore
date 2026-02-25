@@ -28,8 +28,6 @@ backend/.env
 *.sln
 *.sw?
 
-# Backend (tidak diperlukan untuk frontend build)
-backend/
 
 # Docker files sendiri
 Dockerfile
