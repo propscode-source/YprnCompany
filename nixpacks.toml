@@ -63,7 +63,7 @@ cmds = [
   "cp -r dist backend/dist",
 
   # 4. Bersihkan node_modules frontend untuk mengurangi ukuran image
-  "rm -rf node_modules",
+  # "rm -rf node_modules",
 
   # 5. Bersihkan devDependencies backend yang tidak diperlukan saat runtime
   "cd backend && npm prune --production"
