@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
 import { Play, X } from 'lucide-react'
-import { useLanguage } from '../../hooks/useLanguage'
+import { AnimatePresence, motion } from 'motion/react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { API_URL, getImageUrl } from '../../config/api'
-import { fadeInUp, defaultViewport, backdropVariant, modalVariant } from '../../utils/animations'
+import { useLanguage } from '../../hooks/useLanguage'
+import { backdropVariant, defaultViewport, fadeInUp, modalVariant } from '../../utils/animations'
 
 const VideoSection = () => {
   const { t } = useLanguage()
@@ -11,6 +11,14 @@ const VideoSection = () => {
   const [videoData, setVideoData] = useState(null)
   const [loading, setLoading] = useState(true)
   const videoRef = useRef(null)
+  const thumbnailRef = useRef(null)
+
+  // Set thumbnail ke detik ke-3 agar tidak menampilkan frame hitam
+  const handleThumbnailLoaded = useCallback(() => {
+    if (thumbnailRef.current) {
+      thumbnailRef.current.currentTime = 3
+    }
+  }, [])
 
   // Fetch video aktif dari API
   useEffect(() => {
@@ -94,8 +102,7 @@ const VideoSection = () => {
           >
             <span className="text-primary font-semibold">{t('homeVideo.label')}</span>
             <h2 className="heading-primary mt-2 mb-4">
-              {t('homeVideo.title1')}{' '}
-              <span className="gradient-text">{t('homeVideo.title2')}</span>
+              {t('homeVideo.title1')} <span className="gradient-text">{t('homeVideo.title2')}</span>
             </h2>
             <p className="text-body">{t('homeVideo.description')}</p>
           </motion.div>
@@ -116,6 +123,7 @@ const VideoSection = () => {
             >
               {/* Thumbnail dari frame pertama video -- preload metadata saja */}
               <video
+                ref={thumbnailRef}
                 className="w-full h-full object-cover"
                 src={videoSrc}
                 preload="metadata"
@@ -123,6 +131,7 @@ const VideoSection = () => {
                 playsInline
                 tabIndex={-1}
                 aria-hidden="true"
+                onLoadedMetadata={handleThumbnailLoaded}
               />
 
               {/* Dark overlay */}
