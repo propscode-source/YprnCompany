@@ -391,9 +391,7 @@ const AdminDashboard = () => {
       })
 
       if (res.ok) {
-        showMessage(
-          editingVideo ? 'Video berhasil diperbarui!' : 'Video berhasil ditambahkan!'
-        )
+        showMessage(editingVideo ? 'Video berhasil diperbarui!' : 'Video berhasil ditambahkan!')
         setShowVideoModal(false)
         fetchVideoList()
       } else {
@@ -1147,13 +1145,15 @@ const AdminDashboard = () => {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
-          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-dark-200/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
+          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-[90vw] max-w-5xl h-[80vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
                 {editingItem ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'}
               </h3>
               <button
+                type="button"
                 onClick={() => setShowModal(false)}
                 className="p-2 text-text-muted hover:text-text-heading rounded-lg hover:bg-dark-200/30 transition-all"
               >
@@ -1161,142 +1161,161 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              {/* Judul */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">Judul *</label>
-                <input
-                  type="text"
-                  value={formData.judul}
-                  onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                  placeholder="Judul kegiatan"
-                  required
-                />
-              </div>
-
-              {/* Deskripsi */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Deskripsi
-                </label>
-                <textarea
-                  value={formData.deskripsi}
-                  onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  placeholder="Deskripsi kegiatan..."
-                />
-              </div>
-
-              {/* Tanggal & Lokasi */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-heading mb-2">
-                    Tanggal
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.tanggal}
-                    onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
-                    className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <form
+                id="kegiatanForm"
+                onSubmit={handleSubmit}
+                className="flex flex-col md:flex-row gap-6"
+              >
+                {/* Left Column: Image Upload */}
+                <div className="w-full md:w-1/3">
+                  <label className="block text-sm font-medium text-text-heading mb-2">Gambar</label>
+                  <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[250px] flex flex-col items-center justify-center">
+                    {imagePreview ? (
+                      <div className="relative w-full h-full min-h-[200px]">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImageFile(null)
+                            setImagePreview(null)
+                          }}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
+                        <Upload className="mx-auto text-text-muted mb-2" size={40} />
+                        <p className="text-text-body text-sm font-medium mt-2">Klik untuk upload</p>
+                        <p className="text-text-muted text-xs mt-1">
+                          JPG, PNG, GIF, WebP (max 5MB)
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-heading mb-2">Lokasi</label>
-                  <input
-                    type="text"
-                    value={formData.lokasi}
-                    onChange={(e) => setFormData({ ...formData, lokasi: e.target.value })}
-                    className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                    placeholder="Lokasi"
-                  />
-                </div>
-              </div>
 
-              {/* Kategori */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">Kategori</label>
-                <select
-                  value={formData.kategori}
-                  onChange={(e) => setFormData({ ...formData, kategori: e.target.value })}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                >
-                  <option value="kegiatan">Kegiatan</option>
-                  <option value="sia">Social Impact Assessment</option>
-                  <option value="sroi">Social Return on Investment</option>
-                </select>
-              </div>
-
-              {/* Upload Gambar */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">Gambar</label>
-                <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-40 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImageFile(null)
-                          setImagePreview(null)
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block py-6">
-                      <Upload className="mx-auto text-text-muted mb-2" size={32} />
-                      <p className="text-text-body text-sm">Klik untuk upload gambar</p>
-                      <p className="text-text-muted text-xs mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
+                {/* Right Column: Form Fields */}
+                <div className="w-full md:w-2/3 space-y-5">
+                  {/* Judul */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Judul *
                     </label>
-                  )}
-                </div>
-              </div>
+                    <input
+                      type="text"
+                      value={formData.judul}
+                      onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="Judul kegiatan"
+                      required
+                    />
+                  </div>
 
-              {/* Submit */}
-              <div className="flex space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="flex-1 py-3 px-6 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center"
-                >
-                  {formLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : editingItem ? (
-                    'Simpan Perubahan'
-                  ) : (
-                    'Tambah Kegiatan'
-                  )}
-                </button>
-              </div>
-            </form>
+                  {/* Deskripsi */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Deskripsi
+                    </label>
+                    <textarea
+                      value={formData.deskripsi}
+                      onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+                      rows={4}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Deskripsi kegiatan..."
+                    />
+                  </div>
+
+                  {/* Tanggal & Lokasi */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-heading mb-2">
+                        Tanggal
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.tanggal}
+                        onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                        className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-heading mb-2">
+                        Lokasi
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.lokasi}
+                        onChange={(e) => setFormData({ ...formData, lokasi: e.target.value })}
+                        className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="Lokasi"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Kategori */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Kategori
+                    </label>
+                    <select
+                      value={formData.kategori}
+                      onChange={(e) => setFormData({ ...formData, kategori: e.target.value })}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                    >
+                      <option value="kegiatan">Kegiatan</option>
+                      <option value="sia">Social Impact Assessment</option>
+                      <option value="sroi">Social Return on Investment</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Footer / Actions */}
+            <div className="flex-none flex items-center justify-end space-x-3 p-6 border-t border-dark-200/50 bg-dark-50">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="py-2.5 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="kegiatanForm"
+                disabled={formLoading}
+                className="py-2.5 px-8 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+              >
+                {formLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : editingItem ? (
+                  'Simpan Perubahan'
+                ) : (
+                  'Tambah Kegiatan'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
           <div className="bg-dark-50 rounded-2xl border border-dark-200/50 p-6 w-full max-w-sm">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
@@ -1328,68 +1347,74 @@ const AdminDashboard = () => {
       {/* Detail View Modal */}
       {detailItem && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/85 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/85 backdrop-blur-md"
           onClick={() => setDetailItem(null)}
         >
           <div
-            className="relative bg-dark-50 rounded-2xl border border-dark-200/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            className="relative bg-dark-50 rounded-2xl border border-dark-200/50 w-[90vw] max-w-5xl h-[80vh] flex flex-col md:flex-row overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close */}
             <button
               onClick={() => setDetailItem(null)}
-              className="absolute top-4 right-4 z-10 p-2 bg-dark/70 backdrop-blur-sm text-white rounded-full hover:bg-dark transition-all"
+              className="absolute top-4 right-4 z-10 p-2 bg-dark/70 backdrop-blur-sm text-white rounded-full hover:bg-dark transition-all shadow-lg"
             >
               <X size={20} />
             </button>
 
-            {/* Image */}
-            {detailItem.gambar ? (
-              <img
-                src={getImageUrl(detailItem.gambar)}
-                alt={detailItem.judul}
-                className="w-full h-64 md:h-80 object-cover rounded-t-2xl"
-              />
-            ) : (
-              <div className="w-full h-64 md:h-80 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
-                <Image className="text-text-muted" size={64} />
-              </div>
-            )}
-
-            {/* Content */}
-            <div className="p-6 md:p-8">
-              {/* Kategori badge */}
-              <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-medium rounded-full mb-3">
-                {kategoriLabel[detailItem.kategori] || detailItem.kategori}
-              </span>
-
-              <h2 className="text-2xl font-bold text-text-heading mb-4">{detailItem.judul}</h2>
-
-              <div className="flex flex-wrap gap-3 mb-5">
-                {detailItem.tanggal && (
-                  <div className="flex items-center space-x-2 text-text-body bg-dark/30 px-3 py-2 rounded-lg">
-                    <Calendar size={16} className="text-primary" />
-                    <span className="text-sm">{formatDate(detailItem.tanggal)}</span>
-                  </div>
-                )}
-                {detailItem.lokasi && (
-                  <div className="flex items-center space-x-2 text-text-body bg-dark/30 px-3 py-2 rounded-lg">
-                    <MapPin size={16} className="text-primary" />
-                    <span className="text-sm">{detailItem.lokasi}</span>
-                  </div>
-                )}
-              </div>
-
-              {detailItem.deskripsi ? (
-                <p className="text-text-body leading-relaxed whitespace-pre-line mb-6">
-                  {detailItem.deskripsi}
-                </p>
+            {/* Left side: Image */}
+            <div className="w-full md:w-5/12 h-64 md:h-full bg-dark-200/30 flex-shrink-0 relative">
+              {detailItem.gambar ? (
+                <img
+                  src={getImageUrl(detailItem.gambar)}
+                  alt={detailItem.judul}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <p className="text-text-muted italic mb-6">Belum ada deskripsi.</p>
+                <div className="w-full h-full flex items-center justify-center">
+                  <Image className="text-text-muted" size={64} />
+                </div>
               )}
+            </div>
 
-              {/* Admin Actions */}
-              <div className="flex space-x-3 pt-4 border-t border-dark-200/30">
+            {/* Right side: Content */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                {/* Kategori badge */}
+                <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-medium rounded-full mb-3">
+                  {kategoriLabel[detailItem.kategori] || detailItem.kategori}
+                </span>
+
+                <h2 className="text-2xl lg:text-3xl font-bold text-text-heading mb-4">
+                  {detailItem.judul}
+                </h2>
+
+                <div className="flex flex-wrap gap-3 mb-6">
+                  {detailItem.tanggal && (
+                    <div className="flex items-center space-x-2 text-text-body bg-dark/30 px-3 py-2 rounded-lg">
+                      <Calendar size={16} className="text-primary" />
+                      <span className="text-sm">{formatDate(detailItem.tanggal)}</span>
+                    </div>
+                  )}
+                  {detailItem.lokasi && (
+                    <div className="flex items-center space-x-2 text-text-body bg-dark/30 px-3 py-2 rounded-lg">
+                      <MapPin size={16} className="text-primary" />
+                      <span className="text-sm">{detailItem.lokasi}</span>
+                    </div>
+                  )}
+                </div>
+
+                {detailItem.deskripsi ? (
+                  <p className="text-text-body leading-relaxed whitespace-pre-line">
+                    {detailItem.deskripsi}
+                  </p>
+                ) : (
+                  <p className="text-text-muted italic">Belum ada deskripsi.</p>
+                )}
+              </div>
+
+              {/* Admin Actions Footer */}
+              <div className="p-6 border-t border-dark-200/30 bg-dark-50/50 flex space-x-3">
                 <button
                   onClick={() => {
                     setDetailItem(null)
@@ -1397,7 +1422,7 @@ const AdminDashboard = () => {
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-primary/10 text-primary border border-primary/30 rounded-xl hover:bg-primary/20 transition-all font-medium"
                 >
-                  <Edit3 size={16} />
+                  <Edit3 size={18} />
                   <span>Edit Kegiatan</span>
                 </button>
                 <button
@@ -1407,8 +1432,8 @@ const AdminDashboard = () => {
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/20 transition-all font-medium"
                 >
-                  <Trash2 size={16} />
-                  <span>Hapus</span>
+                  <Trash2 size={18} />
+                  <span>Hapus Kegiatan</span>
                 </button>
               </div>
             </div>
@@ -1420,13 +1445,15 @@ const AdminDashboard = () => {
 
       {/* Proyek Create/Edit Modal */}
       {showProyekModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
-          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-dark-200/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
+          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-[90vw] max-w-5xl h-[80vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
                 {editingProyek ? 'Edit Proyek' : 'Tambah Proyek Baru'}
               </h3>
               <button
+                type="button"
                 onClick={() => setShowProyekModal(false)}
                 className="p-2 text-text-muted hover:text-text-heading rounded-lg hover:bg-dark-200/30 transition-all"
               >
@@ -1434,146 +1461,167 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <form onSubmit={handleProyekSubmit} className="p-6 space-y-5">
-              {/* Judul */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Judul Proyek *
-                </label>
-                <input
-                  type="text"
-                  value={proyekFormData.judul}
-                  onChange={(e) => setProyekFormData({ ...proyekFormData, judul: e.target.value })}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                  placeholder="Judul proyek kajian"
-                  required
-                />
-              </div>
-
-              {/* Deskripsi Singkat */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Deskripsi Singkat
-                </label>
-                <textarea
-                  value={proyekFormData.deskripsi}
-                  onChange={(e) =>
-                    setProyekFormData({ ...proyekFormData, deskripsi: e.target.value })
-                  }
-                  rows={2}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  placeholder="Deskripsi singkat yang tampil di card..."
-                />
-              </div>
-
-              {/* Detail Lengkap */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Detail Lengkap
-                </label>
-                <textarea
-                  value={proyekFormData.detail}
-                  onChange={(e) => setProyekFormData({ ...proyekFormData, detail: e.target.value })}
-                  rows={5}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
-                />
-              </div>
-
-              {/* Tags & Kategori */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-heading mb-2">Tags</label>
-                  <input
-                    type="text"
-                    value={proyekFormData.tags}
-                    onChange={(e) => setProyekFormData({ ...proyekFormData, tags: e.target.value })}
-                    className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                    placeholder="Tag1, Tag2, Tag3"
-                  />
-                  <p className="text-text-muted text-xs mt-1">Pisahkan dengan koma</p>
-                </div>
-                <div>
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <form
+                id="proyekForm"
+                onSubmit={handleProyekSubmit}
+                className="flex flex-col md:flex-row gap-6"
+              >
+                {/* Left Column: Image Upload */}
+                <div className="w-full md:w-1/3">
                   <label className="block text-sm font-medium text-text-heading mb-2">
-                    Kategori
+                    Gambar Cover
                   </label>
-                  <select
-                    value={proyekFormData.kategori}
-                    onChange={(e) =>
-                      setProyekFormData({ ...proyekFormData, kategori: e.target.value })
-                    }
-                    className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                  >
-                    <option value="sia">SIA</option>
-                    <option value="sroi">SROI</option>
-                  </select>
+                  <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[250px] flex flex-col items-center justify-center">
+                    {proyekImagePreview ? (
+                      <div className="relative w-full h-full min-h-[200px]">
+                        <img
+                          src={proyekImagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProyekImageFile(null)
+                            setProyekImagePreview(null)
+                          }}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
+                        <Upload className="mx-auto text-text-muted mb-2" size={40} />
+                        <p className="text-text-body text-sm font-medium mt-2">Klik untuk upload</p>
+                        <p className="text-text-muted text-xs mt-1">
+                          JPG, PNG, GIF, WebP (max 5MB)
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProyekImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Upload Gambar */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Gambar Cover
-                </label>
-                <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all">
-                  {proyekImagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={proyekImagePreview}
-                        alt="Preview"
-                        className="w-full h-40 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setProyekImageFile(null)
-                          setProyekImagePreview(null)
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block py-6">
-                      <Upload className="mx-auto text-text-muted mb-2" size={32} />
-                      <p className="text-text-body text-sm">Klik untuk upload gambar</p>
-                      <p className="text-text-muted text-xs mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleProyekImageChange}
-                        className="hidden"
-                      />
+                {/* Right Column: Form Fields */}
+                <div className="w-full md:w-2/3 space-y-5">
+                  {/* Judul */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Judul Proyek *
                     </label>
-                  )}
-                </div>
-              </div>
+                    <input
+                      type="text"
+                      value={proyekFormData.judul}
+                      onChange={(e) =>
+                        setProyekFormData({ ...proyekFormData, judul: e.target.value })
+                      }
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="Judul proyek kajian"
+                      required
+                    />
+                  </div>
 
-              {/* Submit */}
-              <div className="flex space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowProyekModal(false)}
-                  className="flex-1 py-3 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={proyekFormLoading}
-                  className="flex-1 py-3 px-6 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center"
-                >
-                  {proyekFormLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : editingProyek ? (
-                    'Simpan Perubahan'
-                  ) : (
-                    'Tambah Proyek'
-                  )}
-                </button>
-              </div>
-            </form>
+                  {/* Deskripsi Singkat */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Deskripsi Singkat
+                    </label>
+                    <textarea
+                      value={proyekFormData.deskripsi}
+                      onChange={(e) =>
+                        setProyekFormData({ ...proyekFormData, deskripsi: e.target.value })
+                      }
+                      rows={2}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Deskripsi singkat yang tampil di card..."
+                    />
+                  </div>
+
+                  {/* Detail Lengkap */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Detail Lengkap
+                    </label>
+                    <textarea
+                      value={proyekFormData.detail}
+                      onChange={(e) =>
+                        setProyekFormData({ ...proyekFormData, detail: e.target.value })
+                      }
+                      rows={4}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
+                    />
+                  </div>
+
+                  {/* Tags & Kategori */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-heading mb-2">
+                        Tags
+                      </label>
+                      <input
+                        type="text"
+                        value={proyekFormData.tags}
+                        onChange={(e) =>
+                          setProyekFormData({ ...proyekFormData, tags: e.target.value })
+                        }
+                        className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="Tag1, Tag2, Tag3"
+                      />
+                      <p className="text-text-muted text-xs mt-1">Pisahkan dengan koma</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-heading mb-2">
+                        Kategori
+                      </label>
+                      <select
+                        value={proyekFormData.kategori}
+                        onChange={(e) =>
+                          setProyekFormData({ ...proyekFormData, kategori: e.target.value })
+                        }
+                        className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                      >
+                        <option value="sia">SIA</option>
+                        <option value="sroi">SROI</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Footer / Actions */}
+            <div className="flex-none flex items-center justify-end space-x-3 p-6 border-t border-dark-200/50 bg-dark-50">
+              <button
+                type="button"
+                onClick={() => setShowProyekModal(false)}
+                className="py-2.5 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="proyekForm"
+                disabled={proyekFormLoading}
+                className="py-2.5 px-8 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+              >
+                {proyekFormLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : editingProyek ? (
+                  'Simpan Perubahan'
+                ) : (
+                  'Tambah Proyek'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1581,68 +1629,77 @@ const AdminDashboard = () => {
       {/* Proyek Detail Modal */}
       {detailProyek && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/85 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/85 backdrop-blur-md"
           onClick={() => setDetailProyek(null)}
         >
           <div
-            className="relative bg-dark-50 rounded-2xl border border-dark-200/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            className="relative bg-dark-50 rounded-2xl border border-dark-200/50 w-[90vw] max-w-5xl h-[80vh] flex flex-col md:flex-row overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setDetailProyek(null)}
-              className="absolute top-4 right-4 z-10 p-2 bg-dark/70 backdrop-blur-sm text-white rounded-full hover:bg-dark transition-all"
+              className="absolute top-4 right-4 z-10 p-2 bg-dark/70 backdrop-blur-sm text-white rounded-full hover:bg-dark transition-all shadow-lg"
             >
               <X size={20} />
             </button>
 
-            {detailProyek.gambar ? (
-              <img
-                src={getImageUrl(detailProyek.gambar)}
-                alt={detailProyek.judul}
-                className="w-full h-64 md:h-80 object-cover rounded-t-2xl"
-              />
-            ) : (
-              <div className="w-full h-64 md:h-80 bg-dark-200/30 flex items-center justify-center rounded-t-2xl">
-                <Briefcase className="text-text-muted" size={64} />
-              </div>
-            )}
-
-            <div className="p-6 md:p-8">
-              <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary text-xs font-medium rounded-full mb-3">
-                {proyekKategoriLabel[detailProyek.kategori] || detailProyek.kategori}
-              </span>
-
-              <h2 className="text-2xl font-bold text-text-heading mb-4">{detailProyek.judul}</h2>
-
-              {Array.isArray(detailProyek.tags) && detailProyek.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {detailProyek.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {detailProyek.deskripsi && (
-                <p className="text-text-body leading-relaxed mb-4">{detailProyek.deskripsi}</p>
-              )}
-
-              {detailProyek.detail ? (
-                <div className="bg-dark/30 rounded-xl p-4 mb-6">
-                  <h4 className="text-sm font-semibold text-text-heading mb-2">Detail Proyek</h4>
-                  <p className="text-text-body leading-relaxed whitespace-pre-line">
-                    {detailProyek.detail}
-                  </p>
-                </div>
+            {/* Left side: Image */}
+            <div className="w-full md:w-5/12 h-64 md:h-full bg-dark-200/30 flex-shrink-0 relative">
+              {detailProyek.gambar ? (
+                <img
+                  src={getImageUrl(detailProyek.gambar)}
+                  alt={detailProyek.judul}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <p className="text-text-muted italic mb-6">Belum ada detail proyek.</p>
+                <div className="w-full h-full flex items-center justify-center">
+                  <Briefcase className="text-text-muted" size={64} />
+                </div>
               )}
+            </div>
 
-              <div className="flex space-x-3 pt-4 border-t border-dark-200/30">
+            {/* Right side: Content */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary text-xs font-medium rounded-full mb-3">
+                  {proyekKategoriLabel[detailProyek.kategori] || detailProyek.kategori}
+                </span>
+
+                <h2 className="text-2xl lg:text-3xl font-bold text-text-heading mb-4">
+                  {detailProyek.judul}
+                </h2>
+
+                {Array.isArray(detailProyek.tags) && detailProyek.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {detailProyek.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {detailProyek.deskripsi && (
+                  <p className="text-text-body leading-relaxed mb-4">{detailProyek.deskripsi}</p>
+                )}
+
+                {detailProyek.detail ? (
+                  <div className="bg-dark/30 rounded-xl p-4 mb-6">
+                    <h4 className="text-sm font-semibold text-text-heading mb-2">Detail Proyek</h4>
+                    <p className="text-text-body leading-relaxed whitespace-pre-line">
+                      {detailProyek.detail}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-text-muted italic mb-6">Belum ada detail proyek.</p>
+                )}
+              </div>
+
+              {/* Admin Actions Footer */}
+              <div className="p-6 border-t border-dark-200/30 bg-dark-50/50 flex space-x-3">
                 <button
                   onClick={() => {
                     setDetailProyek(null)
@@ -1650,7 +1707,7 @@ const AdminDashboard = () => {
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-primary/10 text-primary border border-primary/30 rounded-xl hover:bg-primary/20 transition-all font-medium"
                 >
-                  <Edit3 size={16} />
+                  <Edit3 size={18} />
                   <span>Edit Proyek</span>
                 </button>
                 <button
@@ -1660,8 +1717,8 @@ const AdminDashboard = () => {
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/20 transition-all font-medium"
                 >
-                  <Trash2 size={16} />
-                  <span>Hapus</span>
+                  <Trash2 size={18} />
+                  <span>Hapus Proyek</span>
                 </button>
               </div>
             </div>
@@ -1671,7 +1728,7 @@ const AdminDashboard = () => {
 
       {/* Proyek Delete Confirmation Modal */}
       {deleteProyekConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
           <div className="bg-dark-50 rounded-2xl border border-dark-200/50 p-6 w-full max-w-sm">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
@@ -1704,13 +1761,15 @@ const AdminDashboard = () => {
 
       {/* Hero Create/Edit Modal */}
       {showHeroModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
-          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-dark-200/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
+          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-[90vw] max-w-5xl h-[80vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
                 {editingHero ? 'Edit Hero Image' : 'Tambah Hero Image'}
               </h3>
               <button
+                type="button"
                 onClick={() => setShowHeroModal(false)}
                 className="p-2 text-text-muted hover:text-text-heading rounded-lg hover:bg-dark-200/30 transition-all"
               >
@@ -1718,125 +1777,143 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <form onSubmit={handleHeroSubmit} className="p-6 space-y-5">
-              {/* Judul */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Judul (opsional)
-                </label>
-                <input
-                  type="text"
-                  value={heroFormData.judul}
-                  onChange={(e) => setHeroFormData({ ...heroFormData, judul: e.target.value })}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                  placeholder="Judul untuk alt text gambar"
-                />
-              </div>
-
-              {/* Deskripsi */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Deskripsi (opsional)
-                </label>
-                <textarea
-                  value={heroFormData.deskripsi}
-                  onChange={(e) => setHeroFormData({ ...heroFormData, deskripsi: e.target.value })}
-                  rows={2}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  placeholder="Keterangan gambar..."
-                />
-              </div>
-
-              {/* Urutan */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Urutan Tampil
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={heroFormData.urutan}
-                  onChange={(e) =>
-                    setHeroFormData({ ...heroFormData, urutan: parseInt(e.target.value) || 0 })
-                  }
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                />
-                <p className="text-text-muted text-xs mt-1">Angka lebih kecil tampil lebih dulu</p>
-              </div>
-
-              {/* Upload Gambar */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Gambar {!editingHero && '*'}
-                </label>
-                <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all">
-                  {heroImagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={heroImagePreview}
-                        alt="Preview"
-                        className="w-full h-40 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setHeroImageFile(null)
-                          setHeroImagePreview(null)
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block py-6">
-                      <Upload className="mx-auto text-text-muted mb-2" size={32} />
-                      <p className="text-text-body text-sm">Klik untuk upload gambar</p>
-                      <p className="text-text-muted text-xs mt-1">
-                        JPG, PNG, GIF, WebP (max 5MB) - Rasio 4:3 disarankan
-                      </p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleHeroImageChange}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <form
+                id="heroForm"
+                onSubmit={handleHeroSubmit}
+                className="flex flex-col md:flex-row gap-6"
+              >
+                {/* Left Column: Image Upload */}
+                <div className="w-full md:w-1/2 lg:w-5/12">
+                  <label className="block text-sm font-medium text-text-heading mb-2">
+                    Gambar {!editingHero && '*'}
+                  </label>
+                  <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[300px] flex flex-col items-center justify-center">
+                    {heroImagePreview ? (
+                      <div className="relative w-full h-full min-h-[250px]">
+                        <img
+                          src={heroImagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHeroImageFile(null)
+                            setHeroImagePreview(null)
+                          }}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
+                        <Upload className="mx-auto text-text-muted mb-4" size={48} />
+                        <p className="text-text-body text-base font-medium mt-2">
+                          Klik untuk upload gambar
+                        </p>
+                        <p className="text-text-muted text-sm mt-1">
+                          JPG, PNG, GIF, WebP (max 5MB)
+                        </p>
+                        <p className="text-text-muted text-xs mt-1">Rasio 4:3 disarankan</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleHeroImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Submit */}
-              <div className="flex space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowHeroModal(false)}
-                  className="flex-1 py-3 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={heroFormLoading || (!editingHero && !heroImageFile)}
-                  className="flex-1 py-3 px-6 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center"
-                >
-                  {heroFormLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : editingHero ? (
-                    'Simpan Perubahan'
-                  ) : (
-                    'Tambah Gambar'
-                  )}
-                </button>
-              </div>
-            </form>
+                {/* Right Column: Form Fields */}
+                <div className="w-full md:w-1/2 lg:w-7/12 space-y-6">
+                  {/* Judul */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Judul (opsional)
+                    </label>
+                    <input
+                      type="text"
+                      value={heroFormData.judul}
+                      onChange={(e) => setHeroFormData({ ...heroFormData, judul: e.target.value })}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="Judul untuk alt text gambar"
+                    />
+                  </div>
+
+                  {/* Deskripsi */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Deskripsi (opsional)
+                    </label>
+                    <textarea
+                      value={heroFormData.deskripsi}
+                      onChange={(e) =>
+                        setHeroFormData({ ...heroFormData, deskripsi: e.target.value })
+                      }
+                      rows={4}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Keterangan gambar..."
+                    />
+                  </div>
+
+                  {/* Urutan */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Urutan Tampil
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={heroFormData.urutan}
+                      onChange={(e) =>
+                        setHeroFormData({ ...heroFormData, urutan: parseInt(e.target.value) || 0 })
+                      }
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all max-w-[200px]"
+                    />
+                    <p className="text-text-muted text-xs mt-1">
+                      Angka lebih kecil tampil lebih dulu
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Footer / Actions */}
+            <div className="flex-none flex items-center justify-end space-x-3 p-6 border-t border-dark-200/50 bg-dark-50">
+              <button
+                type="button"
+                onClick={() => setShowHeroModal(false)}
+                className="py-2.5 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="heroForm"
+                disabled={heroFormLoading || (!editingHero && !heroImageFile)}
+                className="py-2.5 px-8 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+              >
+                {heroFormLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : editingHero ? (
+                  'Simpan Perubahan'
+                ) : (
+                  'Tambah Gambar'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Hero Delete Confirmation Modal */}
       {deleteHeroConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
           <div className="bg-dark-50 rounded-2xl border border-dark-200/50 p-6 w-full max-w-sm">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
@@ -1869,13 +1946,15 @@ const AdminDashboard = () => {
 
       {/* Video Create/Edit Modal */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
-          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-dark-200/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
+          <div className="bg-dark-50 rounded-2xl border border-dark-200/50 w-[90vw] max-w-5xl h-[80vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
                 {editingVideo ? 'Edit Video' : 'Tambah Video Baru'}
               </h3>
               <button
+                type="button"
                 onClick={() => setShowVideoModal(false)}
                 className="p-2 text-text-muted hover:text-text-heading rounded-lg hover:bg-dark-200/30 transition-all"
               >
@@ -1883,110 +1962,127 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <form onSubmit={handleVideoSubmit} className="p-6 space-y-5">
-              {/* Judul */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Judul (opsional)
-                </label>
-                <input
-                  type="text"
-                  value={videoFormData.judul}
-                  onChange={(e) => setVideoFormData({ ...videoFormData, judul: e.target.value })}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
-                  placeholder="Judul video"
-                />
-              </div>
-
-              {/* Deskripsi */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  Deskripsi (opsional)
-                </label>
-                <textarea
-                  value={videoFormData.deskripsi}
-                  onChange={(e) => setVideoFormData({ ...videoFormData, deskripsi: e.target.value })}
-                  rows={2}
-                  className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  placeholder="Keterangan video..."
-                />
-              </div>
-
-              {/* Upload Video */}
-              <div>
-                <label className="block text-sm font-medium text-text-heading mb-2">
-                  File Video {!editingVideo && '*'}
-                </label>
-                <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all">
-                  {videoPreview ? (
-                    <div className="relative">
-                      <video
-                        src={videoPreview}
-                        className="w-full h-40 object-cover rounded-lg"
-                        preload="metadata"
-                        muted
-                        playsInline
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setVideoFile(null)
-                          setVideoPreview(null)
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block py-6">
-                      <Upload className="mx-auto text-text-muted mb-2" size={32} />
-                      <p className="text-text-body text-sm">Klik untuk upload video</p>
-                      <p className="text-text-muted text-xs mt-1">
-                        MP4, WebM, OGG, MOV (max 100MB)
-                      </p>
-                      <input
-                        type="file"
-                        accept="video/mp4,video/webm,video/ogg,video/quicktime"
-                        onChange={handleVideoFileChange}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <form
+                id="videoForm"
+                onSubmit={handleVideoSubmit}
+                className="flex flex-col md:flex-row gap-6"
+              >
+                {/* Left Column: Video Upload */}
+                <div className="w-full md:w-1/2 lg:w-5/12">
+                  <label className="block text-sm font-medium text-text-heading mb-2">
+                    File Video {!editingVideo && '*'}
+                  </label>
+                  <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[300px] flex flex-col items-center justify-center">
+                    {videoPreview ? (
+                      <div className="relative w-full h-full min-h-[250px]">
+                        <video
+                          src={videoPreview}
+                          className="w-full h-full object-cover rounded-lg"
+                          preload="metadata"
+                          controls
+                          playsInline
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVideoFile(null)
+                            setVideoPreview(null)
+                          }}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
+                        <Upload className="mx-auto text-text-muted mb-4" size={48} />
+                        <p className="text-text-body text-base font-medium mt-2">
+                          Klik untuk upload video
+                        </p>
+                        <p className="text-text-muted text-sm mt-1">
+                          MP4, WebM, OGG, MOV (max 100MB)
+                        </p>
+                        <input
+                          type="file"
+                          accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                          onChange={handleVideoFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Submit */}
-              <div className="flex space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowVideoModal(false)}
-                  className="flex-1 py-3 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={videoFormLoading || (!editingVideo && !videoFile)}
-                  className="flex-1 py-3 px-6 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center"
-                >
-                  {videoFormLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : editingVideo ? (
-                    'Simpan Perubahan'
-                  ) : (
-                    'Tambah Video'
-                  )}
-                </button>
-              </div>
-            </form>
+                {/* Right Column: Form Fields */}
+                <div className="w-full md:w-1/2 lg:w-7/12 space-y-6">
+                  {/* Judul */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Judul (opsional)
+                    </label>
+                    <input
+                      type="text"
+                      value={videoFormData.judul}
+                      onChange={(e) =>
+                        setVideoFormData({ ...videoFormData, judul: e.target.value })
+                      }
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="Judul video"
+                    />
+                  </div>
+
+                  {/* Deskripsi */}
+                  <div>
+                    <label className="block text-sm font-medium text-text-heading mb-2">
+                      Deskripsi (opsional)
+                    </label>
+                    <textarea
+                      value={videoFormData.deskripsi}
+                      onChange={(e) =>
+                        setVideoFormData({ ...videoFormData, deskripsi: e.target.value })
+                      }
+                      rows={5}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Keterangan video..."
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Footer / Actions */}
+            <div className="flex-none flex items-center justify-end space-x-3 p-6 border-t border-dark-200/50 bg-dark-50">
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(false)}
+                className="py-2.5 px-6 border border-dark-200/50 text-text-body rounded-xl hover:bg-dark-200/20 transition-all font-medium"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="videoForm"
+                disabled={videoFormLoading || (!editingVideo && !videoFile)}
+                className="py-2.5 px-8 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+              >
+                {videoFormLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : editingVideo ? (
+                  'Simpan Perubahan'
+                ) : (
+                  'Tambah Video'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Video Delete Confirmation Modal */}
       {deleteVideoConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-md">
           <div className="bg-dark-50 rounded-2xl border border-dark-200/50 p-6 w-full max-w-sm">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
