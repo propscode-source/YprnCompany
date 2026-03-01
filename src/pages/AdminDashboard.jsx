@@ -22,22 +22,12 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
 import { API_URL, getImageUrl } from '../config/api'
 
-// Define custom styling for the quill editor and hide scrollbar
-const quillModules = {
-  toolbar: [
-    [{ header: [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link'],
-    ['clean'],
-  ],
-}
-
+// Define custom styling for CKEditor and hide scrollbar
 const customStyles = `
   /* Hide scrollbar for Chrome, Safari and Opera */
   .hide-scrollbar::-webkit-scrollbar {
@@ -49,38 +39,51 @@ const customStyles = `
     scrollbar-width: none;  /* Firefox */
   }
 
-  /* React Quill Custom Dark Theme Styles */
-  .custom-quill .ql-toolbar {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.05);
+  /* CKEditor Custom Dark Theme Styles */
+  :root {
+    --ck-color-base-background: rgba(255, 255, 255, 0.05);
+    --ck-color-base-border: rgba(255, 255, 255, 0.1);
+    --ck-color-base-text: #f3f4f6;
+    --ck-color-toolbar-background: rgba(255, 255, 255, 0.05);
+    --ck-color-toolbar-border: rgba(255, 255, 255, 0.1);
+    --ck-color-button-default-hover-background: rgba(255, 255, 255, 0.1);
+    --ck-color-button-default-active-background: rgba(255, 255, 255, 0.15);
+    --ck-color-button-on-background: rgba(255, 255, 255, 0.2);
+    --ck-color-button-on-color: #ffffff;
+    --ck-color-dropdown-panel-background: #1f2937;
+    --ck-color-dropdown-panel-border: rgba(255, 255, 255, 0.1);
+    --ck-color-list-background: #1f2937;
+    --ck-color-list-button-hover-background: rgba(255, 255, 255, 0.1);
+    --ck-color-input-background: rgba(0, 0, 0, 0.5);
+    --ck-color-input-border: rgba(255, 255, 255, 0.1);
+    --ck-border-radius: 0.75rem;
   }
-  .custom-quill .ql-toolbar .ql-stroke {
-    stroke: #9ca3af !important; /* text-muted */
-  }
-  .custom-quill .ql-toolbar .ql-fill {
-    fill: #9ca3af !important;
-  }
-  .custom-quill .ql-toolbar .ql-picker {
-    color: #9ca3af !important;
-  }
-  .custom-quill .ql-container {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    border-bottom-left-radius: 0.75rem;
-    border-bottom-right-radius: 0.75rem;
-    background-color: rgba(0, 0, 0, 0.5); /* bg-dark/50 */
-    font-family: inherit;
-    font-size: 0.875rem;
-  }
-  .custom-quill .ql-editor {
+
+  .ck.ck-editor__main > .ck-editor__editable {
     min-height: 150px;
     max-height: 300px;
-    color: #f3f4f6; /* text-heading */
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    border-bottom-left-radius: 0.75rem !important;
+    border-bottom-right-radius: 0.75rem !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f3f4f6 !important;
   }
-  .custom-quill .ql-editor.ql-blank::before {
-    color: #6b7280; /* placeholder-text-muted */
-    font-style: normal;
+
+  .ck.ck-toolbar {
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+  }
+
+  /* Reset link color inside editor */
+  .ck-content a {
+    color: #3b82f6 !important;
   }
 `
 
@@ -1290,13 +1293,29 @@ const AdminDashboard = () => {
                       Deskripsi
                     </label>
                     <style>{customStyles}</style>
-                    <div className="custom-quill">
-                      <ReactQuill
-                        theme="snow"
-                        value={formData.deskripsi}
-                        onChange={(content) => setFormData({ ...formData, deskripsi: content })}
-                        modules={quillModules}
-                        placeholder="Deskripsi kegiatan..."
+                    <div className="custom-ckeditor">
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={formData.deskripsi || ''}
+                        onChange={(event, editor) => {
+                          const data = editor.getData()
+                          setFormData({ ...formData, deskripsi: data })
+                        }}
+                        config={{
+                          toolbar: [
+                            'heading',
+                            '|',
+                            'bold',
+                            'italic',
+                            'link',
+                            'bulletedList',
+                            'numberedList',
+                            'blockQuote',
+                            'undo',
+                            'redo',
+                          ],
+                          placeholder: 'Deskripsi kegiatan...',
+                        }}
                       />
                     </div>
                   </div>
@@ -1614,15 +1633,30 @@ const AdminDashboard = () => {
                       Detail Lengkap
                     </label>
                     <style>{customStyles}</style>
-                    <div className="custom-quill">
-                      <ReactQuill
-                        theme="snow"
-                        value={proyekFormData.detail}
-                        onChange={(content) =>
-                          setProyekFormData({ ...proyekFormData, detail: content })
-                        }
-                        modules={quillModules}
-                        placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
+                    <div className="custom-ckeditor">
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={proyekFormData.detail || ''}
+                        onChange={(event, editor) => {
+                          const data = editor.getData()
+                          setProyekFormData({ ...proyekFormData, detail: data })
+                        }}
+                        config={{
+                          toolbar: [
+                            'heading',
+                            '|',
+                            'bold',
+                            'italic',
+                            'link',
+                            'bulletedList',
+                            'numberedList',
+                            'blockQuote',
+                            'undo',
+                            'redo',
+                          ],
+                          placeholder:
+                            'Penjelasan detail proyek yang akan tampil saat user mengklik...',
+                        }}
                       />
                     </div>
                   </div>
