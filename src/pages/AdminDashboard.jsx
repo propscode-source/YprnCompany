@@ -22,8 +22,67 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 
 import { API_URL, getImageUrl } from '../config/api'
+
+// Define custom styling for the quill editor and hide scrollbar
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link'],
+    ['clean'],
+  ],
+}
+
+const customStyles = `
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* React Quill Custom Dark Theme Styles */
+  .custom-quill .ql-toolbar {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .custom-quill .ql-toolbar .ql-stroke {
+    stroke: #9ca3af !important; /* text-muted */
+  }
+  .custom-quill .ql-toolbar .ql-fill {
+    fill: #9ca3af !important;
+  }
+  .custom-quill .ql-toolbar .ql-picker {
+    color: #9ca3af !important;
+  }
+  .custom-quill .ql-container {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.5); /* bg-dark/50 */
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+  .custom-quill .ql-editor {
+    min-height: 150px;
+    max-height: 300px;
+    color: #f3f4f6; /* text-heading */
+  }
+  .custom-quill .ql-editor.ql-blank::before {
+    color: #6b7280; /* placeholder-text-muted */
+    font-style: normal;
+  }
+`
 
 const AdminDashboard = () => {
   const { admin, token, logout } = useAuth()
@@ -1162,7 +1221,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto hide-scrollbar p-6">
               <form
                 id="kegiatanForm"
                 onSubmit={handleSubmit}
@@ -1230,13 +1289,16 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi
                     </label>
-                    <textarea
-                      value={formData.deskripsi}
-                      onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
-                      rows={4}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                      placeholder="Deskripsi kegiatan..."
-                    />
+                    <style>{customStyles}</style>
+                    <div className="custom-quill">
+                      <ReactQuill
+                        theme="snow"
+                        value={formData.deskripsi}
+                        onChange={(content) => setFormData({ ...formData, deskripsi: content })}
+                        modules={quillModules}
+                        placeholder="Deskripsi kegiatan..."
+                      />
+                    </div>
                   </div>
 
                   {/* Tanggal & Lokasi */}
@@ -1379,7 +1441,7 @@ const AdminDashboard = () => {
 
             {/* Right side: Content */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
-              <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+              <div className="p-6 md:p-8 flex-1 overflow-y-auto hide-scrollbar">
                 {/* Kategori badge */}
                 <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-medium rounded-full mb-3">
                   {kategoriLabel[detailItem.kategori] || detailItem.kategori}
@@ -1405,9 +1467,10 @@ const AdminDashboard = () => {
                 </div>
 
                 {detailItem.deskripsi ? (
-                  <p className="text-text-body leading-relaxed whitespace-pre-line">
-                    {detailItem.deskripsi}
-                  </p>
+                  <div
+                    className="text-text-body leading-relaxed prose prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: detailItem.deskripsi }}
+                  />
                 ) : (
                   <p className="text-text-muted italic">Belum ada deskripsi.</p>
                 )}
@@ -1462,7 +1525,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto hide-scrollbar p-6">
               <form
                 id="proyekForm"
                 onSubmit={handleProyekSubmit}
@@ -1550,15 +1613,18 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Detail Lengkap
                     </label>
-                    <textarea
-                      value={proyekFormData.detail}
-                      onChange={(e) =>
-                        setProyekFormData({ ...proyekFormData, detail: e.target.value })
-                      }
-                      rows={4}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                      placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
-                    />
+                    <style>{customStyles}</style>
+                    <div className="custom-quill">
+                      <ReactQuill
+                        theme="snow"
+                        value={proyekFormData.detail}
+                        onChange={(content) =>
+                          setProyekFormData({ ...proyekFormData, detail: content })
+                        }
+                        modules={quillModules}
+                        placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
+                      />
+                    </div>
                   </div>
 
                   {/* Tags & Kategori */}
@@ -1660,7 +1726,7 @@ const AdminDashboard = () => {
 
             {/* Right side: Content */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
-              <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+              <div className="p-6 md:p-8 flex-1 overflow-y-auto hide-scrollbar">
                 <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary text-xs font-medium rounded-full mb-3">
                   {proyekKategoriLabel[detailProyek.kategori] || detailProyek.kategori}
                 </span>
@@ -1689,9 +1755,10 @@ const AdminDashboard = () => {
                 {detailProyek.detail ? (
                   <div className="bg-dark/30 rounded-xl p-4 mb-6">
                     <h4 className="text-sm font-semibold text-text-heading mb-2">Detail Proyek</h4>
-                    <p className="text-text-body leading-relaxed whitespace-pre-line">
-                      {detailProyek.detail}
-                    </p>
+                    <div
+                      className="text-text-body leading-relaxed prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: detailProyek.detail }}
+                    />
                   </div>
                 ) : (
                   <p className="text-text-muted italic mb-6">Belum ada detail proyek.</p>
@@ -1778,7 +1845,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto hide-scrollbar p-6">
               <form
                 id="heroForm"
                 onSubmit={handleHeroSubmit}
@@ -1963,7 +2030,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto hide-scrollbar p-6">
               <form
                 id="videoForm"
                 onSubmit={handleVideoSubmit}
