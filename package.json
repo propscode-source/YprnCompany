@@ -11,29 +11,30 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.2.1",
     "@vitejs/plugin-react": "^5.1.4",
-    "autoprefixer": "^10.4.17",
+    "autoprefixer": "^10.4.27",
     "dotenv": "^17.3.1",
     "lucide-react": "^0.469.0",
-    "motion": "^12.34.3",
-    "postcss": "^8.4.35",
+    "motion": "^12.35.0",
+    "postcss": "^8.5.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.1.0",
+    "react-router-dom": "^7.13.1",
     "tailwindcss": "^3.4.19",
     "vite": "^7.2.4",
-    "vite-plugin-compression2": "^2.4.0"
+    "vite-plugin-compression2": "^2.5.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-commonjs": "^29.0.1",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-replace": "^6.0.3",
     "@rollup/plugin-strip": "^3.0.4",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "cross-env": "^10.1.0",
+    "prettier": "3.8.1",
     "rollup": "^4.59.0",
-    "rollup-plugin-visualizer": "^6.0.5",
+    "rollup-plugin-visualizer": "^6.0.11",
     "sharp": "^0.34.5",
     "terser": "^5.46.0"
   }
