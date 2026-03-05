@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   BarChart3,
@@ -13,29 +13,29 @@ import {
   PieChart,
   TrendingUp,
   X,
-} from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useLanguage } from '../hooks/useLanguage'
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../hooks/useLanguage";
 
-import { API_URL, getImageUrl } from '../config/api'
-const ITEMS_PER_PAGE = 6
+import { API_URL, getImageUrl } from "../config/api";
+const ITEMS_PER_PAGE = 6;
 
 // === Reusable animation variants ===
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0 },
-}
+};
 
 const fadeInLeft = {
   hidden: { opacity: 0, x: -60 },
   visible: { opacity: 1, x: 0 },
-}
+};
 
 const fadeInRight = {
   hidden: { opacity: 0, x: 60 },
   visible: { opacity: 1, x: 0 },
-}
+};
 
 const staggerContainer = {
   hidden: {},
@@ -45,18 +45,18 @@ const staggerContainer = {
       delayChildren: 0.1,
     },
   },
-}
+};
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1 },
-}
+};
 
 const popupOverlay = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
   exit: { opacity: 0 },
-}
+};
 
 const popupContent = {
   hidden: { opacity: 0, scale: 0.92, y: 30 },
@@ -64,30 +64,33 @@ const popupContent = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: 'spring', damping: 25, stiffness: 300 },
+    transition: { type: "spring", damping: 25, stiffness: 300 },
   },
   exit: { opacity: 0, scale: 0.92, y: 30, transition: { duration: 0.2 } },
-}
+};
 
 const ImageSlider = ({ images }) => {
-  const [current, setCurrent] = useState(0)
+  const [current, setCurrent] = useState(0);
 
   const next = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % images.length)
-  }, [images.length])
+    setCurrent((prev) => (prev + 1) % images.length);
+  }, [images.length]);
 
   const prev = () => {
-    setCurrent((prev) => (prev - 1 + images.length) % images.length)
-  }
+    setCurrent((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   useEffect(() => {
-    const timer = setInterval(next, 4000)
-    return () => clearInterval(timer)
-  }, [next])
+    const timer = setInterval(next, 4000);
+    return () => clearInterval(timer);
+  }, [next]);
 
   return (
     <div className="relative group rounded-2xl overflow-hidden border border-dark-200 bg-dark-100">
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: '1060 / 1500' }}>
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ aspectRatio: "1060 / 1500" }}
+      >
         {images.map((img, index) => (
           <img
             key={index}
@@ -95,7 +98,9 @@ const ImageSlider = ({ images }) => {
             alt={img.alt}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${
-              index === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+              index === current
+                ? "opacity-100 scale-100"
+                : "opacity-0 scale-105"
             }`}
           />
         ))}
@@ -121,88 +126,96 @@ const ImageSlider = ({ images }) => {
             onClick={() => setCurrent(index)}
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
               index === current
-                ? 'bg-primary w-7 shadow-glow-primary'
-                : 'bg-white/50 hover:bg-white/80'
+                ? "bg-primary w-7 shadow-glow-primary"
+                : "bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const SocialReturnOnInvestment = () => {
-  const [galeri, setGaleri] = useState([])
-  const [loadingGaleri, setLoadingGaleri] = useState(true)
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [projects, setProjects] = useState([])
-  const [loadingProjects, setLoadingProjects] = useState(true)
-  const [selectedProject, setSelectedProject] = useState(null)
-  const { t, language } = useLanguage()
+  const [galeri, setGaleri] = useState([]);
+  const [loadingGaleri, setLoadingGaleri] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [projects, setProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const { t, language } = useLanguage();
 
-  const totalPages = Math.ceil(galeri.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(galeri.length / ITEMS_PER_PAGE);
   const paginatedGaleri = galeri.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   const goToPage = (page) => {
-    setCurrentPage(page)
-    document.getElementById('galeri-sroi')?.scrollIntoView({ behavior: 'smooth' })
-  }
+    setCurrentPage(page);
+    document
+      .getElementById("galeri-sroi")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    fetchGaleri()
-    fetchProjects()
-  }, [])
+    fetchGaleri();
+    fetchProjects();
+  }, []);
 
   const fetchGaleri = async () => {
     try {
-      const res = await fetch(`${API_URL}/kegiatan`)
+      const res = await fetch(`${API_URL}/kegiatan`);
       if (res.ok) {
-        const data = await res.json()
-        setGaleri(data.filter((item) => item.kategori === 'sroi'))
+        const data = await res.json();
+        setGaleri(data.filter((item) => item.kategori === "sroi"));
       }
     } catch (error) {
-      console.error('Error fetching galeri SROI:', error)
+      console.error("Error fetching galeri SROI:", error);
     } finally {
-      setLoadingGaleri(false)
+      setLoadingGaleri(false);
     }
-  }
+  };
 
   const fetchProjects = async () => {
     try {
-      const res = await fetch(`${API_URL}/proyek?kategori=sroi`)
+      const res = await fetch(`${API_URL}/proyek?kategori=sroi`);
       if (res.ok) {
-        const data = await res.json()
-        setProjects(data)
+        const data = await res.json();
+        setProjects(data);
       }
     } catch (error) {
-      console.error('Error fetching proyek SROI:', error)
+      console.error("Error fetching proyek SROI:", error);
     } finally {
-      setLoadingProjects(false)
+      setLoadingProjects(false);
     }
-  }
+  };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString(
+      language === "id" ? "id-ID" : "en-US",
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    );
+  };
 
   const heroImages = [
-    { src: '/assets/images/SROI/SROI.webp', alt: 'Social Return on Investment' },
-    { src: '/assets/images/SROI/SROI 1.webp', alt: 'Kegiatan SROI' },
-  ]
+    {
+      src: "/assets/images/SROI/SROI.webp",
+      alt: "Social Return on Investment",
+    },
+    { src: "/assets/images/SROI/SROI 1.webp", alt: "Kegiatan SROI" },
+  ];
 
-  const stageIcons = [BarChart3, TrendingUp, DollarSign, PieChart]
-  const benefits = t('sroiPage.benefits')
-  const stages = t('sroiPage.stages')
+  const stageIcons = [BarChart3, TrendingUp, DollarSign, PieChart];
+  const benefits = t("sroiPage.benefits");
+  const stages = t("sroiPage.stages");
 
   return (
     <div className="pt-20 bg-dark">
@@ -221,14 +234,18 @@ const SocialReturnOnInvestment = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
             >
-              <span className="text-primary font-semibold">{t('sroiPage.heroLabel')}</span>
+              <span className="text-primary font-semibold">
+                {t("sroiPage.heroLabel")}
+              </span>
               <h1 className="heading-primary">
-                {t('sroiPage.heroTitle1')}{' '}
-                <span className="gradient-text">{t('sroiPage.heroTitle2')}</span>
+                {t("sroiPage.heroTitle1")}{" "}
+                <span className="gradient-text">
+                  {t("sroiPage.heroTitle2")}
+                </span>
               </h1>
-              <p className="text-body">{t('sroiPage.heroDesc')}</p>
+              <p className="text-body">{t("sroiPage.heroDesc")}</p>
               <motion.div
                 className="flex items-center space-x-6 pt-4"
                 variants={staggerContainer}
@@ -241,16 +258,24 @@ const SocialReturnOnInvestment = () => {
                   variants={fadeInUp}
                   transition={{ duration: 0.5 }}
                 >
-                  <p className="text-3xl font-bold text-primary text-glow">10+</p>
-                  <p className="text-text-body text-sm">{t('sroiPage.kajianSROI')}</p>
+                  <p className="text-3xl font-bold text-primary text-glow">
+                    10+
+                  </p>
+                  <p className="text-text-body text-sm">
+                    {t("sroiPage.kajianSROI")}
+                  </p>
                 </motion.div>
                 <motion.div
                   className="text-center"
                   variants={fadeInUp}
                   transition={{ duration: 0.5 }}
                 >
-                  <p className="text-3xl font-bold text-secondary text-glow-secondary">1:4.5</p>
-                  <p className="text-text-body text-sm">{t('sroiPage.rataRataRasio')}</p>
+                  <p className="text-3xl font-bold text-secondary text-glow-secondary">
+                    1:4.5
+                  </p>
+                  <p className="text-text-body text-sm">
+                    {t("sroiPage.rataRataRasio")}
+                  </p>
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -262,7 +287,7 @@ const SocialReturnOnInvestment = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl blur-2xl"></div>
               <div className="relative">
@@ -284,14 +309,16 @@ const SocialReturnOnInvestment = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
             >
-              <span className="text-primary font-semibold">{t('sroiPage.whyLabel')}</span>
+              <span className="text-primary font-semibold">
+                {t("sroiPage.whyLabel")}
+              </span>
               <h2 className="heading-primary">
-                {t('sroiPage.whyTitle1')}{' '}
-                <span className="gradient-text">{t('sroiPage.whyTitle2')}</span>
+                {t("sroiPage.whyTitle1")}{" "}
+                <span className="gradient-text">{t("sroiPage.whyTitle2")}</span>
               </h2>
-              <p className="text-body">{t('sroiPage.whyDesc')}</p>
+              <p className="text-body">{t("sroiPage.whyDesc")}</p>
               <motion.div
                 className="space-y-3"
                 variants={staggerContainer}
@@ -307,7 +334,10 @@ const SocialReturnOnInvestment = () => {
                       variants={fadeInUp}
                       transition={{ duration: 0.4 }}
                     >
-                      <CheckCircle className="text-primary flex-shrink-0 mt-0.5" size={20} />
+                      <CheckCircle
+                        className="text-primary flex-shrink-0 mt-0.5"
+                        size={20}
+                      />
                       <span className="text-text-body">{benefit}</span>
                     </motion.div>
                   ))}
@@ -324,21 +354,25 @@ const SocialReturnOnInvestment = () => {
             >
               {Array.isArray(stages) &&
                 stages.map((stage, index) => {
-                  const IconComponent = stageIcons[index] || BarChart3
+                  const IconComponent = stageIcons[index] || BarChart3;
                   return (
                     <motion.div
                       key={index}
                       className="card-glow p-5 card-lift"
                       variants={scaleIn}
-                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
                     >
                       <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center mb-3 shadow-glow-primary">
                         <IconComponent className="text-dark" size={20} />
                       </div>
-                      <h4 className="text-sm font-bold text-text-heading mb-1">{stage.title}</h4>
-                      <p className="text-text-body text-xs">{stage.description}</p>
+                      <h4 className="text-sm font-bold text-text-heading mb-1">
+                        {stage.title}
+                      </h4>
+                      <p className="text-text-body text-xs">
+                        {stage.description}
+                      </p>
                     </motion.div>
-                  )
+                  );
                 })}
             </motion.div>
           </div>
@@ -355,12 +389,16 @@ const SocialReturnOnInvestment = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <span className="text-primary font-semibold">{t('sroiPage.projectLabel')}</span>
+            <span className="text-primary font-semibold">
+              {t("sroiPage.projectLabel")}
+            </span>
             <h2 className="heading-primary mt-2 mb-4">
-              {t('sroiPage.projectTitle1')}{' '}
-              <span className="gradient-text">{t('sroiPage.projectTitle2')}</span>
+              {t("sroiPage.projectTitle1")}{" "}
+              <span className="gradient-text">
+                {t("sroiPage.projectTitle2")}
+              </span>
             </h2>
           </motion.div>
 
@@ -370,7 +408,9 @@ const SocialReturnOnInvestment = () => {
             </div>
           ) : projects.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-text-body text-lg">{t('sroiPage.noProject')}</p>
+              <p className="text-text-body text-lg">
+                {t("sroiPage.noProject")}
+              </p>
             </div>
           ) : (
             <motion.div
@@ -386,7 +426,7 @@ const SocialReturnOnInvestment = () => {
                   onClick={() => setSelectedProject(project)}
                   className="card-glow overflow-hidden card-lift group cursor-pointer flex flex-col"
                   variants={scaleIn}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                   whileHover={{ y: -5 }}
                 >
                   <div className="relative overflow-hidden bg-dark-100">
@@ -416,10 +456,14 @@ const SocialReturnOnInvestment = () => {
                         ))}
                       </div>
                     )}
-                    <h3 className="text-lg font-bold text-text-heading mb-2">{project.judul}</h3>
-                    <p className="text-text-body text-sm">{project.deskripsi}</p>
+                    <h3 className="text-lg font-bold text-text-heading mb-2">
+                      {project.judul}
+                    </h3>
+                    <p className="text-text-body text-sm">
+                      {project.deskripsi}
+                    </p>
                     <p className="text-primary text-xs mt-3 font-medium">
-                      {t('sroiPage.clickDetail')}
+                      {t("sroiPage.clickDetail")}
                     </p>
                   </div>
                 </motion.div>
@@ -439,17 +483,19 @@ const SocialReturnOnInvestment = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <span className="text-primary font-semibold flex items-center justify-center gap-2">
               <Camera size={18} />
-              {t('sroiPage.galeriLabel')}
+              {t("sroiPage.galeriLabel")}
             </span>
             <h2 className="heading-primary mt-2 mb-4">
-              {t('sroiPage.galeriTitle1')}{' '}
-              <span className="gradient-text">{t('sroiPage.galeriTitle2')}</span>
+              {t("sroiPage.galeriTitle1")}{" "}
+              <span className="gradient-text">
+                {t("sroiPage.galeriTitle2")}
+              </span>
             </h2>
-            <p className="text-body">{t('sroiPage.galeriDesc')}</p>
+            <p className="text-body">{t("sroiPage.galeriDesc")}</p>
           </motion.div>
 
           {loadingGaleri ? (
@@ -466,7 +512,7 @@ const SocialReturnOnInvestment = () => {
               transition={{ duration: 0.5 }}
             >
               <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
-              <p className="text-text-body text-lg">{t('sroiPage.noGaleri')}</p>
+              <p className="text-text-body text-lg">{t("sroiPage.noGaleri")}</p>
             </motion.div>
           ) : (
             <>
@@ -483,7 +529,7 @@ const SocialReturnOnInvestment = () => {
                     onClick={() => setSelectedItem(item)}
                     className="group relative overflow-hidden rounded-2xl border border-dark-200 hover:border-primary/30 transition-all duration-300 cursor-pointer card-lift"
                     variants={scaleIn}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                     whileHover={{ y: -5 }}
                   >
                     {item.gambar ? (
@@ -500,7 +546,9 @@ const SocialReturnOnInvestment = () => {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end">
                       <div className="p-4">
-                        <h3 className="text-white font-bold text-lg mb-1">{item.judul}</h3>
+                        <h3 className="text-white font-bold text-lg mb-1">
+                          {item.judul}
+                        </h3>
                         <div className="flex flex-wrap items-center gap-3 text-white/80 text-sm">
                           {item.tanggal && (
                             <span className="flex items-center space-x-1">
@@ -515,13 +563,17 @@ const SocialReturnOnInvestment = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-white/60 text-xs mt-2">{t('sroiPage.clickDetail')}</p>
+                        <p className="text-white/60 text-xs mt-2">
+                          {t("sroiPage.clickDetail")}
+                        </p>
                       </div>
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-dark/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
                       <div className="flex items-center space-x-2 text-white">
                         <Camera size={16} className="text-primary" />
-                        <span className="text-sm font-medium">{item.judul}</span>
+                        <span className="text-sm font-medium">
+                          {item.judul}
+                        </span>
                       </div>
                     </div>
                   </motion.div>
@@ -538,19 +590,21 @@ const SocialReturnOnInvestment = () => {
                   >
                     <ChevronLeft size={20} />
                   </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => goToPage(page)}
-                      className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
-                        currentPage === page
-                          ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25'
-                          : 'border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
+                          currentPage === page
+                            ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
+                            : "border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
@@ -565,9 +619,11 @@ const SocialReturnOnInvestment = () => {
               {galeri.length > 0 && (
                 <div className="text-center mt-4">
                   <p className="text-text-muted text-sm">
-                    {t('sroiPage.showingInfo')} {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
-                    {Math.min(currentPage * ITEMS_PER_PAGE, galeri.length)} {t('sroiPage.fromInfo')}{' '}
-                    {galeri.length} {t('sroiPage.docInfo')}
+                    {t("sroiPage.showingInfo")}{" "}
+                    {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
+                    {Math.min(currentPage * ITEMS_PER_PAGE, galeri.length)}{" "}
+                    {t("sroiPage.fromInfo")} {galeri.length}{" "}
+                    {t("sroiPage.docInfo")}
                   </p>
                 </div>
               )}
@@ -615,7 +671,9 @@ const SocialReturnOnInvestment = () => {
                 </button>
               </div>
               <div className="p-6 space-y-4">
-                <h3 className="text-2xl font-bold text-text-heading">{selectedItem.judul}</h3>
+                <h3 className="text-2xl font-bold text-text-heading">
+                  {selectedItem.judul}
+                </h3>
                 <div className="flex flex-wrap gap-4 text-sm text-text-muted">
                   {selectedItem.tanggal && (
                     <span className="flex items-center space-x-2 bg-dark-200/30 px-3 py-1.5 rounded-full">
@@ -631,7 +689,9 @@ const SocialReturnOnInvestment = () => {
                   )}
                 </div>
                 {selectedItem.deskripsi && (
-                  <p className="text-text-body leading-relaxed">{selectedItem.deskripsi}</p>
+                  <p className="text-text-body leading-relaxed">
+                    {selectedItem.deskripsi}
+                  </p>
                 )}
               </div>
             </motion.div>
@@ -678,21 +738,26 @@ const SocialReturnOnInvestment = () => {
                 </button>
               </div>
               <div className="p-6 space-y-4">
-                <h3 className="text-2xl font-bold text-text-heading">{selectedProject.judul}</h3>
-                {Array.isArray(selectedProject.tags) && selectedProject.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProject.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <h3 className="text-2xl font-bold text-text-heading">
+                  {selectedProject.judul}
+                </h3>
+                {Array.isArray(selectedProject.tags) &&
+                  selectedProject.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProject.tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 {selectedProject.deskripsi && (
-                  <p className="text-text-body leading-relaxed">{selectedProject.deskripsi}</p>
+                  <p className="text-text-body leading-relaxed">
+                    {selectedProject.deskripsi}
+                  </p>
                 )}
                 {selectedProject.detail && (
                   <div className="bg-dark/30 rounded-xl p-4">
@@ -720,12 +785,14 @@ const SocialReturnOnInvestment = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-text-heading mb-6">
-              {t('sroiPage.ctaTitle')}
+              {t("sroiPage.ctaTitle")}
             </h2>
-            <p className="text-lg text-text-body mb-8">{t('sroiPage.ctaDesc')}</p>
+            <p className="text-lg text-text-body mb-8">
+              {t("sroiPage.ctaDesc")}
+            </p>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
@@ -735,7 +802,7 @@ const SocialReturnOnInvestment = () => {
                 to="/kegiatan/social-impact-assessment"
                 className="btn-primary inline-flex group"
               >
-                {t('sroiPage.ctaBtn')}
+                {t("sroiPage.ctaBtn")}
                 <ArrowRight
                   className="ml-2 group-hover:translate-x-1 transition-transform"
                   size={20}
@@ -746,7 +813,7 @@ const SocialReturnOnInvestment = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default SocialReturnOnInvestment
+export default SocialReturnOnInvestment;

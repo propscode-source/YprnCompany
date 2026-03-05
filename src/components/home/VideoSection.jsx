@@ -1,85 +1,90 @@
-import { Play, X } from 'lucide-react'
-import { AnimatePresence, motion } from 'motion/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { API_URL, getImageUrl } from '../../config/api'
-import { useLanguage } from '../../hooks/useLanguage'
-import { backdropVariant, defaultViewport, fadeInUp, modalVariant } from '../../utils/animations'
+import { Play, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { API_URL, getImageUrl } from "../../config/api";
+import { useLanguage } from "../../hooks/useLanguage";
+import {
+  backdropVariant,
+  defaultViewport,
+  fadeInUp,
+  modalVariant,
+} from "../../utils/animations";
 
 const VideoSection = () => {
-  const { t } = useLanguage()
-  const [isOpen, setIsOpen] = useState(false)
-  const [videoData, setVideoData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const videoRef = useRef(null)
-  const thumbnailRef = useRef(null)
+  const { t } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+  const [videoData, setVideoData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const videoRef = useRef(null);
+  const thumbnailRef = useRef(null);
 
   // Set thumbnail ke detik ke-3 agar tidak menampilkan frame hitam
   const handleThumbnailLoaded = useCallback(() => {
     if (thumbnailRef.current) {
-      thumbnailRef.current.currentTime = 3
+      thumbnailRef.current.currentTime = 3;
     }
-  }, [])
+  }, []);
 
   // Fetch video aktif dari API
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const res = await fetch(`${API_URL}/video-beranda`)
+        const res = await fetch(`${API_URL}/video-beranda`);
         if (res.ok) {
-          const data = await res.json()
+          const data = await res.json();
           if (data && data.video) {
-            setVideoData(data)
+            setVideoData(data);
           }
         }
       } catch {
         // Gagal fetch — section tidak ditampilkan
-        console.error('Gagal memuat video beranda')
+        console.error("Gagal memuat video beranda");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchVideo()
-  }, [])
+    };
+    fetchVideo();
+  }, []);
 
-  const videoSrc = videoData ? getImageUrl(videoData.video) : null
+  const videoSrc = videoData ? getImageUrl(videoData.video) : null;
 
   const openModal = useCallback(() => {
-    setIsOpen(true)
-  }, [])
+    setIsOpen(true);
+  }, []);
 
   const closeModal = useCallback(() => {
     if (videoRef.current) {
-      videoRef.current.pause()
+      videoRef.current.pause();
       // Reset src agar browser lepas buffer memori
-      videoRef.current.removeAttribute('src')
-      videoRef.current.load()
+      videoRef.current.removeAttribute("src");
+      videoRef.current.load();
     }
-    setIsOpen(false)
-  }, [])
+    setIsOpen(false);
+  }, []);
 
   // Lock body scroll saat modal terbuka
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   // Tutup modal dengan tombol Escape
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === 'Escape') closeModal()
-    }
-    if (isOpen) window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [isOpen, closeModal])
+      if (e.key === "Escape") closeModal();
+    };
+    if (isOpen) window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isOpen, closeModal]);
 
   // Jangan render section jika loading atau tidak ada video
-  if (loading || !videoSrc) return null
+  if (loading || !videoSrc) return null;
 
   return (
     <>
@@ -100,11 +105,14 @@ const VideoSection = () => {
             custom={0}
             className="text-center max-w-3xl mx-auto mb-12"
           >
-            <span className="text-primary font-semibold">{t('homeVideo.label')}</span>
+            <span className="text-primary font-semibold">
+              {t("homeVideo.label")}
+            </span>
             <h2 className="heading-primary mt-2 mb-4">
-              {t('homeVideo.title1')} <span className="gradient-text">{t('homeVideo.title2')}</span>
+              {t("homeVideo.title1")}{" "}
+              <span className="gradient-text">{t("homeVideo.title2")}</span>
             </h2>
-            <p className="text-body">{t('homeVideo.description')}</p>
+            <p className="text-body">{t("homeVideo.description")}</p>
           </motion.div>
 
           {/* Video thumbnail / play trigger */}
@@ -119,7 +127,7 @@ const VideoSection = () => {
             <button
               onClick={openModal}
               className="relative w-full aspect-video rounded-2xl overflow-hidden group cursor-pointer border border-dark-200/50 shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-              aria-label={t('homeVideo.playLabel')}
+              aria-label={t("homeVideo.playLabel")}
             >
               {/* Thumbnail dari frame pertama video -- preload metadata saja */}
               <video
@@ -147,7 +155,7 @@ const VideoSection = () => {
               {/* Caption bar */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark/80 to-transparent p-6">
                 <p className="text-text-heading font-medium text-lg">
-                  {videoData.judul || t('homeVideo.caption')}
+                  {videoData.judul || t("homeVideo.caption")}
                 </p>
               </div>
             </button>
@@ -202,7 +210,7 @@ const VideoSection = () => {
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};
 
-export default VideoSection
+export default VideoSection;

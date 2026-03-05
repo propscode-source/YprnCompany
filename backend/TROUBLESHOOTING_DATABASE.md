@@ -9,6 +9,7 @@ Error ini terjadi karena password database tidak benar atau format connection st
 ### 1. Dapatkan Password Database yang Benar
 
 **Cara 1: Melalui Supabase Dashboard (Recommended)**
+
 1. Buka https://supabase.com dan login ke project Anda
 2. Klik **Project Settings** (ikon gear di sidebar kiri)
 3. Pilih tab **Database**
@@ -19,6 +20,7 @@ Error ini terjadi karena password database tidak benar atau format connection st
    - **JANGAN** copy yang masih ada placeholder `[YOUR-PASSWORD]`
 
 **Cara 2: Reset Password (jika lupa)**
+
 1. Masuk ke **Project Settings > Database**
 2. Scroll ke bagian **Database password**
 3. Klik **Reset database password**
@@ -29,19 +31,20 @@ Error ini terjadi karena password database tidak benar atau format connection st
 
 Jika password Anda mengandung karakter khusus, **WAJIB** di-encode:
 
-| Karakter | Encoding |
-|----------|----------|
-| `-` (dash) | `%2D` |
-| `@` | `%40` |
-| `#` | `%23` |
-| `$` | `%24` |
-| ` ` (spasi) | `%20` |
-| `%` | `%25` |
-| `&` | `%26` |
-| `+` | `%2B` |
-| `=` | `%3D` |
+| Karakter    | Encoding |
+| ----------- | -------- |
+| `-` (dash)  | `%2D`    |
+| `@`         | `%40`    |
+| `#`         | `%23`    |
+| `$`         | `%24`    |
+| ` ` (spasi) | `%20`    |
+| `%`         | `%25`    |
+| `&`         | `%26`    |
+| `+`         | `%2B`    |
+| `=`         | `%3D`    |
 
 **Contoh:**
+
 - Password asli: `My-Pass@123`
 - Setelah encode: `My%2DPass%40123`
 - Connection string: `postgres://postgres.xxx:My%2DPass%40123@...`
@@ -51,24 +54,30 @@ Jika password Anda mengandung karakter khusus, **WAJIB** di-encode:
 Supabase menyediakan 3 jenis connection string:
 
 #### Opsi 1: Transaction Pooler (Port 6543) - **RECOMMENDED**
+
 ```
 postgres://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
 ```
+
 - ✅ Cocok untuk aplikasi web dengan banyak request
 - ✅ Efisien untuk connection pooling
 - ✅ Gunakan ini untuk production
 
 #### Opsi 2: Session Pooler (Port 5432)
+
 ```
 postgres://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres
 ```
+
 - ✅ Alternatif jika port 6543 tidak bekerja
 - ✅ Cocok untuk aplikasi yang butuh session-level features
 
 #### Opsi 3: Direct Connection (Port 5432)
+
 ```
 postgres://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
 ```
+
 - ✅ Untuk migration/CLI tools
 - ⚠️ Perlu IPv6 support
 - ⚠️ Tidak menggunakan pooler
@@ -101,6 +110,7 @@ npm start
 ```
 
 Jika berhasil, Anda akan melihat:
+
 ```
 ✅ Database pool warmed up — koneksi siap
 ✅ Server berjalan di http://localhost:5000
@@ -120,20 +130,28 @@ Jika berhasil, Anda akan melihat:
 ## Masalah Umum Lainnya
 
 ### IP Address Terblokir
+
 Jika masih error setelah password benar, cek:
+
 1. **Project Settings > Database > Connection pooling**
 2. Scroll ke **IP allowlist** atau **Allowed IPs**
 3. Pastikan IP Anda tidak terblokir
 4. Atau tambahkan IP Anda ke whitelist
 
 ### SSL Certificate Error
+
 Jika error terkait SSL, pastikan connection string menggunakan `postgres://` (bukan `postgresql://`) dan kode sudah set:
+
 ```javascript
-ssl: { rejectUnauthorized: false }
+ssl: {
+  rejectUnauthorized: false;
+}
 ```
 
 ### Connection Timeout
+
 Jika timeout, coba:
+
 1. Gunakan direct connection (opsi 3) untuk testing
 2. Cek firewall/network Anda
 3. Pastikan Supabase project masih aktif

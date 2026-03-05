@@ -6,7 +6,7 @@ const LoadingFallback = () => {
         <p className="text-text-muted text-sm">Loading...</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoadingFallback
+export default LoadingFallback;

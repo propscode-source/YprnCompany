@@ -15,47 +15,47 @@
 // ─────────────────────────────────────────────────────────────
 
 const isLocalhostOrigin = () => {
-  if (typeof window === 'undefined') return false
-  const { hostname } = window.location
-  return hostname === 'localhost' || hostname === '127.0.0.1'
-}
+  if (typeof window === "undefined") return false;
+  const { hostname } = window.location;
+  return hostname === "localhost" || hostname === "127.0.0.1";
+};
 
 const getApiUrl = () => {
-  const buildTimeUrl = import.meta.env.VITE_API_URL
+  const buildTimeUrl = import.meta.env.VITE_API_URL;
 
   if (buildTimeUrl) {
     // Guard: jika build-time URL mengandung localhost tapi browser BUKAN
     // di localhost, abaikan dan gunakan /api (relative).
     // Ini mencegah error jika Dockerfile/CI salah menyuntikkan localhost.
     const pointsToLocalhost =
-      buildTimeUrl.includes('localhost') || buildTimeUrl.includes('127.0.0.1')
+      buildTimeUrl.includes("localhost") || buildTimeUrl.includes("127.0.0.1");
 
     if (pointsToLocalhost && !isLocalhostOrigin()) {
-      return '/api'
+      return "/api";
     }
 
-    return buildTimeUrl
+    return buildTimeUrl;
   }
 
   // Tidak ada env var → deteksi runtime
   // Hanya gunakan localhost:5000 jika browser benar-benar di localhost
   if (isLocalhostOrigin()) {
-    return 'http://localhost:5000/api'
+    return "http://localhost:5000/api";
   }
 
   // Default aman untuk production
-  return '/api'
-}
+  return "/api";
+};
 
-export const API_URL = getApiUrl()
+export const API_URL = getApiUrl();
 
 // Base URL untuk static assets (gambar/uploads)
 // Jika API_URL relative (/api) → base kosong (same-origin via nginx proxy)
 // Jika API_URL absolut (http://...) → strip /api untuk dapat base URL
-const BASE_URL = API_URL.startsWith('/') ? '' : API_URL.replace(/\/api$/, '')
+const BASE_URL = API_URL.startsWith("/") ? "" : API_URL.replace(/\/api$/, "");
 
 export const getImageUrl = (path) => {
-  if (!path) return null
-  if (path.startsWith('http')) return path
-  return `${BASE_URL}${path}`
-}
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${BASE_URL}${path}`;
+};

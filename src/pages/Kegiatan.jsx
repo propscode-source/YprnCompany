@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Link } from "react-router-dom";
 import {
   Camera,
   ArrowRight,
@@ -10,9 +10,9 @@ import {
   Image as ImageIcon,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react'
-import { useLanguage } from '../hooks/useLanguage'
-import { API_URL, getImageUrl } from '../config/api'
+} from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
+import { API_URL, getImageUrl } from "../config/api";
 import {
   fadeInUp,
   staggerContainer,
@@ -20,55 +20,58 @@ import {
   backdropVariant,
   modalVariant,
   defaultViewport,
-} from '../utils/animations'
+} from "../utils/animations";
 
-const ITEMS_PER_PAGE = 6
+const ITEMS_PER_PAGE = 6;
 
 const Kegiatan = () => {
-  const [kegiatan, setKegiatan] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const { t, language } = useLanguage()
+  const [kegiatan, setKegiatan] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { t, language } = useLanguage();
 
-  const totalPages = Math.ceil(kegiatan.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(kegiatan.length / ITEMS_PER_PAGE);
   const paginatedKegiatan = kegiatan.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   const goToPage = (page) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 300, behavior: 'smooth' })
-  }
+    setCurrentPage(page);
+    window.scrollTo({ top: 300, behavior: "smooth" });
+  };
 
   useEffect(() => {
-    fetchKegiatan()
-  }, [])
+    fetchKegiatan();
+  }, []);
 
   const fetchKegiatan = async () => {
     try {
-      const res = await fetch(`${API_URL}/kegiatan`)
+      const res = await fetch(`${API_URL}/kegiatan`);
       if (res.ok) {
-        const data = await res.json()
-        setKegiatan(data.filter((item) => item.kategori === 'kegiatan'))
+        const data = await res.json();
+        setKegiatan(data.filter((item) => item.kategori === "kegiatan"));
       }
     } catch (error) {
-      console.error('Error fetching kegiatan:', error)
+      console.error("Error fetching kegiatan:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString(
+      language === "id" ? "id-ID" : "en-US",
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    );
+  };
 
   return (
     <div className="pt-20 bg-dark">
@@ -86,11 +89,16 @@ const Kegiatan = () => {
             custom={0.15}
             className="text-center max-w-3xl mx-auto"
           >
-            <motion.h1 variants={staggerItem} className="heading-primary mt-2 mb-4">
-              <span className="gradient-text">{t('kegiatanPage.heroTitle')}</span>
+            <motion.h1
+              variants={staggerItem}
+              className="heading-primary mt-2 mb-4"
+            >
+              <span className="gradient-text">
+                {t("kegiatanPage.heroTitle")}
+              </span>
             </motion.h1>
             <motion.p variants={staggerItem} className="text-body">
-              {t('kegiatanPage.heroDesc')}
+              {t("kegiatanPage.heroDesc")}
             </motion.p>
           </motion.div>
         </div>
@@ -118,7 +126,9 @@ const Kegiatan = () => {
                 className="text-center py-20"
               >
                 <ImageIcon className="mx-auto text-text-muted mb-4" size={48} />
-                <p className="text-text-body text-lg">{t('kegiatanPage.noData')}</p>
+                <p className="text-text-body text-lg">
+                  {t("kegiatanPage.noData")}
+                </p>
               </motion.div>
             ) : (
               <>
@@ -153,7 +163,9 @@ const Kegiatan = () => {
                       {/* Hover overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end">
                         <div className="p-5">
-                          <h3 className="text-white font-bold text-lg mb-1">{item.judul}</h3>
+                          <h3 className="text-white font-bold text-lg mb-1">
+                            {item.judul}
+                          </h3>
                           <div className="flex flex-wrap items-center gap-3 text-white/80 text-sm">
                             {item.tanggal && (
                               <span className="flex items-center space-x-1">
@@ -169,7 +181,7 @@ const Kegiatan = () => {
                             )}
                           </div>
                           <p className="text-white/60 text-xs mt-2">
-                            {t('kegiatanPage.clickDetail')}
+                            {t("kegiatanPage.clickDetail")}
                           </p>
                         </div>
                       </div>
@@ -177,7 +189,9 @@ const Kegiatan = () => {
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-dark/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
                         <div className="flex items-center space-x-2 text-white">
                           <Camera size={16} className="text-primary" />
-                          <span className="text-sm font-medium">{item.judul}</span>
+                          <span className="text-sm font-medium">
+                            {item.judul}
+                          </span>
                         </div>
                       </div>
                     </motion.div>
@@ -195,19 +209,21 @@ const Kegiatan = () => {
                       <ChevronLeft size={20} />
                     </button>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => goToPage(page)}
-                        className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
-                          currentPage === page
-                            ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25'
-                            : 'border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          onClick={() => goToPage(page)}
+                          className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
+                            currentPage === page
+                              ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
+                              : "border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    )}
 
                     <button
                       onClick={() => goToPage(currentPage + 1)}
@@ -243,12 +259,18 @@ const Kegiatan = () => {
               variants={staggerItem}
               className="text-3xl md:text-4xl font-bold text-text-heading mb-6"
             >
-              {t('kegiatanPage.ctaTitle')}
+              {t("kegiatanPage.ctaTitle")}
             </motion.h2>
-            <motion.p variants={staggerItem} className="text-lg text-text-body mb-8">
-              {t('kegiatanPage.ctaDesc')}
+            <motion.p
+              variants={staggerItem}
+              className="text-lg text-text-body mb-8"
+            >
+              {t("kegiatanPage.ctaDesc")}
             </motion.p>
-            <motion.div variants={staggerItem} className="flex flex-wrap justify-center gap-4">
+            <motion.div
+              variants={staggerItem}
+              className="flex flex-wrap justify-center gap-4"
+            >
               <Link
                 to="/kegiatan/social-impact-assessment"
                 className="btn-primary inline-flex group"
@@ -312,13 +334,17 @@ const Kegiatan = () => {
 
               {/* Content */}
               <div className="p-6 md:p-8">
-                <h2 className="text-2xl font-bold text-text-heading mb-4">{selectedItem.judul}</h2>
+                <h2 className="text-2xl font-bold text-text-heading mb-4">
+                  {selectedItem.judul}
+                </h2>
 
                 <div className="flex flex-wrap gap-3 mb-5">
                   {selectedItem.tanggal && (
                     <div className="flex items-center space-x-2 text-text-body bg-dark/30 px-3 py-2 rounded-lg">
                       <Calendar size={16} className="text-primary" />
-                      <span className="text-sm">{formatDate(selectedItem.tanggal)}</span>
+                      <span className="text-sm">
+                        {formatDate(selectedItem.tanggal)}
+                      </span>
                     </div>
                   )}
                   {selectedItem.lokasi && (
@@ -334,7 +360,9 @@ const Kegiatan = () => {
                     {selectedItem.deskripsi}
                   </p>
                 ) : (
-                  <p className="text-text-muted italic">{t('kegiatanPage.noDetailInfo')}</p>
+                  <p className="text-text-muted italic">
+                    {t("kegiatanPage.noDetailInfo")}
+                  </p>
                 )}
               </div>
             </motion.div>
@@ -342,7 +370,7 @@ const Kegiatan = () => {
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};
 
-export default Kegiatan
+export default Kegiatan;

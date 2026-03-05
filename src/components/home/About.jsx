@@ -1,19 +1,19 @@
-import { motion } from 'motion/react'
-import { CheckCircle, ArrowRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { useLanguage } from '../../hooks/useLanguage'
+import { motion } from "motion/react";
+import { CheckCircle, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../../hooks/useLanguage";
 import {
   fadeInLeft,
   fadeInRight,
   staggerContainer,
   staggerItem,
   defaultViewport,
-} from '../../utils/animations'
+} from "../../utils/animations";
 
 const About = () => {
-  const { t } = useLanguage()
+  const { t } = useLanguage();
 
-  const features = t('about.features')
+  const features = t("about.features");
 
   return (
     <section className="section-padding bg-dark">
@@ -40,7 +40,7 @@ const About = () => {
               <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-dark shadow-glow-primary">
                 <div className="text-center">
                   <p className="text-4xl font-bold">2</p>
-                  <p className="text-sm">{t('about.yearsDedicated')}</p>
+                  <p className="text-sm">{t("about.yearsDedicated")}</p>
                 </div>
               </div>
             </div>
@@ -55,11 +55,14 @@ const About = () => {
             custom={0.1}
             className="space-y-6"
           >
-            <span className="text-primary font-semibold">{t('about.label')}</span>
+            <span className="text-primary font-semibold">
+              {t("about.label")}
+            </span>
             <h2 className="heading-primary">
-              {t('about.title1')} <span className="gradient-text">{t('about.title2')}</span>
+              {t("about.title1")}{" "}
+              <span className="gradient-text">{t("about.title2")}</span>
             </h2>
-            <p className="text-body">{t('about.description')}</p>
+            <p className="text-body">{t("about.description")}</p>
 
             {/* Features — stagger effect */}
             <motion.div
@@ -77,14 +80,20 @@ const About = () => {
                     variants={staggerItem}
                     className="flex items-center space-x-3"
                   >
-                    <CheckCircle className="text-primary flex-shrink-0" size={20} />
+                    <CheckCircle
+                      className="text-primary flex-shrink-0"
+                      size={20}
+                    />
                     <span className="text-text-body">{feature}</span>
                   </motion.div>
                 ))}
             </motion.div>
 
-            <Link to="/tentang/visi-misi" className="btn-primary inline-flex group mt-4">
-              {t('about.btnLearnMore')}
+            <Link
+              to="/tentang/visi-misi"
+              className="btn-primary inline-flex group mt-4"
+            >
+              {t("about.btnLearnMore")}
               <ArrowRight
                 className="ml-2 group-hover:translate-x-1 transition-transform"
                 size={20}
@@ -94,7 +103,7 @@ const About = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default About
+export default About;

@@ -50,7 +50,11 @@ services:
       # Auto-run migration.sql saat pertama kali init
       - ./backend/database/migration.sql:/docker-entrypoint-initdb.d/01-migration.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mycompany}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mycompany}",
+        ]
       interval: 10s
       timeout: 5s
       start_period: 30s

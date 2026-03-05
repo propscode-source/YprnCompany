@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '../context/useAuth'
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../context/useAuth";
 import {
   Plus,
   Edit3,
@@ -20,12 +20,12 @@ import {
   Briefcase,
   Film,
   CheckCircle,
-} from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { CKEditor } from '@ckeditor/ckeditor5-react'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-import { API_URL, getImageUrl } from '../config/api'
+import { API_URL, getImageUrl } from "../config/api";
 
 // Define custom styling for CKEditor and hide scrollbar
 const customStyles = `
@@ -85,560 +85,597 @@ const customStyles = `
   .ck-content a {
     color: #3b82f6 !important;
   }
-`
+`;
 
 const AdminDashboard = () => {
-  const { admin, token, logout } = useAuth()
-  const navigate = useNavigate()
-  const [kegiatan, setKegiatan] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [editingItem, setEditingItem] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
-  const [detailItem, setDetailItem] = useState(null)
-  const [message, setMessage] = useState({ text: '', type: '' })
-  const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 9
+  const { admin, token, logout } = useAuth();
+  const navigate = useNavigate();
+  const [kegiatan, setKegiatan] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [detailItem, setDetailItem] = useState(null);
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
 
   // Hero Beranda state
-  const [heroImages, setHeroImages] = useState([])
-  const [heroLoading, setHeroLoading] = useState(true)
-  const [showHeroModal, setShowHeroModal] = useState(false)
-  const [editingHero, setEditingHero] = useState(null)
-  const [deleteHeroConfirm, setDeleteHeroConfirm] = useState(null)
-  const [heroFormData, setHeroFormData] = useState({ judul: '', deskripsi: '', urutan: 0 })
-  const [heroImageFile, setHeroImageFile] = useState(null)
-  const [heroImagePreview, setHeroImagePreview] = useState(null)
-  const [heroFormLoading, setHeroFormLoading] = useState(false)
+  const [heroImages, setHeroImages] = useState([]);
+  const [heroLoading, setHeroLoading] = useState(true);
+  const [showHeroModal, setShowHeroModal] = useState(false);
+  const [editingHero, setEditingHero] = useState(null);
+  const [deleteHeroConfirm, setDeleteHeroConfirm] = useState(null);
+  const [heroFormData, setHeroFormData] = useState({
+    judul: "",
+    deskripsi: "",
+    urutan: 0,
+  });
+  const [heroImageFile, setHeroImageFile] = useState(null);
+  const [heroImagePreview, setHeroImagePreview] = useState(null);
+  const [heroFormLoading, setHeroFormLoading] = useState(false);
 
   // Proyek state
-  const [proyek, setProyek] = useState([])
-  const [proyekLoading, setProyekLoading] = useState(true)
-  const [showProyekModal, setShowProyekModal] = useState(false)
-  const [editingProyek, setEditingProyek] = useState(null)
-  const [deleteProyekConfirm, setDeleteProyekConfirm] = useState(null)
-  const [detailProyek, setDetailProyek] = useState(null)
+  const [proyek, setProyek] = useState([]);
+  const [proyekLoading, setProyekLoading] = useState(true);
+  const [showProyekModal, setShowProyekModal] = useState(false);
+  const [editingProyek, setEditingProyek] = useState(null);
+  const [deleteProyekConfirm, setDeleteProyekConfirm] = useState(null);
+  const [detailProyek, setDetailProyek] = useState(null);
   const [proyekFormData, setProyekFormData] = useState({
-    judul: '',
-    deskripsi: '',
-    detail: '',
-    tags: '',
-    kategori: 'sia',
-  })
-  const [proyekImageFile, setProyekImageFile] = useState(null)
-  const [proyekImagePreview, setProyekImagePreview] = useState(null)
-  const [proyekFormLoading, setProyekFormLoading] = useState(false)
-  const [proyekCurrentPage, setProyekCurrentPage] = useState(1)
-  const PROYEK_PER_PAGE = 6
+    judul: "",
+    deskripsi: "",
+    detail: "",
+    tags: "",
+    kategori: "sia",
+  });
+  const [proyekImageFile, setProyekImageFile] = useState(null);
+  const [proyekImagePreview, setProyekImagePreview] = useState(null);
+  const [proyekFormLoading, setProyekFormLoading] = useState(false);
+  const [proyekCurrentPage, setProyekCurrentPage] = useState(1);
+  const PROYEK_PER_PAGE = 6;
 
   // Video Beranda state
-  const [videoList, setVideoList] = useState([])
-  const [videoLoading, setVideoLoading] = useState(true)
-  const [showVideoModal, setShowVideoModal] = useState(false)
-  const [editingVideo, setEditingVideo] = useState(null)
-  const [deleteVideoConfirm, setDeleteVideoConfirm] = useState(null)
-  const [videoFormData, setVideoFormData] = useState({ judul: '', deskripsi: '' })
-  const [videoFile, setVideoFile] = useState(null)
-  const [videoPreview, setVideoPreview] = useState(null)
-  const [videoFormLoading, setVideoFormLoading] = useState(false)
+  const [videoList, setVideoList] = useState([]);
+  const [videoLoading, setVideoLoading] = useState(true);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [editingVideo, setEditingVideo] = useState(null);
+  const [deleteVideoConfirm, setDeleteVideoConfirm] = useState(null);
+  const [videoFormData, setVideoFormData] = useState({
+    judul: "",
+    deskripsi: "",
+  });
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [videoFormLoading, setVideoFormLoading] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
-    judul: '',
-    deskripsi: '',
-    tanggal: '',
-    lokasi: '',
-    kategori: 'kegiatan',
-  })
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [formLoading, setFormLoading] = useState(false)
+    judul: "",
+    deskripsi: "",
+    tanggal: "",
+    lokasi: "",
+    kategori: "kegiatan",
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
 
   const fetchKegiatan = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/kegiatan`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      setKegiatan(data)
+      });
+      const data = await res.json();
+      setKegiatan(data);
     } catch (err) {
-      console.error('Error fetching kegiatan:', err)
+      console.error("Error fetching kegiatan:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [token])
+  }, [token]);
 
   useEffect(() => {
-    fetchKegiatan()
-  }, [fetchKegiatan])
+    fetchKegiatan();
+  }, [fetchKegiatan]);
 
   // Hero Beranda fetch & handlers
   const fetchHeroImages = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/hero-beranda`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      setHeroImages(data)
+      });
+      const data = await res.json();
+      setHeroImages(data);
     } catch (err) {
-      console.error('Error fetching hero images:', err)
+      console.error("Error fetching hero images:", err);
     } finally {
-      setHeroLoading(false)
+      setHeroLoading(false);
     }
-  }, [token])
+  }, [token]);
 
   useEffect(() => {
-    fetchHeroImages()
-  }, [fetchHeroImages])
+    fetchHeroImages();
+  }, [fetchHeroImages]);
 
   const openCreateHeroModal = () => {
-    setEditingHero(null)
-    setHeroFormData({ judul: '', deskripsi: '', urutan: 0 })
-    setHeroImageFile(null)
-    setHeroImagePreview(null)
-    setShowHeroModal(true)
-  }
+    setEditingHero(null);
+    setHeroFormData({ judul: "", deskripsi: "", urutan: 0 });
+    setHeroImageFile(null);
+    setHeroImagePreview(null);
+    setShowHeroModal(true);
+  };
 
   const openEditHeroModal = (item) => {
-    setEditingHero(item)
+    setEditingHero(item);
     setHeroFormData({
-      judul: item.judul || '',
-      deskripsi: item.deskripsi || '',
+      judul: item.judul || "",
+      deskripsi: item.deskripsi || "",
       urutan: item.urutan || 0,
-    })
-    setHeroImageFile(null)
-    setHeroImagePreview(item.gambar ? getImageUrl(item.gambar) : null)
-    setShowHeroModal(true)
-  }
+    });
+    setHeroImageFile(null);
+    setHeroImagePreview(item.gambar ? getImageUrl(item.gambar) : null);
+    setShowHeroModal(true);
+  };
 
   const handleHeroImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setHeroImageFile(file)
-      setHeroImagePreview(URL.createObjectURL(file))
+      setHeroImageFile(file);
+      setHeroImagePreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleHeroSubmit = async (e) => {
-    e.preventDefault()
-    setHeroFormLoading(true)
+    e.preventDefault();
+    setHeroFormLoading(true);
 
     try {
-      const data = new FormData()
-      data.append('judul', heroFormData.judul)
-      data.append('deskripsi', heroFormData.deskripsi)
-      data.append('urutan', heroFormData.urutan)
+      const data = new FormData();
+      data.append("judul", heroFormData.judul);
+      data.append("deskripsi", heroFormData.deskripsi);
+      data.append("urutan", heroFormData.urutan);
       if (heroImageFile) {
-        data.append('gambar', heroImageFile)
+        data.append("gambar", heroImageFile);
       }
 
       const url = editingHero
         ? `${API_URL}/hero-beranda/${editingHero.id}`
-        : `${API_URL}/hero-beranda`
+        : `${API_URL}/hero-beranda`;
 
       const res = await fetch(url, {
-        method: editingHero ? 'PUT' : 'POST',
+        method: editingHero ? "PUT" : "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: data,
-      })
+      });
 
       if (res.ok) {
         showMessage(
-          editingHero ? 'Hero image berhasil diperbarui!' : 'Hero image berhasil ditambahkan!'
-        )
-        setShowHeroModal(false)
-        fetchHeroImages()
+          editingHero
+            ? "Hero image berhasil diperbarui!"
+            : "Hero image berhasil ditambahkan!",
+        );
+        setShowHeroModal(false);
+        fetchHeroImages();
       } else {
-        const errData = await res.json()
-        showMessage(errData.message || 'Terjadi kesalahan', 'error')
+        const errData = await res.json();
+        showMessage(errData.message || "Terjadi kesalahan", "error");
       }
     } catch {
-      showMessage('Gagal menyimpan hero image', 'error')
+      showMessage("Gagal menyimpan hero image", "error");
     } finally {
-      setHeroFormLoading(false)
+      setHeroFormLoading(false);
     }
-  }
+  };
 
   const handleDeleteHero = async (id) => {
     try {
       const res = await fetch(`${API_URL}/hero-beranda/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
       if (res.ok) {
-        showMessage('Hero image berhasil dihapus!')
-        setDeleteHeroConfirm(null)
-        fetchHeroImages()
+        showMessage("Hero image berhasil dihapus!");
+        setDeleteHeroConfirm(null);
+        fetchHeroImages();
       }
     } catch {
-      showMessage('Gagal menghapus hero image', 'error')
+      showMessage("Gagal menghapus hero image", "error");
     }
-  }
+  };
 
   // ==================== PROYEK HANDLERS ====================
   const fetchProyek = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/proyek`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
       if (res.ok) {
-        const data = await res.json()
-        setProyek(Array.isArray(data) ? data : [])
+        const data = await res.json();
+        setProyek(Array.isArray(data) ? data : []);
       }
     } catch (err) {
-      console.error('Error fetching proyek:', err)
+      console.error("Error fetching proyek:", err);
     } finally {
-      setProyekLoading(false)
+      setProyekLoading(false);
     }
-  }, [token])
+  }, [token]);
 
   useEffect(() => {
-    fetchProyek()
-  }, [fetchProyek])
+    fetchProyek();
+  }, [fetchProyek]);
 
   const openCreateProyekModal = () => {
-    setEditingProyek(null)
-    setProyekFormData({ judul: '', deskripsi: '', detail: '', tags: '', kategori: 'sia' })
-    setProyekImageFile(null)
-    setProyekImagePreview(null)
-    setShowProyekModal(true)
-  }
+    setEditingProyek(null);
+    setProyekFormData({
+      judul: "",
+      deskripsi: "",
+      detail: "",
+      tags: "",
+      kategori: "sia",
+    });
+    setProyekImageFile(null);
+    setProyekImagePreview(null);
+    setShowProyekModal(true);
+  };
 
   const openEditProyekModal = (item) => {
-    setEditingProyek(item)
+    setEditingProyek(item);
     setProyekFormData({
-      judul: item.judul || '',
-      deskripsi: item.deskripsi || '',
-      detail: item.detail || '',
-      tags: Array.isArray(item.tags) ? item.tags.join(', ') : '',
-      kategori: item.kategori || 'sia',
-    })
-    setProyekImageFile(null)
-    setProyekImagePreview(item.gambar ? getImageUrl(item.gambar) : null)
-    setShowProyekModal(true)
-  }
+      judul: item.judul || "",
+      deskripsi: item.deskripsi || "",
+      detail: item.detail || "",
+      tags: Array.isArray(item.tags) ? item.tags.join(", ") : "",
+      kategori: item.kategori || "sia",
+    });
+    setProyekImageFile(null);
+    setProyekImagePreview(item.gambar ? getImageUrl(item.gambar) : null);
+    setShowProyekModal(true);
+  };
 
   const handleProyekImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setProyekImageFile(file)
-      setProyekImagePreview(URL.createObjectURL(file))
+      setProyekImageFile(file);
+      setProyekImagePreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleProyekSubmit = async (e) => {
-    e.preventDefault()
-    setProyekFormLoading(true)
+    e.preventDefault();
+    setProyekFormLoading(true);
 
     try {
-      const data = new FormData()
-      data.append('judul', proyekFormData.judul)
-      data.append('deskripsi', proyekFormData.deskripsi)
-      data.append('detail', proyekFormData.detail)
-      data.append('tags', proyekFormData.tags)
-      data.append('kategori', proyekFormData.kategori)
+      const data = new FormData();
+      data.append("judul", proyekFormData.judul);
+      data.append("deskripsi", proyekFormData.deskripsi);
+      data.append("detail", proyekFormData.detail);
+      data.append("tags", proyekFormData.tags);
+      data.append("kategori", proyekFormData.kategori);
       if (proyekImageFile) {
-        data.append('gambar', proyekImageFile)
+        data.append("gambar", proyekImageFile);
       }
 
-      const url = editingProyek ? `${API_URL}/proyek/${editingProyek.id}` : `${API_URL}/proyek`
+      const url = editingProyek
+        ? `${API_URL}/proyek/${editingProyek.id}`
+        : `${API_URL}/proyek`;
 
       const res = await fetch(url, {
-        method: editingProyek ? 'PUT' : 'POST',
+        method: editingProyek ? "PUT" : "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: data,
-      })
+      });
 
       if (res.ok) {
-        showMessage(editingProyek ? 'Proyek berhasil diperbarui!' : 'Proyek berhasil ditambahkan!')
-        setShowProyekModal(false)
-        fetchProyek()
+        showMessage(
+          editingProyek
+            ? "Proyek berhasil diperbarui!"
+            : "Proyek berhasil ditambahkan!",
+        );
+        setShowProyekModal(false);
+        fetchProyek();
       } else {
-        const errData = await res.json()
-        showMessage(errData.message || 'Terjadi kesalahan', 'error')
+        const errData = await res.json();
+        showMessage(errData.message || "Terjadi kesalahan", "error");
       }
     } catch {
-      showMessage('Gagal menyimpan proyek', 'error')
+      showMessage("Gagal menyimpan proyek", "error");
     } finally {
-      setProyekFormLoading(false)
+      setProyekFormLoading(false);
     }
-  }
+  };
 
   const handleDeleteProyek = async (id) => {
     try {
       const res = await fetch(`${API_URL}/proyek/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
       if (res.ok) {
-        showMessage('Proyek berhasil dihapus!')
-        setDeleteProyekConfirm(null)
-        fetchProyek()
+        showMessage("Proyek berhasil dihapus!");
+        setDeleteProyekConfirm(null);
+        fetchProyek();
       }
     } catch {
-      showMessage('Gagal menghapus proyek', 'error')
+      showMessage("Gagal menghapus proyek", "error");
     }
-  }
+  };
 
   // ==================== VIDEO BERANDA HANDLERS ====================
   const fetchVideoList = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/video-beranda/all`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
       if (res.ok) {
-        const data = await res.json()
-        setVideoList(Array.isArray(data) ? data : [])
+        const data = await res.json();
+        setVideoList(Array.isArray(data) ? data : []);
       }
     } catch (err) {
-      console.error('Error fetching video list:', err)
+      console.error("Error fetching video list:", err);
     } finally {
-      setVideoLoading(false)
+      setVideoLoading(false);
     }
-  }, [token])
+  }, [token]);
 
   useEffect(() => {
-    fetchVideoList()
-  }, [fetchVideoList])
+    fetchVideoList();
+  }, [fetchVideoList]);
 
   const openCreateVideoModal = () => {
-    setEditingVideo(null)
-    setVideoFormData({ judul: '', deskripsi: '' })
-    setVideoFile(null)
-    setVideoPreview(null)
-    setShowVideoModal(true)
-  }
+    setEditingVideo(null);
+    setVideoFormData({ judul: "", deskripsi: "" });
+    setVideoFile(null);
+    setVideoPreview(null);
+    setShowVideoModal(true);
+  };
 
   const openEditVideoModal = (item) => {
-    setEditingVideo(item)
+    setEditingVideo(item);
     setVideoFormData({
-      judul: item.judul || '',
-      deskripsi: item.deskripsi || '',
-    })
-    setVideoFile(null)
-    setVideoPreview(item.video ? getImageUrl(item.video) : null)
-    setShowVideoModal(true)
-  }
+      judul: item.judul || "",
+      deskripsi: item.deskripsi || "",
+    });
+    setVideoFile(null);
+    setVideoPreview(item.video ? getImageUrl(item.video) : null);
+    setShowVideoModal(true);
+  };
 
   const handleVideoFileChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setVideoFile(file)
-      setVideoPreview(URL.createObjectURL(file))
+      setVideoFile(file);
+      setVideoPreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleVideoSubmit = async (e) => {
-    e.preventDefault()
-    setVideoFormLoading(true)
+    e.preventDefault();
+    setVideoFormLoading(true);
 
     try {
-      const data = new FormData()
-      data.append('judul', videoFormData.judul)
-      data.append('deskripsi', videoFormData.deskripsi)
+      const data = new FormData();
+      data.append("judul", videoFormData.judul);
+      data.append("deskripsi", videoFormData.deskripsi);
       if (videoFile) {
-        data.append('video', videoFile)
+        data.append("video", videoFile);
       }
 
       const url = editingVideo
         ? `${API_URL}/video-beranda/${editingVideo.id}`
-        : `${API_URL}/video-beranda`
+        : `${API_URL}/video-beranda`;
 
       const res = await fetch(url, {
-        method: editingVideo ? 'PUT' : 'POST',
+        method: editingVideo ? "PUT" : "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: data,
-      })
+      });
 
       if (res.ok) {
-        showMessage(editingVideo ? 'Video berhasil diperbarui!' : 'Video berhasil ditambahkan!')
-        setShowVideoModal(false)
-        fetchVideoList()
+        showMessage(
+          editingVideo
+            ? "Video berhasil diperbarui!"
+            : "Video berhasil ditambahkan!",
+        );
+        setShowVideoModal(false);
+        fetchVideoList();
       } else {
-        const errData = await res.json()
-        showMessage(errData.message || 'Terjadi kesalahan', 'error')
+        const errData = await res.json();
+        showMessage(errData.message || "Terjadi kesalahan", "error");
       }
     } catch {
-      showMessage('Gagal menyimpan video', 'error')
+      showMessage("Gagal menyimpan video", "error");
     } finally {
-      setVideoFormLoading(false)
+      setVideoFormLoading(false);
     }
-  }
+  };
 
   const handleActivateVideo = async (id) => {
     try {
       const res = await fetch(`${API_URL}/video-beranda/${id}/activate`, {
-        method: 'PUT',
+        method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
       if (res.ok) {
-        showMessage('Video berhasil diaktifkan!')
-        fetchVideoList()
+        showMessage("Video berhasil diaktifkan!");
+        fetchVideoList();
       }
     } catch {
-      showMessage('Gagal mengaktifkan video', 'error')
+      showMessage("Gagal mengaktifkan video", "error");
     }
-  }
+  };
 
   const handleDeleteVideo = async (id) => {
     try {
       const res = await fetch(`${API_URL}/video-beranda/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
       if (res.ok) {
-        showMessage('Video berhasil dihapus!')
-        setDeleteVideoConfirm(null)
-        fetchVideoList()
+        showMessage("Video berhasil dihapus!");
+        setDeleteVideoConfirm(null);
+        fetchVideoList();
       }
     } catch {
-      showMessage('Gagal menghapus video', 'error')
+      showMessage("Gagal menghapus video", "error");
     }
-  }
+  };
 
-  const proyekTotalPages = Math.ceil(proyek.length / PROYEK_PER_PAGE)
+  const proyekTotalPages = Math.ceil(proyek.length / PROYEK_PER_PAGE);
   const paginatedProyek = proyek.slice(
     (proyekCurrentPage - 1) * PROYEK_PER_PAGE,
-    proyekCurrentPage * PROYEK_PER_PAGE
-  )
+    proyekCurrentPage * PROYEK_PER_PAGE,
+  );
 
   const goToProyekPage = (page) => {
-    setProyekCurrentPage(page)
-    document.getElementById('proyek-section')?.scrollIntoView({ behavior: 'smooth' })
-  }
+    setProyekCurrentPage(page);
+    document
+      .getElementById("proyek-section")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const proyekKategoriLabel = {
-    sia: 'SIA',
-    sroi: 'SROI',
-  }
+    sia: "SIA",
+    sroi: "SROI",
+  };
 
-  const showMessage = (text, type = 'success') => {
-    setMessage({ text, type })
-    setTimeout(() => setMessage({ text: '', type: '' }), 3000)
-  }
+  const showMessage = (text, type = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+  };
 
   const openCreateModal = () => {
-    setEditingItem(null)
-    setFormData({ judul: '', deskripsi: '', tanggal: '', lokasi: '', kategori: 'kegiatan' })
-    setImageFile(null)
-    setImagePreview(null)
-    setShowModal(true)
-  }
+    setEditingItem(null);
+    setFormData({
+      judul: "",
+      deskripsi: "",
+      tanggal: "",
+      lokasi: "",
+      kategori: "kegiatan",
+    });
+    setImageFile(null);
+    setImagePreview(null);
+    setShowModal(true);
+  };
 
   const openEditModal = (item) => {
-    setEditingItem(item)
+    setEditingItem(item);
     setFormData({
       judul: item.judul,
-      deskripsi: item.deskripsi || '',
-      tanggal: item.tanggal ? item.tanggal.split('T')[0] : '',
-      lokasi: item.lokasi || '',
-      kategori: item.kategori || 'kegiatan',
-    })
-    setImageFile(null)
-    setImagePreview(item.gambar ? getImageUrl(item.gambar) : null)
-    setShowModal(true)
-  }
+      deskripsi: item.deskripsi || "",
+      tanggal: item.tanggal ? item.tanggal.split("T")[0] : "",
+      lokasi: item.lokasi || "",
+      kategori: item.kategori || "kegiatan",
+    });
+    setImageFile(null);
+    setImagePreview(item.gambar ? getImageUrl(item.gambar) : null);
+    setShowModal(true);
+  };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setFormLoading(true)
+    e.preventDefault();
+    setFormLoading(true);
 
     try {
-      const data = new FormData()
-      data.append('judul', formData.judul)
-      data.append('deskripsi', formData.deskripsi)
-      data.append('tanggal', formData.tanggal)
-      data.append('lokasi', formData.lokasi)
-      data.append('kategori', formData.kategori)
+      const data = new FormData();
+      data.append("judul", formData.judul);
+      data.append("deskripsi", formData.deskripsi);
+      data.append("tanggal", formData.tanggal);
+      data.append("lokasi", formData.lokasi);
+      data.append("kategori", formData.kategori);
       if (imageFile) {
-        data.append('gambar', imageFile)
+        data.append("gambar", imageFile);
       }
 
-      const url = editingItem ? `${API_URL}/kegiatan/${editingItem.id}` : `${API_URL}/kegiatan`
+      const url = editingItem
+        ? `${API_URL}/kegiatan/${editingItem.id}`
+        : `${API_URL}/kegiatan`;
 
       const res = await fetch(url, {
-        method: editingItem ? 'PUT' : 'POST',
+        method: editingItem ? "PUT" : "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: data,
-      })
+      });
 
       if (res.ok) {
         showMessage(
-          editingItem ? 'Kegiatan berhasil diperbarui!' : 'Kegiatan berhasil ditambahkan!'
-        )
-        setShowModal(false)
-        fetchKegiatan()
+          editingItem
+            ? "Kegiatan berhasil diperbarui!"
+            : "Kegiatan berhasil ditambahkan!",
+        );
+        setShowModal(false);
+        fetchKegiatan();
       } else {
-        const errData = await res.json()
-        showMessage(errData.message || 'Terjadi kesalahan', 'error')
+        const errData = await res.json();
+        showMessage(errData.message || "Terjadi kesalahan", "error");
       }
     } catch {
-      showMessage('Gagal menyimpan kegiatan', 'error')
+      showMessage("Gagal menyimpan kegiatan", "error");
     } finally {
-      setFormLoading(false)
+      setFormLoading(false);
     }
-  }
+  };
 
   const handleDelete = async (id) => {
     try {
       const res = await fetch(`${API_URL}/kegiatan/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
       if (res.ok) {
-        showMessage('Kegiatan berhasil dihapus!')
-        setDeleteConfirm(null)
-        fetchKegiatan()
+        showMessage("Kegiatan berhasil dihapus!");
+        setDeleteConfirm(null);
+        fetchKegiatan();
       }
     } catch {
-      showMessage('Gagal menghapus kegiatan', 'error')
+      showMessage("Gagal menghapus kegiatan", "error");
     }
-  }
+  };
 
   const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+    logout();
+    navigate("/");
+  };
 
   const kategoriLabel = {
-    kegiatan: 'Kegiatan',
-    sia: 'Social Impact Assessment',
-    sroi: 'Social Return on Investment',
-  }
+    kegiatan: "Kegiatan",
+    sia: "Social Impact Assessment",
+    sroi: "Social Return on Investment",
+  };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return null
-    return new Date(dateStr).toLocaleDateString('id-ID', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
-  const totalPages = Math.ceil(kegiatan.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(kegiatan.length / ITEMS_PER_PAGE);
   const paginatedKegiatan = kegiatan.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   const goToPage = (page) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 200, behavior: 'smooth' })
-  }
+    setCurrentPage(page);
+    window.scrollTo({ top: 200, behavior: "smooth" });
+  };
 
   return (
     <div className="pt-20 min-h-screen bg-dark">
@@ -649,7 +686,9 @@ const AdminDashboard = () => {
             <div className="flex items-center space-x-3">
               <LayoutDashboard className="text-primary" size={24} />
               <div>
-                <h1 className="text-xl font-bold text-text-heading">Admin Dashboard</h1>
+                <h1 className="text-xl font-bold text-text-heading">
+                  Admin Dashboard
+                </h1>
                 <p className="text-sm text-text-muted">
                   Selamat datang, {admin?.nama || admin?.username}
                 </p>
@@ -671,9 +710,9 @@ const AdminDashboard = () => {
         <div className="container-custom mt-4">
           <div
             className={`p-4 rounded-xl text-sm font-medium ${
-              message.type === 'error'
-                ? 'bg-red-500/10 border border-red-500/30 text-red-400'
-                : 'bg-green-500/10 border border-green-500/30 text-green-400'
+              message.type === "error"
+                ? "bg-red-500/10 border border-red-500/30 text-red-400"
+                : "bg-green-500/10 border border-green-500/30 text-green-400"
             }`}
           >
             {message.text}
@@ -689,7 +728,9 @@ const AdminDashboard = () => {
             <div>
               <div className="flex items-center space-x-2 mb-1">
                 <Home size={20} className="text-primary" />
-                <h2 className="text-2xl font-bold text-text-heading">Hero Beranda</h2>
+                <h2 className="text-2xl font-bold text-text-heading">
+                  Hero Beranda
+                </h2>
               </div>
               <p className="text-text-body text-sm mt-1">
                 Kelola gambar hero yang tampil di halaman utama
@@ -728,7 +769,7 @@ const AdminDashboard = () => {
                     {item.gambar ? (
                       <img
                         src={getImageUrl(item.gambar)}
-                        alt={item.judul || 'Hero Image'}
+                        alt={item.judul || "Hero Image"}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -745,10 +786,12 @@ const AdminDashboard = () => {
 
                   <div className="p-4 md:p-5">
                     <h3 className="text-lg font-bold text-text-heading mb-1 line-clamp-1">
-                      {item.judul || 'Tanpa judul'}
+                      {item.judul || "Tanpa judul"}
                     </h3>
                     {item.deskripsi && (
-                      <p className="text-text-body text-sm mb-3 line-clamp-2">{item.deskripsi}</p>
+                      <p className="text-text-body text-sm mb-3 line-clamp-2">
+                        {item.deskripsi}
+                      </p>
                     )}
                     <div className="flex space-x-2">
                       <button
@@ -782,7 +825,9 @@ const AdminDashboard = () => {
             <div>
               <div className="flex items-center space-x-2 mb-1">
                 <Film size={20} className="text-primary" />
-                <h2 className="text-2xl font-bold text-text-heading">Video Beranda</h2>
+                <h2 className="text-2xl font-bold text-text-heading">
+                  Video Beranda
+                </h2>
               </div>
               <p className="text-text-body text-sm mt-1">
                 Kelola video yang tampil di section video halaman utama
@@ -817,8 +862,8 @@ const AdminDashboard = () => {
                   key={item.id}
                   className={`bg-dark-50/80 rounded-none md:rounded-2xl border-b md:border overflow-hidden group transition-all duration-300 ${
                     item.is_active
-                      ? 'border-primary/50 md:border-primary/50'
-                      : 'border-dark-200/50 hover:border-primary/30'
+                      ? "border-primary/50 md:border-primary/50"
+                      : "border-dark-200/50 hover:border-primary/30"
                   }`}
                 >
                   <div className="relative h-52 sm:h-48 bg-dark-200/30">
@@ -847,10 +892,12 @@ const AdminDashboard = () => {
 
                   <div className="p-4 md:p-5">
                     <h3 className="text-lg font-bold text-text-heading mb-1 line-clamp-1">
-                      {item.judul || 'Tanpa judul'}
+                      {item.judul || "Tanpa judul"}
                     </h3>
                     {item.deskripsi && (
-                      <p className="text-text-body text-sm mb-3 line-clamp-2">{item.deskripsi}</p>
+                      <p className="text-text-body text-sm mb-3 line-clamp-2">
+                        {item.deskripsi}
+                      </p>
                     )}
                     <div className="flex space-x-2">
                       {!item.is_active && (
@@ -890,7 +937,9 @@ const AdminDashboard = () => {
         {/* Action Bar */}
         <div className="flex items-center justify-between mb-6 md:mb-8 px-4 md:px-0">
           <div>
-            <h2 className="text-2xl font-bold text-text-heading">Kelola Kegiatan</h2>
+            <h2 className="text-2xl font-bold text-text-heading">
+              Kelola Kegiatan
+            </h2>
             <p className="text-text-body text-sm mt-1">
               Tambah, edit, atau hapus dokumentasi kegiatan
             </p>
@@ -952,13 +1001,17 @@ const AdminDashboard = () => {
                       {item.judul}
                     </h3>
                     {item.deskripsi && (
-                      <p className="text-text-body text-sm mb-3 line-clamp-2">{item.deskripsi}</p>
+                      <p className="text-text-body text-sm mb-3 line-clamp-2">
+                        {item.deskripsi}
+                      </p>
                     )}
                     <div className="flex flex-wrap gap-3 text-xs text-text-muted mb-4">
                       {item.tanggal && (
                         <span className="flex items-center space-x-1">
                           <Calendar size={12} />
-                          <span>{new Date(item.tanggal).toLocaleDateString('id-ID')}</span>
+                          <span>
+                            {new Date(item.tanggal).toLocaleDateString("id-ID")}
+                          </span>
                         </span>
                       )}
                       {item.lokasi && (
@@ -1009,19 +1062,21 @@ const AdminDashboard = () => {
                   <ChevronLeft size={20} />
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
-                      currentPage === page
-                        ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25'
-                        : 'border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
+                        currentPage === page
+                          ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
+                          : "border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
 
                 <button
                   onClick={() => goToPage(currentPage + 1)}
@@ -1038,8 +1093,8 @@ const AdminDashboard = () => {
               <div className="text-center mt-4">
                 <p className="text-text-muted text-sm">
                   Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
-                  {Math.min(currentPage * ITEMS_PER_PAGE, kegiatan.length)} dari {kegiatan.length}{' '}
-                  kegiatan
+                  {Math.min(currentPage * ITEMS_PER_PAGE, kegiatan.length)} dari{" "}
+                  {kegiatan.length} kegiatan
                 </p>
               </div>
             )}
@@ -1055,7 +1110,9 @@ const AdminDashboard = () => {
             <div>
               <div className="flex items-center space-x-2 mb-1">
                 <Briefcase size={20} className="text-primary" />
-                <h2 className="text-2xl font-bold text-text-heading">Kelola Proyek</h2>
+                <h2 className="text-2xl font-bold text-text-heading">
+                  Kelola Proyek
+                </h2>
               </div>
               <p className="text-text-body text-sm mt-1">
                 Tambah, edit, atau hapus proyek kajian SIA & SROI
@@ -1115,7 +1172,9 @@ const AdminDashboard = () => {
                         {item.judul}
                       </h3>
                       {item.deskripsi && (
-                        <p className="text-text-body text-sm mb-3 line-clamp-2">{item.deskripsi}</p>
+                        <p className="text-text-body text-sm mb-3 line-clamp-2">
+                          {item.deskripsi}
+                        </p>
                       )}
                       {Array.isArray(item.tags) && item.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-3">
@@ -1168,14 +1227,17 @@ const AdminDashboard = () => {
                   >
                     <ChevronLeft size={20} />
                   </button>
-                  {Array.from({ length: proyekTotalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from(
+                    { length: proyekTotalPages },
+                    (_, i) => i + 1,
+                  ).map((page) => (
                     <button
                       key={page}
                       onClick={() => goToProyekPage(page)}
                       className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
                         proyekCurrentPage === page
-                          ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25'
-                          : 'border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50'
+                          ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
+                          : "border border-dark-200/50 text-text-body hover:text-primary hover:border-primary/50"
                       }`}
                     >
                       {page}
@@ -1195,8 +1257,11 @@ const AdminDashboard = () => {
                 <div className="text-center mt-4">
                   <p className="text-text-muted text-sm">
                     Menampilkan {(proyekCurrentPage - 1) * PROYEK_PER_PAGE + 1}-
-                    {Math.min(proyekCurrentPage * PROYEK_PER_PAGE, proyek.length)} dari{' '}
-                    {proyek.length} proyek
+                    {Math.min(
+                      proyekCurrentPage * PROYEK_PER_PAGE,
+                      proyek.length,
+                    )}{" "}
+                    dari {proyek.length} proyek
                   </p>
                 </div>
               )}
@@ -1212,7 +1277,7 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
-                {editingItem ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'}
+                {editingItem ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}
               </h3>
               <button
                 type="button"
@@ -1232,7 +1297,9 @@ const AdminDashboard = () => {
               >
                 {/* Left Column: Image Upload */}
                 <div className="w-full md:w-1/3">
-                  <label className="block text-sm font-medium text-text-heading mb-2">Gambar</label>
+                  <label className="block text-sm font-medium text-text-heading mb-2">
+                    Gambar
+                  </label>
                   <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[250px] flex flex-col items-center justify-center">
                     {imagePreview ? (
                       <div className="relative w-full h-full min-h-[200px]">
@@ -1244,8 +1311,8 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setImageFile(null)
-                            setImagePreview(null)
+                            setImageFile(null);
+                            setImagePreview(null);
                           }}
                           className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
                         >
@@ -1254,8 +1321,13 @@ const AdminDashboard = () => {
                       </div>
                     ) : (
                       <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
-                        <Upload className="mx-auto text-text-muted mb-2" size={40} />
-                        <p className="text-text-body text-sm font-medium mt-2">Klik untuk upload</p>
+                        <Upload
+                          className="mx-auto text-text-muted mb-2"
+                          size={40}
+                        />
+                        <p className="text-text-body text-sm font-medium mt-2">
+                          Klik untuk upload
+                        </p>
                         <p className="text-text-muted text-xs mt-1">
                           JPG, PNG, GIF, WebP (max 5MB)
                         </p>
@@ -1280,7 +1352,9 @@ const AdminDashboard = () => {
                     <input
                       type="text"
                       value={formData.judul}
-                      onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, judul: e.target.value })
+                      }
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                       placeholder="Judul kegiatan"
                       required
@@ -1296,25 +1370,25 @@ const AdminDashboard = () => {
                     <div className="custom-ckeditor">
                       <CKEditor
                         editor={ClassicEditor}
-                        data={formData.deskripsi || ''}
+                        data={formData.deskripsi || ""}
                         onChange={(event, editor) => {
-                          const data = editor.getData()
-                          setFormData({ ...formData, deskripsi: data })
+                          const data = editor.getData();
+                          setFormData({ ...formData, deskripsi: data });
                         }}
                         config={{
                           toolbar: [
-                            'heading',
-                            '|',
-                            'bold',
-                            'italic',
-                            'link',
-                            'bulletedList',
-                            'numberedList',
-                            'blockQuote',
-                            'undo',
-                            'redo',
+                            "heading",
+                            "|",
+                            "bold",
+                            "italic",
+                            "link",
+                            "bulletedList",
+                            "numberedList",
+                            "blockQuote",
+                            "undo",
+                            "redo",
                           ],
-                          placeholder: 'Deskripsi kegiatan...',
+                          placeholder: "Deskripsi kegiatan...",
                         }}
                       />
                     </div>
@@ -1329,7 +1403,9 @@ const AdminDashboard = () => {
                       <input
                         type="date"
                         value={formData.tanggal}
-                        onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, tanggal: e.target.value })
+                        }
                         className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                       />
                     </div>
@@ -1340,7 +1416,9 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         value={formData.lokasi}
-                        onChange={(e) => setFormData({ ...formData, lokasi: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, lokasi: e.target.value })
+                        }
                         className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                         placeholder="Lokasi"
                       />
@@ -1354,7 +1432,9 @@ const AdminDashboard = () => {
                     </label>
                     <select
                       value={formData.kategori}
-                      onChange={(e) => setFormData({ ...formData, kategori: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, kategori: e.target.value })
+                      }
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     >
                       <option value="kegiatan">Kegiatan</option>
@@ -1384,9 +1464,9 @@ const AdminDashboard = () => {
                 {formLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : editingItem ? (
-                  'Simpan Perubahan'
+                  "Simpan Perubahan"
                 ) : (
-                  'Tambah Kegiatan'
+                  "Tambah Kegiatan"
                 )}
               </button>
             </div>
@@ -1402,7 +1482,9 @@ const AdminDashboard = () => {
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
                 <AlertCircle className="text-red-400" size={28} />
               </div>
-              <h3 className="text-lg font-bold text-text-heading mb-2">Hapus Kegiatan?</h3>
+              <h3 className="text-lg font-bold text-text-heading mb-2">
+                Hapus Kegiatan?
+              </h3>
               <p className="text-text-body text-sm mb-6">
                 Data yang dihapus tidak dapat dikembalikan.
               </p>
@@ -1474,7 +1556,9 @@ const AdminDashboard = () => {
                   {detailItem.tanggal && (
                     <div className="flex items-center space-x-2 text-text-body bg-dark/30 px-3 py-2 rounded-lg">
                       <Calendar size={16} className="text-primary" />
-                      <span className="text-sm">{formatDate(detailItem.tanggal)}</span>
+                      <span className="text-sm">
+                        {formatDate(detailItem.tanggal)}
+                      </span>
                     </div>
                   )}
                   {detailItem.lokasi && (
@@ -1499,8 +1583,8 @@ const AdminDashboard = () => {
               <div className="p-6 border-t border-dark-200/30 bg-dark-50/50 flex space-x-3">
                 <button
                   onClick={() => {
-                    setDetailItem(null)
-                    openEditModal(detailItem)
+                    setDetailItem(null);
+                    openEditModal(detailItem);
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-primary/10 text-primary border border-primary/30 rounded-xl hover:bg-primary/20 transition-all font-medium"
                 >
@@ -1509,8 +1593,8 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={() => {
-                    setDetailItem(null)
-                    setDeleteConfirm(detailItem.id)
+                    setDetailItem(null);
+                    setDeleteConfirm(detailItem.id);
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/20 transition-all font-medium"
                 >
@@ -1532,7 +1616,7 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
-                {editingProyek ? 'Edit Proyek' : 'Tambah Proyek Baru'}
+                {editingProyek ? "Edit Proyek" : "Tambah Proyek Baru"}
               </h3>
               <button
                 type="button"
@@ -1566,8 +1650,8 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setProyekImageFile(null)
-                            setProyekImagePreview(null)
+                            setProyekImageFile(null);
+                            setProyekImagePreview(null);
                           }}
                           className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
                         >
@@ -1576,8 +1660,13 @@ const AdminDashboard = () => {
                       </div>
                     ) : (
                       <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
-                        <Upload className="mx-auto text-text-muted mb-2" size={40} />
-                        <p className="text-text-body text-sm font-medium mt-2">Klik untuk upload</p>
+                        <Upload
+                          className="mx-auto text-text-muted mb-2"
+                          size={40}
+                        />
+                        <p className="text-text-body text-sm font-medium mt-2">
+                          Klik untuk upload
+                        </p>
                         <p className="text-text-muted text-xs mt-1">
                           JPG, PNG, GIF, WebP (max 5MB)
                         </p>
@@ -1603,7 +1692,10 @@ const AdminDashboard = () => {
                       type="text"
                       value={proyekFormData.judul}
                       onChange={(e) =>
-                        setProyekFormData({ ...proyekFormData, judul: e.target.value })
+                        setProyekFormData({
+                          ...proyekFormData,
+                          judul: e.target.value,
+                        })
                       }
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                       placeholder="Judul proyek kajian"
@@ -1619,7 +1711,10 @@ const AdminDashboard = () => {
                     <textarea
                       value={proyekFormData.deskripsi}
                       onChange={(e) =>
-                        setProyekFormData({ ...proyekFormData, deskripsi: e.target.value })
+                        setProyekFormData({
+                          ...proyekFormData,
+                          deskripsi: e.target.value,
+                        })
                       }
                       rows={2}
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
@@ -1636,26 +1731,29 @@ const AdminDashboard = () => {
                     <div className="custom-ckeditor">
                       <CKEditor
                         editor={ClassicEditor}
-                        data={proyekFormData.detail || ''}
+                        data={proyekFormData.detail || ""}
                         onChange={(event, editor) => {
-                          const data = editor.getData()
-                          setProyekFormData({ ...proyekFormData, detail: data })
+                          const data = editor.getData();
+                          setProyekFormData({
+                            ...proyekFormData,
+                            detail: data,
+                          });
                         }}
                         config={{
                           toolbar: [
-                            'heading',
-                            '|',
-                            'bold',
-                            'italic',
-                            'link',
-                            'bulletedList',
-                            'numberedList',
-                            'blockQuote',
-                            'undo',
-                            'redo',
+                            "heading",
+                            "|",
+                            "bold",
+                            "italic",
+                            "link",
+                            "bulletedList",
+                            "numberedList",
+                            "blockQuote",
+                            "undo",
+                            "redo",
                           ],
                           placeholder:
-                            'Penjelasan detail proyek yang akan tampil saat user mengklik...',
+                            "Penjelasan detail proyek yang akan tampil saat user mengklik...",
                         }}
                       />
                     </div>
@@ -1671,12 +1769,17 @@ const AdminDashboard = () => {
                         type="text"
                         value={proyekFormData.tags}
                         onChange={(e) =>
-                          setProyekFormData({ ...proyekFormData, tags: e.target.value })
+                          setProyekFormData({
+                            ...proyekFormData,
+                            tags: e.target.value,
+                          })
                         }
                         className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                         placeholder="Tag1, Tag2, Tag3"
                       />
-                      <p className="text-text-muted text-xs mt-1">Pisahkan dengan koma</p>
+                      <p className="text-text-muted text-xs mt-1">
+                        Pisahkan dengan koma
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-text-heading mb-2">
@@ -1685,7 +1788,10 @@ const AdminDashboard = () => {
                       <select
                         value={proyekFormData.kategori}
                         onChange={(e) =>
-                          setProyekFormData({ ...proyekFormData, kategori: e.target.value })
+                          setProyekFormData({
+                            ...proyekFormData,
+                            kategori: e.target.value,
+                          })
                         }
                         className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                       >
@@ -1716,9 +1822,9 @@ const AdminDashboard = () => {
                 {proyekFormLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : editingProyek ? (
-                  'Simpan Perubahan'
+                  "Simpan Perubahan"
                 ) : (
-                  'Tambah Proyek'
+                  "Tambah Proyek"
                 )}
               </button>
             </div>
@@ -1762,40 +1868,48 @@ const AdminDashboard = () => {
             <div className="flex-1 flex flex-col h-full overflow-hidden">
               <div className="p-6 md:p-8 flex-1 overflow-y-auto hide-scrollbar">
                 <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary text-xs font-medium rounded-full mb-3">
-                  {proyekKategoriLabel[detailProyek.kategori] || detailProyek.kategori}
+                  {proyekKategoriLabel[detailProyek.kategori] ||
+                    detailProyek.kategori}
                 </span>
 
                 <h2 className="text-2xl lg:text-3xl font-bold text-text-heading mb-4">
                   {detailProyek.judul}
                 </h2>
 
-                {Array.isArray(detailProyek.tags) && detailProyek.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {detailProyek.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {Array.isArray(detailProyek.tags) &&
+                  detailProyek.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {detailProyek.tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                 {detailProyek.deskripsi && (
-                  <p className="text-text-body leading-relaxed mb-4">{detailProyek.deskripsi}</p>
+                  <p className="text-text-body leading-relaxed mb-4">
+                    {detailProyek.deskripsi}
+                  </p>
                 )}
 
                 {detailProyek.detail ? (
                   <div className="bg-dark/30 rounded-xl p-4 mb-6">
-                    <h4 className="text-sm font-semibold text-text-heading mb-2">Detail Proyek</h4>
+                    <h4 className="text-sm font-semibold text-text-heading mb-2">
+                      Detail Proyek
+                    </h4>
                     <div
                       className="text-text-body leading-relaxed prose prose-invert max-w-none"
                       dangerouslySetInnerHTML={{ __html: detailProyek.detail }}
                     />
                   </div>
                 ) : (
-                  <p className="text-text-muted italic mb-6">Belum ada detail proyek.</p>
+                  <p className="text-text-muted italic mb-6">
+                    Belum ada detail proyek.
+                  </p>
                 )}
               </div>
 
@@ -1803,8 +1917,8 @@ const AdminDashboard = () => {
               <div className="p-6 border-t border-dark-200/30 bg-dark-50/50 flex space-x-3">
                 <button
                   onClick={() => {
-                    setDetailProyek(null)
-                    openEditProyekModal(detailProyek)
+                    setDetailProyek(null);
+                    openEditProyekModal(detailProyek);
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-primary/10 text-primary border border-primary/30 rounded-xl hover:bg-primary/20 transition-all font-medium"
                 >
@@ -1813,8 +1927,8 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={() => {
-                    setDetailProyek(null)
-                    setDeleteProyekConfirm(detailProyek.id)
+                    setDetailProyek(null);
+                    setDeleteProyekConfirm(detailProyek.id);
                   }}
                   className="flex-1 flex items-center justify-center space-x-2 py-3 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/20 transition-all font-medium"
                 >
@@ -1835,7 +1949,9 @@ const AdminDashboard = () => {
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
                 <AlertCircle className="text-red-400" size={28} />
               </div>
-              <h3 className="text-lg font-bold text-text-heading mb-2">Hapus Proyek?</h3>
+              <h3 className="text-lg font-bold text-text-heading mb-2">
+                Hapus Proyek?
+              </h3>
               <p className="text-text-body text-sm mb-6">
                 Data yang dihapus tidak dapat dikembalikan.
               </p>
@@ -1867,7 +1983,7 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
-                {editingHero ? 'Edit Hero Image' : 'Tambah Hero Image'}
+                {editingHero ? "Edit Hero Image" : "Tambah Hero Image"}
               </h3>
               <button
                 type="button"
@@ -1888,7 +2004,7 @@ const AdminDashboard = () => {
                 {/* Left Column: Image Upload */}
                 <div className="w-full md:w-1/2 lg:w-5/12">
                   <label className="block text-sm font-medium text-text-heading mb-2">
-                    Gambar {!editingHero && '*'}
+                    Gambar {!editingHero && "*"}
                   </label>
                   <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[300px] flex flex-col items-center justify-center">
                     {heroImagePreview ? (
@@ -1901,8 +2017,8 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setHeroImageFile(null)
-                            setHeroImagePreview(null)
+                            setHeroImageFile(null);
+                            setHeroImagePreview(null);
                           }}
                           className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
                         >
@@ -1911,14 +2027,19 @@ const AdminDashboard = () => {
                       </div>
                     ) : (
                       <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
-                        <Upload className="mx-auto text-text-muted mb-4" size={48} />
+                        <Upload
+                          className="mx-auto text-text-muted mb-4"
+                          size={48}
+                        />
                         <p className="text-text-body text-base font-medium mt-2">
                           Klik untuk upload gambar
                         </p>
                         <p className="text-text-muted text-sm mt-1">
                           JPG, PNG, GIF, WebP (max 5MB)
                         </p>
-                        <p className="text-text-muted text-xs mt-1">Rasio 4:3 disarankan</p>
+                        <p className="text-text-muted text-xs mt-1">
+                          Rasio 4:3 disarankan
+                        </p>
                         <input
                           type="file"
                           accept="image/*"
@@ -1940,7 +2061,12 @@ const AdminDashboard = () => {
                     <input
                       type="text"
                       value={heroFormData.judul}
-                      onChange={(e) => setHeroFormData({ ...heroFormData, judul: e.target.value })}
+                      onChange={(e) =>
+                        setHeroFormData({
+                          ...heroFormData,
+                          judul: e.target.value,
+                        })
+                      }
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                       placeholder="Judul untuk alt text gambar"
                     />
@@ -1954,7 +2080,10 @@ const AdminDashboard = () => {
                     <textarea
                       value={heroFormData.deskripsi}
                       onChange={(e) =>
-                        setHeroFormData({ ...heroFormData, deskripsi: e.target.value })
+                        setHeroFormData({
+                          ...heroFormData,
+                          deskripsi: e.target.value,
+                        })
                       }
                       rows={4}
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
@@ -1972,7 +2101,10 @@ const AdminDashboard = () => {
                       min="0"
                       value={heroFormData.urutan}
                       onChange={(e) =>
-                        setHeroFormData({ ...heroFormData, urutan: parseInt(e.target.value) || 0 })
+                        setHeroFormData({
+                          ...heroFormData,
+                          urutan: parseInt(e.target.value) || 0,
+                        })
                       }
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all max-w-[200px]"
                     />
@@ -2002,9 +2134,9 @@ const AdminDashboard = () => {
                 {heroFormLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : editingHero ? (
-                  'Simpan Perubahan'
+                  "Simpan Perubahan"
                 ) : (
-                  'Tambah Gambar'
+                  "Tambah Gambar"
                 )}
               </button>
             </div>
@@ -2020,7 +2152,9 @@ const AdminDashboard = () => {
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
                 <AlertCircle className="text-red-400" size={28} />
               </div>
-              <h3 className="text-lg font-bold text-text-heading mb-2">Hapus Hero Image?</h3>
+              <h3 className="text-lg font-bold text-text-heading mb-2">
+                Hapus Hero Image?
+              </h3>
               <p className="text-text-body text-sm mb-6">
                 Gambar yang dihapus tidak dapat dikembalikan.
               </p>
@@ -2052,7 +2186,7 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex-none flex items-center justify-between p-6 border-b border-dark-200/50">
               <h3 className="text-lg font-bold text-text-heading">
-                {editingVideo ? 'Edit Video' : 'Tambah Video Baru'}
+                {editingVideo ? "Edit Video" : "Tambah Video Baru"}
               </h3>
               <button
                 type="button"
@@ -2073,7 +2207,7 @@ const AdminDashboard = () => {
                 {/* Left Column: Video Upload */}
                 <div className="w-full md:w-1/2 lg:w-5/12">
                   <label className="block text-sm font-medium text-text-heading mb-2">
-                    File Video {!editingVideo && '*'}
+                    File Video {!editingVideo && "*"}
                   </label>
                   <div className="border-2 border-dashed border-dark-200/50 rounded-xl p-4 text-center hover:border-primary/50 transition-all h-full min-h-[300px] flex flex-col items-center justify-center">
                     {videoPreview ? (
@@ -2088,8 +2222,8 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setVideoFile(null)
-                            setVideoPreview(null)
+                            setVideoFile(null);
+                            setVideoPreview(null);
                           }}
                           className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
                         >
@@ -2098,7 +2232,10 @@ const AdminDashboard = () => {
                       </div>
                     ) : (
                       <label className="cursor-pointer block py-6 w-full h-full flex flex-col items-center justify-center">
-                        <Upload className="mx-auto text-text-muted mb-4" size={48} />
+                        <Upload
+                          className="mx-auto text-text-muted mb-4"
+                          size={48}
+                        />
                         <p className="text-text-body text-base font-medium mt-2">
                           Klik untuk upload video
                         </p>
@@ -2127,7 +2264,10 @@ const AdminDashboard = () => {
                       type="text"
                       value={videoFormData.judul}
                       onChange={(e) =>
-                        setVideoFormData({ ...videoFormData, judul: e.target.value })
+                        setVideoFormData({
+                          ...videoFormData,
+                          judul: e.target.value,
+                        })
                       }
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                       placeholder="Judul video"
@@ -2142,7 +2282,10 @@ const AdminDashboard = () => {
                     <textarea
                       value={videoFormData.deskripsi}
                       onChange={(e) =>
-                        setVideoFormData({ ...videoFormData, deskripsi: e.target.value })
+                        setVideoFormData({
+                          ...videoFormData,
+                          deskripsi: e.target.value,
+                        })
                       }
                       rows={5}
                       className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
@@ -2171,9 +2314,9 @@ const AdminDashboard = () => {
                 {videoFormLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : editingVideo ? (
-                  'Simpan Perubahan'
+                  "Simpan Perubahan"
                 ) : (
-                  'Tambah Video'
+                  "Tambah Video"
                 )}
               </button>
             </div>
@@ -2189,7 +2332,9 @@ const AdminDashboard = () => {
               <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl mb-4">
                 <AlertCircle className="text-red-400" size={28} />
               </div>
-              <h3 className="text-lg font-bold text-text-heading mb-2">Hapus Video?</h3>
+              <h3 className="text-lg font-bold text-text-heading mb-2">
+                Hapus Video?
+              </h3>
               <p className="text-text-body text-sm mb-6">
                 Video yang dihapus tidak dapat dikembalikan.
               </p>
@@ -2212,7 +2357,7 @@ const AdminDashboard = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default AdminDashboard
+export default AdminDashboard;

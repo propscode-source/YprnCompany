@@ -1,63 +1,63 @@
-import { createContext, useState, useEffect, useCallback } from 'react'
-import { API_URL } from '../config/api'
+import { createContext, useState, useEffect, useCallback } from "react";
+import { API_URL } from "../config/api";
 
-const AuthContext = createContext(null)
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [admin, setAdmin] = useState(null)
-  const [token, setToken] = useState(localStorage.getItem('admin_token'))
-  const [loading, setLoading] = useState(true)
+  const [admin, setAdmin] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("admin_token"));
+  const [loading, setLoading] = useState(true);
 
   const verifyToken = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/verify`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
       if (res.ok) {
-        const data = await res.json()
-        setAdmin(data.admin)
+        const data = await res.json();
+        setAdmin(data.admin);
       } else {
-        logout()
+        logout();
       }
     } catch {
-      logout()
+      logout();
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [token])
+  }, [token]);
 
   useEffect(() => {
     if (token) {
-      verifyToken()
+      verifyToken();
     } else {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [token, verifyToken])
+  }, [token, verifyToken]);
 
   const login = async (username, password) => {
     const res = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
-    })
+    });
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.message || 'Login gagal')
+      throw new Error(data.message || "Login gagal");
     }
 
-    setToken(data.token)
-    setAdmin(data.admin)
-    localStorage.setItem('admin_token', data.token)
-    return data
-  }
+    setToken(data.token);
+    setAdmin(data.admin);
+    localStorage.setItem("admin_token", data.token);
+    return data;
+  };
 
   const logout = () => {
-    setToken(null)
-    setAdmin(null)
-    localStorage.removeItem('admin_token')
-  }
+    setToken(null);
+    setAdmin(null);
+    localStorage.removeItem("admin_token");
+  };
 
   return (
     <AuthContext.Provider
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
     >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
-export default AuthContext
+export default AuthContext;

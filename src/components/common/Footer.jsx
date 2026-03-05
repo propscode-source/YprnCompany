@@ -1,24 +1,29 @@
-import { motion } from 'motion/react'
-import { Link } from 'react-router-dom'
-import { Mail, Phone, MapPin } from 'lucide-react'
-import { companyInfo } from '../../data/companyData'
-import { useLanguage } from '../../hooks/useLanguage'
-import { staggerContainer, staggerItem, fadeInUp, defaultViewport } from '../../utils/animations'
+import { motion } from "motion/react";
+import { Link } from "react-router-dom";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { companyInfo } from "../../data/companyData";
+import { useLanguage } from "../../hooks/useLanguage";
+import {
+  staggerContainer,
+  staggerItem,
+  fadeInUp,
+  defaultViewport,
+} from "../../utils/animations";
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear()
-  const { t } = useLanguage()
+  const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   const menuTentang = [
-    { name: t('nav.visiMisi'), path: '/tentang/visi-misi' },
-    { name: t('nav.strukturOrganisasi'), path: '/tentang/struktur-organisasi' },
-  ]
+    { name: t("nav.visiMisi"), path: "/tentang/visi-misi" },
+    { name: t("nav.strukturOrganisasi"), path: "/tentang/struktur-organisasi" },
+  ];
 
   const menuKegiatan = [
-    { name: t('nav.galeriKegiatan'), path: '/kegiatan' },
-    { name: t('nav.sia'), path: '/kegiatan/social-impact-assessment' },
-    { name: t('nav.sroi'), path: '/kegiatan/social-return-on-investment' },
-  ]
+    { name: t("nav.galeriKegiatan"), path: "/kegiatan" },
+    { name: t("nav.sia"), path: "/kegiatan/social-impact-assessment" },
+    { name: t("nav.sroi"), path: "/kegiatan/social-return-on-investment" },
+  ];
 
   return (
     <footer className="bg-dark border-t border-dark-200/50 text-text-heading">
@@ -47,13 +52,15 @@ const Footer = () => {
                 />
               </picture>
             </div>
-            <p className="text-text-body leading-relaxed">{companyInfo.tagline}</p>
+            <p className="text-text-body leading-relaxed">
+              {companyInfo.tagline}
+            </p>
           </motion.div>
 
           {/* Tentang Kami */}
           <motion.div variants={staggerItem}>
             <h4 className="text-lg font-semibold mb-6 text-text-heading">
-              {t('footer.tentangKami')}
+              {t("footer.tentangKami")}
             </h4>
             <ul className="space-y-3">
               {menuTentang.map((link) => (
@@ -71,7 +78,9 @@ const Footer = () => {
 
           {/* Kegiatan */}
           <motion.div variants={staggerItem}>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">{t('footer.kegiatan')}</h4>
+            <h4 className="text-lg font-semibold mb-6 text-text-heading">
+              {t("footer.kegiatan")}
+            </h4>
             <ul className="space-y-3">
               {menuKegiatan.map((link) => (
                 <li key={link.path}>
@@ -88,7 +97,9 @@ const Footer = () => {
 
           {/* Contact Info */}
           <motion.div variants={staggerItem}>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">{t('footer.kontak')}</h4>
+            <h4 className="text-lg font-semibold mb-6 text-text-heading">
+              {t("footer.kontak")}
+            </h4>
             <ul className="space-y-4">
               <li className="flex items-start space-x-3">
                 <MapPin size={20} className="text-primary flex-shrink-0 mt-1" />
@@ -123,7 +134,7 @@ const Footer = () => {
         </motion.div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

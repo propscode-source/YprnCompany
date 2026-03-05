@@ -13,62 +13,62 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #020C1B;
-  color: #8892B0;
+  background-color: #020c1b;
+  color: #8892b0;
 }
 
 @layer components {
   .container-custom {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
-  
+
   .section-padding {
     @apply py-16 md:py-24;
   }
-  
+
   .heading-primary {
     @apply text-3xl md:text-4xl lg:text-5xl font-bold text-text-heading;
   }
-  
+
   .heading-secondary {
     @apply text-2xl md:text-3xl font-bold text-text-heading;
   }
-  
+
   .text-body {
     @apply text-base md:text-lg text-text-body leading-relaxed;
   }
-  
+
   .btn-primary {
     @apply inline-flex items-center justify-center px-6 py-3 bg-primary text-dark font-semibold rounded-lg hover:bg-primary-400 transition-all duration-300 shadow-glow-primary hover:shadow-glow-primary-lg transform hover:-translate-y-0.5;
   }
-  
+
   .btn-secondary {
     @apply inline-flex items-center justify-center px-6 py-3 bg-transparent text-primary font-semibold rounded-lg border-2 border-primary hover:bg-primary/10 transition-all duration-300;
   }
-  
+
   .btn-glow {
     @apply inline-flex items-center justify-center px-6 py-3 bg-transparent text-secondary font-semibold rounded-lg border-2 border-secondary hover:bg-secondary/10 transition-all duration-300 shadow-glow-secondary hover:shadow-glow-secondary-lg;
   }
-  
+
   .card {
     @apply bg-dark-50 rounded-2xl border border-dark-200 hover:border-primary/30 transition-all duration-300;
   }
-  
+
   .card-glow {
     @apply bg-dark-50 rounded-2xl border border-dark-200 hover:border-primary/50 hover:shadow-glow-primary transition-all duration-300;
   }
-  
+
   .gradient-bg {
     @apply bg-gradient-to-br from-primary via-primary-600 to-secondary;
   }
-  
+
   .gradient-text {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
-  
+
   .glass-effect {
     @apply bg-dark-50/80 backdrop-blur-xl border border-dark-200/50;
   }
@@ -78,7 +78,9 @@ body {
 .animate-on-scroll {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
 }
 
 .animate-on-scroll.visible {
@@ -88,9 +90,13 @@ body {
 
 /* Text glow effect */
 .text-glow {
-  text-shadow: 0 0 10px rgba(0, 255, 163, 0.5), 0 0 20px rgba(0, 255, 163, 0.3);
+  text-shadow:
+    0 0 10px rgba(0, 255, 163, 0.5),
+    0 0 20px rgba(0, 255, 163, 0.3);
 }
 
 .text-glow-secondary {
-  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+  text-shadow:
+    0 0 10px rgba(0, 212, 255, 0.5),
+    0 0 20px rgba(0, 212, 255, 0.3);
 }

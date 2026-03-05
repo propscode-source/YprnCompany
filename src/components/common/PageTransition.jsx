@@ -1,5 +1,5 @@
-import { motion } from 'motion/react'
-import { pageTransition } from '../../utils/animations'
+import { motion } from "motion/react";
+import { pageTransition } from "../../utils/animations";
 
 /**
  * Wrapper component untuk page transition animation.
@@ -7,10 +7,15 @@ import { pageTransition } from '../../utils/animations'
  */
 const PageTransition = ({ children }) => {
   return (
-    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+    <motion.div
+      variants={pageTransition}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       {children}
     </motion.div>
-  )
-}
+  );
+};
 
-export default PageTransition
+export default PageTransition;

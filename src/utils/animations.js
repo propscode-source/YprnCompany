@@ -4,7 +4,7 @@
  */
 
 // ─── Viewport config default (scroll-triggered) ─────────────────────────
-export const defaultViewport = { once: true, margin: '-80px' }
+export const defaultViewport = { once: true, margin: "-80px" };
 
 // ─── Fade In Up ──────────────────────────────────────────────────────────
 export const fadeInUp = {
@@ -14,7 +14,7 @@ export const fadeInUp = {
     y: 0,
     transition: { duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
-}
+};
 
 // ─── Fade In Down ────────────────────────────────────────────────────────
 export const fadeInDown = {
@@ -24,7 +24,7 @@ export const fadeInDown = {
     y: 0,
     transition: { duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
-}
+};
 
 // ─── Fade In Left ────────────────────────────────────────────────────────
 export const fadeInLeft = {
@@ -34,7 +34,7 @@ export const fadeInLeft = {
     x: 0,
     transition: { duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
-}
+};
 
 // ─── Fade In Right ───────────────────────────────────────────────────────
 export const fadeInRight = {
@@ -44,7 +44,7 @@ export const fadeInRight = {
     x: 0,
     transition: { duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
-}
+};
 
 // ─── Scale In (zoom pop) ─────────────────────────────────────────────────
 export const scaleIn = {
@@ -54,7 +54,7 @@ export const scaleIn = {
     scale: 1,
     transition: { duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
-}
+};
 
 // ─── Stagger Container ──────────────────────────────────────────────────
 export const staggerContainer = {
@@ -63,7 +63,7 @@ export const staggerContainer = {
     opacity: 1,
     transition: { staggerChildren: staggerDelay },
   }),
-}
+};
 
 // ─── Child item untuk stagger ────────────────────────────────────────────
 export const staggerItem = {
@@ -73,7 +73,7 @@ export const staggerItem = {
     y: 0,
     transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
   },
-}
+};
 
 // ─── Page transition variant ─────────────────────────────────────────────
 export const pageTransition = {
@@ -88,14 +88,14 @@ export const pageTransition = {
     y: -20,
     transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
   },
-}
+};
 
 // ─── Modal / Overlay variants ────────────────────────────────────────────
 export const backdropVariant = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.3 } },
   exit: { opacity: 0, transition: { duration: 0.2 } },
-}
+};
 
 export const modalVariant = {
   hidden: { opacity: 0, scale: 0.9, y: 30 },
@@ -111,13 +111,13 @@ export const modalVariant = {
     y: 20,
     transition: { duration: 0.2 },
   },
-}
+};
 
 // ─── Mobile menu slide ───────────────────────────────────────────────────
 export const mobileMenuVariant = {
   hidden: { height: 0, opacity: 0 },
   visible: {
-    height: 'auto',
+    height: "auto",
     opacity: 1,
     transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
   },
@@ -126,7 +126,7 @@ export const mobileMenuVariant = {
     opacity: 0,
     transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
   },
-}
+};
 
 // ─── Dropdown variant ────────────────────────────────────────────────────
 export const dropdownVariant = {
@@ -143,4 +143,4 @@ export const dropdownVariant = {
     scale: 0.95,
     transition: { duration: 0.15 },
   },
-}
+};

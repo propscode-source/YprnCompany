@@ -1,6 +1,15 @@
-import { Code, Smartphone, Palette, TrendingUp, Cloud, Headphones, CheckCircle, ArrowRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { services } from '../data/companyData'
+import {
+  Code,
+  Smartphone,
+  Palette,
+  TrendingUp,
+  Cloud,
+  Headphones,
+  CheckCircle,
+  ArrowRight,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { services } from "../data/companyData";
 
 const iconMap = {
   Code: Code,
@@ -8,32 +17,32 @@ const iconMap = {
   Palette: Palette,
   TrendingUp: TrendingUp,
   Cloud: Cloud,
-  HeadphonesIcon: Headphones
-}
+  HeadphonesIcon: Headphones,
+};
 
 const Services = () => {
   const process = [
     {
-      step: '01',
-      title: 'Konsultasi',
-      description: 'Diskusi mendalam tentang kebutuhan dan tujuan bisnis Anda.'
+      step: "01",
+      title: "Konsultasi",
+      description: "Diskusi mendalam tentang kebutuhan dan tujuan bisnis Anda.",
     },
     {
-      step: '02',
-      title: 'Perencanaan',
-      description: 'Membuat roadmap dan strategi implementasi yang terperinci.'
+      step: "02",
+      title: "Perencanaan",
+      description: "Membuat roadmap dan strategi implementasi yang terperinci.",
     },
     {
-      step: '03',
-      title: 'Eksekusi',
-      description: 'Pengembangan solusi dengan standar kualitas tinggi.'
+      step: "03",
+      title: "Eksekusi",
+      description: "Pengembangan solusi dengan standar kualitas tinggi.",
     },
     {
-      step: '04',
-      title: 'Peluncuran',
-      description: 'Deployment dan dukungan berkelanjutan pasca peluncuran.'
-    }
-  ]
+      step: "04",
+      title: "Peluncuran",
+      description: "Deployment dan dukungan berkelanjutan pasca peluncuran.",
+    },
+  ];
 
   return (
     <div className="pt-20 bg-dark">
@@ -47,10 +56,12 @@ const Services = () => {
           <div className="text-center max-w-3xl mx-auto">
             <span className="text-primary font-semibold">Layanan Kami</span>
             <h1 className="heading-primary mt-2 mb-6">
-              Solusi Digital <span className="gradient-text">Lengkap</span> untuk Bisnis Anda
+              Solusi Digital <span className="gradient-text">Lengkap</span>{" "}
+              untuk Bisnis Anda
             </h1>
             <p className="text-body">
-              Kami menyediakan berbagai layanan digital untuk membantu bisnis Anda berkembang dan sukses di era digital.
+              Kami menyediakan berbagai layanan digital untuk membantu bisnis
+              Anda berkembang dan sukses di era digital.
             </p>
           </div>
         </div>
@@ -61,48 +72,63 @@ const Services = () => {
         <div className="container-custom">
           <div className="space-y-24">
             {services.map((service, index) => {
-              const IconComponent = iconMap[service.icon]
-              const isEven = index % 2 === 0
+              const IconComponent = iconMap[service.icon];
+              const isEven = index % 2 === 0;
 
               return (
-                <div 
+                <div
                   key={service.id}
-                  className={`grid lg:grid-cols-2 gap-12 items-center ${!isEven ? 'lg:flex-row-reverse' : ''}`}
+                  className={`grid lg:grid-cols-2 gap-12 items-center ${!isEven ? "lg:flex-row-reverse" : ""}`}
                 >
-                  <div className={`${!isEven ? 'lg:order-2' : ''}`}>
+                  <div className={`${!isEven ? "lg:order-2" : ""}`}>
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl rotate-3 blur-xl"></div>
                       <div className="relative bg-dark-100 border border-dark-200 rounded-3xl p-12 flex items-center justify-center">
-                        <div className={`w-32 h-32 bg-gradient-to-br ${isEven ? 'from-primary to-secondary' : 'from-secondary to-primary'} rounded-3xl flex items-center justify-center animate-float shadow-glow-primary`}>
-                          {IconComponent && <IconComponent className="text-dark" size={64} />}
+                        <div
+                          className={`w-32 h-32 bg-gradient-to-br ${isEven ? "from-primary to-secondary" : "from-secondary to-primary"} rounded-3xl flex items-center justify-center animate-float shadow-glow-primary`}
+                        >
+                          {IconComponent && (
+                            <IconComponent className="text-dark" size={64} />
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className={`space-y-6 ${!isEven ? 'lg:order-1' : ''}`}>
-                    <span className={`inline-block px-4 py-2 ${isEven ? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary'} rounded-full text-sm font-medium`}>
+                  <div className={`space-y-6 ${!isEven ? "lg:order-1" : ""}`}>
+                    <span
+                      className={`inline-block px-4 py-2 ${isEven ? "bg-primary/20 text-primary" : "bg-secondary/20 text-secondary"} rounded-full text-sm font-medium`}
+                    >
                       Layanan #{service.id}
                     </span>
                     <h2 className="heading-secondary">{service.title}</h2>
                     <p className="text-body">{service.description}</p>
-                    
+
                     <div className="grid sm:grid-cols-2 gap-4">
                       {service.features.map((feature, idx) => (
                         <div key={idx} className="flex items-center space-x-2">
-                          <CheckCircle className="text-primary flex-shrink-0" size={18} />
+                          <CheckCircle
+                            className="text-primary flex-shrink-0"
+                            size={18}
+                          />
                           <span className="text-text-body">{feature}</span>
                         </div>
                       ))}
                     </div>
 
-                    <Link to="/contact" className="btn-primary inline-flex group">
+                    <Link
+                      to="/contact"
+                      className="btn-primary inline-flex group"
+                    >
                       Mulai Proyek
-                      <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                      <ArrowRight
+                        className="ml-2 group-hover:translate-x-1 transition-transform"
+                        size={20}
+                      />
                     </Link>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
@@ -117,7 +143,8 @@ const Services = () => {
               Bagaimana Kami <span className="gradient-text">Bekerja</span>
             </h2>
             <p className="text-body">
-              Proses kerja kami yang terstruktur memastikan setiap proyek berjalan lancar dan menghasilkan output berkualitas.
+              Proses kerja kami yang terstruktur memastikan setiap proyek
+              berjalan lancar dan menghasilkan output berkualitas.
             </p>
           </div>
 
@@ -125,8 +152,14 @@ const Services = () => {
             {process.map((item, index) => (
               <div key={index} className="relative">
                 <div className="card-glow p-6 text-center card-lift">
-                  <div className={`text-5xl font-bold mb-4 ${index % 2 === 0 ? 'text-primary text-glow' : 'text-secondary text-glow-secondary'}`}>{item.step}</div>
-                  <h3 className="text-xl font-bold text-text-heading mb-2">{item.title}</h3>
+                  <div
+                    className={`text-5xl font-bold mb-4 ${index % 2 === 0 ? "text-primary text-glow" : "text-secondary text-glow-secondary"}`}
+                  >
+                    {item.step}
+                  </div>
+                  <h3 className="text-xl font-bold text-text-heading mb-2">
+                    {item.title}
+                  </h3>
                   <p className="text-text-body text-sm">{item.description}</p>
                 </div>
                 {index < process.length - 1 && (
@@ -152,7 +185,8 @@ const Services = () => {
             Siap Memulai Proyek Anda?
           </h2>
           <p className="text-lg text-text-body mb-8 max-w-2xl mx-auto">
-            Hubungi kami untuk konsultasi gratis dan diskusikan bagaimana kami dapat membantu mewujudkan visi digital Anda.
+            Hubungi kami untuk konsultasi gratis dan diskusikan bagaimana kami
+            dapat membantu mewujudkan visi digital Anda.
           </p>
           <Link to="/contact" className="btn-primary">
             Hubungi Kami Sekarang
@@ -160,7 +194,7 @@ const Services = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default Services
+export default Services;

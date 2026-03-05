@@ -1,15 +1,15 @@
-import { motion } from 'motion/react'
-import { useLanguage } from '../hooks/useLanguage'
+import { motion } from "motion/react";
+import { useLanguage } from "../hooks/useLanguage";
 import {
   fadeInUp,
   staggerContainer,
   staggerItem,
   scaleIn,
   defaultViewport,
-} from '../utils/animations'
+} from "../utils/animations";
 
-const PersonCard = ({ member, size = 'md', t }) => {
-  const sizeClass = size === 'lg' ? 'w-24 h-24' : 'w-20 h-20'
+const PersonCard = ({ member, size = "md", t }) => {
+  const sizeClass = size === "lg" ? "w-24 h-24" : "w-20 h-20";
   return (
     <div className="card-glow p-6 card-lift w-full max-w-xs mx-auto">
       <div className="flex flex-col items-center text-center space-y-3">
@@ -24,47 +24,49 @@ const PersonCard = ({ member, size = 'md', t }) => {
         </div>
         <div>
           <h3 className="text-lg font-bold text-text-heading">{member.name}</h3>
-          <p className="text-primary font-medium text-sm">{t(member.roleKey)}</p>
+          <p className="text-primary font-medium text-sm">
+            {t(member.roleKey)}
+          </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const StrukturOrganisasi = () => {
-  const { t } = useLanguage()
+  const { t } = useLanguage();
 
   const atas = [
     {
-      name: 'Yuliusman, S.H, M.H ',
-      roleKey: 'struktur.pembina',
-      image: '/assets/images/Struktur/pembina.webp',
+      name: "Yuliusman, S.H, M.H ",
+      roleKey: "struktur.pembina",
+      image: "/assets/images/Struktur/pembina.webp",
     },
     {
-      name: 'Dr. Syafrul Yunardy, S.Hut., M.E',
-      roleKey: 'struktur.pengawas',
-      image: '/assets/images/Struktur/pengawas.webp',
+      name: "Dr. Syafrul Yunardy, S.Hut., M.E",
+      roleKey: "struktur.pengawas",
+      image: "/assets/images/Struktur/pengawas.webp",
     },
-  ]
+  ];
 
   const ketua = {
-    name: 'Dr. M Subardin, S.E., M.Si',
-    roleKey: 'struktur.ketua',
-    image: '/assets/images/Struktur/ketua.webp',
-  }
+    name: "Dr. M Subardin, S.E., M.Si",
+    roleKey: "struktur.ketua",
+    image: "/assets/images/Struktur/ketua.webp",
+  };
 
   const bawah = [
     {
-      name: 'Dr. Imam Asngari S.E., M.Si',
-      roleKey: 'struktur.sekretaris',
-      image: '/assets/images/Struktur/sekretaris.webp',
+      name: "Dr. Imam Asngari S.E., M.Si",
+      roleKey: "struktur.sekretaris",
+      image: "/assets/images/Struktur/sekretaris.webp",
     },
     {
-      name: 'Mega Debiyanti S.E',
-      roleKey: 'struktur.bendahara',
-      image: '/assets/images/Struktur/bendahara.webp',
+      name: "Mega Debiyanti S.E",
+      roleKey: "struktur.bendahara",
+      image: "/assets/images/Struktur/bendahara.webp",
     },
-  ]
+  ];
 
   return (
     <div className="pt-20 bg-dark">
@@ -82,15 +84,21 @@ const StrukturOrganisasi = () => {
             custom={0.15}
             className="text-center max-w-3xl mx-auto"
           >
-            <motion.span variants={staggerItem} className="text-primary font-semibold inline-block">
-              {t('struktur.heroLabel')}
+            <motion.span
+              variants={staggerItem}
+              className="text-primary font-semibold inline-block"
+            >
+              {t("struktur.heroLabel")}
             </motion.span>
-            <motion.h1 variants={staggerItem} className="heading-primary mt-2 mb-6">
-              {t('struktur.heroTitle1')}{' '}
-              <span className="gradient-text">{t('struktur.heroTitle2')}</span>
+            <motion.h1
+              variants={staggerItem}
+              className="heading-primary mt-2 mb-6"
+            >
+              {t("struktur.heroTitle1")}{" "}
+              <span className="gradient-text">{t("struktur.heroTitle2")}</span>
             </motion.h1>
             <motion.p variants={staggerItem} className="text-body">
-              {t('struktur.heroDesc')}
+              {t("struktur.heroDesc")}
             </motion.p>
           </motion.div>
         </div>
@@ -107,10 +115,14 @@ const StrukturOrganisasi = () => {
             custom={0}
             className="text-center max-w-3xl mx-auto mb-16"
           >
-            <span className="text-primary font-semibold">{t('struktur.pengurusLabel')}</span>
+            <span className="text-primary font-semibold">
+              {t("struktur.pengurusLabel")}
+            </span>
             <h2 className="heading-primary mt-2 mb-4">
-              {t('struktur.pengurusTitle1')}{' '}
-              <span className="gradient-text">{t('struktur.pengurusTitle2')}</span>
+              {t("struktur.pengurusTitle1")}{" "}
+              <span className="gradient-text">
+                {t("struktur.pengurusTitle2")}
+              </span>
             </h2>
           </motion.div>
 
@@ -184,7 +196,7 @@ const StrukturOrganisasi = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default StrukturOrganisasi
+export default StrukturOrganisasi;

@@ -1,5 +1,5 @@
-import PortfolioGrid from '../components/portfolio/PortfolioGrid'
-import { Link } from 'react-router-dom'
+import PortfolioGrid from "../components/portfolio/PortfolioGrid";
+import { Link } from "react-router-dom";
 
 const Portfolio = () => {
   return (
@@ -17,7 +17,9 @@ const Portfolio = () => {
               Karya Terbaik <span className="gradient-text">Kami</span>
             </h1>
             <p className="text-body">
-              Jelajahi berbagai proyek yang telah kami kerjakan untuk klien-klien kami. Setiap proyek adalah bukti komitmen kami terhadap kualitas dan inovasi.
+              Jelajahi berbagai proyek yang telah kami kerjakan untuk
+              klien-klien kami. Setiap proyek adalah bukti komitmen kami
+              terhadap kualitas dan inovasi.
             </p>
           </div>
         </div>
@@ -40,7 +42,8 @@ const Portfolio = () => {
                 Ingin Proyek Anda Berikutnya?
               </h2>
               <p className="text-body mb-8">
-                Mari diskusikan bagaimana kami dapat membantu mewujudkan ide Anda menjadi kenyataan.
+                Mari diskusikan bagaimana kami dapat membantu mewujudkan ide
+                Anda menjadi kenyataan.
               </p>
               <Link to="/contact" className="btn-primary">
                 Mulai Proyek Bersama Kami
@@ -50,7 +53,7 @@ const Portfolio = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default Portfolio
+export default Portfolio;

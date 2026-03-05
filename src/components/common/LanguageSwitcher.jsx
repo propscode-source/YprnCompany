@@ -1,15 +1,17 @@
-import { useLanguage } from '../../hooks/useLanguage'
+import { useLanguage } from "../../hooks/useLanguage";
 
-const LanguageSwitcher = ({ className = '' }) => {
-  const { language, toggleLanguage } = useLanguage()
+const LanguageSwitcher = ({ className = "" }) => {
+  const { language, toggleLanguage } = useLanguage();
 
   return (
     <button
       onClick={toggleLanguage}
       className={`flex items-center space-x-2 px-3 py-2 rounded-lg border border-dark-200/50 hover:border-primary/50 bg-dark-100/50 hover:bg-primary/10 transition-all duration-300 group ${className}`}
-      title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+      title={
+        language === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"
+      }
     >
-      {language === 'id' ? (
+      {language === "id" ? (
         <>
           {/* Indonesia Flag */}
           <span className="w-6 h-4 rounded-sm overflow-hidden flex-shrink-0 shadow-sm border border-dark-200/30">
@@ -81,7 +83,7 @@ const LanguageSwitcher = ({ className = '' }) => {
         </>
       )}
     </button>
-  )
-}
+  );
+};
 
-export default LanguageSwitcher
+export default LanguageSwitcher;

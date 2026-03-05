@@ -1,82 +1,93 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'motion/react'
-import { Menu, X, ChevronDown, LogIn, LogOut, LayoutDashboard } from 'lucide-react'
-import { useAuth } from '../../context/useAuth'
-import { useLanguage } from '../../hooks/useLanguage'
-import LanguageSwitcher from './LanguageSwitcher'
-import { mobileMenuVariant, dropdownVariant } from '../../utils/animations'
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  LogIn,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
+import { useAuth } from "../../context/useAuth";
+import { useLanguage } from "../../hooks/useLanguage";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { mobileMenuVariant, dropdownVariant } from "../../utils/animations";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState(null)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const dropdownRef = useRef(null)
-  const { isAuthenticated, logout } = useAuth()
-  const { t } = useLanguage()
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+  const { isAuthenticated, logout } = useAuth();
+  const { t } = useLanguage();
 
   const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+    logout();
+    navigate("/");
+  };
 
   const navItems = [
-    { name: t('nav.beranda'), path: '/' },
+    { name: t("nav.beranda"), path: "/" },
     {
-      name: t('nav.tentangKami'),
+      name: t("nav.tentangKami"),
       dropdown: [
-        { name: t('nav.visiMisi'), path: '/tentang/visi-misi' },
-        { name: t('nav.strukturOrganisasi'), path: '/tentang/struktur-organisasi' },
+        { name: t("nav.visiMisi"), path: "/tentang/visi-misi" },
+        {
+          name: t("nav.strukturOrganisasi"),
+          path: "/tentang/struktur-organisasi",
+        },
       ],
     },
     {
-      name: t('nav.kegiatan'),
-      path: '/kegiatan',
+      name: t("nav.kegiatan"),
+      path: "/kegiatan",
       dropdown: [
-        { name: t('nav.galeriKegiatan'), path: '/kegiatan' },
-        { name: t('nav.sia'), path: '/kegiatan/social-impact-assessment' },
-        { name: t('nav.sroi'), path: '/kegiatan/social-return-on-investment' },
+        { name: t("nav.galeriKegiatan"), path: "/kegiatan" },
+        { name: t("nav.sia"), path: "/kegiatan/social-impact-assessment" },
+        { name: t("nav.sroi"), path: "/kegiatan/social-return-on-investment" },
       ],
     },
-    { name: t('nav.kontak'), path: '/kontak' },
-  ]
+    { name: t("nav.kontak"), path: "/kontak" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  useEffect(() => {}, [location])
+  useEffect(() => {}, [location]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setActiveDropdown(null)
+        setActiveDropdown(null);
       }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const isActiveParent = (item) => {
-    if (item.path) return location.pathname === item.path
-    if (item.dropdown) return item.dropdown.some((sub) => location.pathname === sub.path)
-    return false
-  }
+    if (item.path) return location.pathname === item.path;
+    if (item.dropdown)
+      return item.dropdown.some((sub) => location.pathname === sub.path);
+    return false;
+  };
 
-  const hasParentLink = (item) => item.dropdown && item.path
+  const hasParentLink = (item) => item.dropdown && item.path;
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-dark/95 backdrop-blur-xl border-b border-dark-200/50 shadow-lg shadow-dark/50'
-          : 'bg-transparent'
+          ? "bg-dark/95 backdrop-blur-xl border-b border-dark-200/50 shadow-lg shadow-dark/50"
+          : "bg-transparent"
       }`}
     >
       <div className="container-custom">
@@ -96,7 +107,10 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1" ref={dropdownRef}>
+          <div
+            className="hidden md:flex items-center space-x-1"
+            ref={dropdownRef}
+          >
             {navItems.map((item) =>
               item.dropdown ? (
                 <div key={item.name} className="relative flex items-center">
@@ -106,26 +120,28 @@ const Navbar = () => {
                         to={item.path}
                         className={`flex items-center space-x-1 px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
                           isActiveParent(item)
-                            ? 'text-primary bg-primary/10'
-                            : 'text-text-body hover:text-primary hover:bg-primary/5'
+                            ? "text-primary bg-primary/10"
+                            : "text-text-body hover:text-primary hover:bg-primary/5"
                         }`}
                       >
                         {item.name}
                       </Link>
                       <button
                         onClick={(e) => {
-                          e.preventDefault()
-                          setActiveDropdown(activeDropdown === item.name ? null : item.name)
+                          e.preventDefault();
+                          setActiveDropdown(
+                            activeDropdown === item.name ? null : item.name,
+                          );
                         }}
                         className={`p-2 -ml-1 rounded-lg transition-all duration-300 ${
                           isActiveParent(item)
-                            ? 'text-primary hover:bg-primary/10'
-                            : 'text-text-body hover:text-primary hover:bg-primary/5'
+                            ? "text-primary hover:bg-primary/10"
+                            : "text-text-body hover:text-primary hover:bg-primary/5"
                         }`}
                       >
                         <ChevronDown
                           className={`w-4 h-4 transition-transform duration-300 ${
-                            activeDropdown === item.name ? 'rotate-180' : ''
+                            activeDropdown === item.name ? "rotate-180" : ""
                           }`}
                         />
                       </button>
@@ -133,18 +149,20 @@ const Navbar = () => {
                   ) : (
                     <button
                       onClick={() =>
-                        setActiveDropdown(activeDropdown === item.name ? null : item.name)
+                        setActiveDropdown(
+                          activeDropdown === item.name ? null : item.name,
+                        )
                       }
                       className={`flex items-center space-x-1 px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
                         isActiveParent(item)
-                          ? 'text-primary bg-primary/10'
-                          : 'text-text-body hover:text-primary hover:bg-primary/5'
+                          ? "text-primary bg-primary/10"
+                          : "text-text-body hover:text-primary hover:bg-primary/5"
                       }`}
                     >
                       <span>{item.name}</span>
                       <ChevronDown
                         className={`w-4 h-4 transition-transform duration-300 ${
-                          activeDropdown === item.name ? 'rotate-180' : ''
+                          activeDropdown === item.name ? "rotate-180" : ""
                         }`}
                       />
                     </button>
@@ -168,12 +186,12 @@ const Navbar = () => {
                               onClick={() => setActiveDropdown(null)}
                               className={`block px-4 py-3 text-sm font-medium transition-all duration-300 ${
                                 location.pathname === subLink.path
-                                  ? 'text-primary bg-primary/10'
-                                  : 'text-text-body hover:text-primary hover:bg-primary/5'
+                                  ? "text-primary bg-primary/10"
+                                  : "text-text-body hover:text-primary hover:bg-primary/5"
                               } ${
                                 index !== item.dropdown.length - 1
-                                  ? 'border-b border-dark-200/30'
-                                  : ''
+                                  ? "border-b border-dark-200/30"
+                                  : ""
                               }`}
                             >
                               {subLink.name}
@@ -190,13 +208,13 @@ const Navbar = () => {
                   to={item.path}
                   className={`nav-link px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
                     location.pathname === item.path
-                      ? 'text-primary bg-primary/10'
-                      : 'text-text-body hover:text-primary hover:bg-primary/5'
+                      ? "text-primary bg-primary/10"
+                      : "text-text-body hover:text-primary hover:bg-primary/5"
                   }`}
                 >
                   {item.name}
                 </Link>
-              )
+              ),
             )}
           </div>
 
@@ -210,14 +228,14 @@ const Navbar = () => {
                   className="flex items-center space-x-1.5 px-3 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all duration-300"
                 >
                   <LayoutDashboard size={16} />
-                  <span>{t('nav.dashboard')}</span>
+                  <span>{t("nav.dashboard")}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-1.5 px-3 py-2 text-sm font-medium text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-all duration-300"
                 >
                   <LogOut size={16} />
-                  <span>{t('nav.keluar')}</span>
+                  <span>{t("nav.keluar")}</span>
                 </button>
               </>
             ) : (
@@ -226,7 +244,7 @@ const Navbar = () => {
                 className="flex items-center space-x-1.5 px-4 py-2 text-sm font-medium text-text-body hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300"
               >
                 <LogIn size={16} />
-                <span>{t('nav.login')}</span>
+                <span>{t("nav.login")}</span>
               </Link>
             )}
           </div>
@@ -258,7 +276,7 @@ const Navbar = () => {
                     <div key={item.name}>
                       <div
                         className={`flex items-center rounded-lg ${
-                          isActiveParent(item) ? 'bg-primary/10' : ''
+                          isActiveParent(item) ? "bg-primary/10" : ""
                         }`}
                       >
                         {hasParentLink(item) ? (
@@ -267,21 +285,27 @@ const Navbar = () => {
                               to={item.path}
                               className={`flex-1 text-base font-medium py-3 px-4 transition-all duration-300 ${
                                 isActiveParent(item)
-                                  ? 'text-primary'
-                                  : 'text-text-body hover:text-primary'
+                                  ? "text-primary"
+                                  : "text-text-body hover:text-primary"
                               }`}
                             >
                               {item.name}
                             </Link>
                             <button
                               onClick={() =>
-                                setActiveDropdown(activeDropdown === item.name ? null : item.name)
+                                setActiveDropdown(
+                                  activeDropdown === item.name
+                                    ? null
+                                    : item.name,
+                                )
                               }
                               className="p-3 text-text-body hover:text-primary transition-colors"
                             >
                               <ChevronDown
                                 className={`w-4 h-4 transition-transform duration-300 ${
-                                  activeDropdown === item.name ? 'rotate-180' : ''
+                                  activeDropdown === item.name
+                                    ? "rotate-180"
+                                    : ""
                                 }`}
                               />
                             </button>
@@ -289,18 +313,20 @@ const Navbar = () => {
                         ) : (
                           <button
                             onClick={() =>
-                              setActiveDropdown(activeDropdown === item.name ? null : item.name)
+                              setActiveDropdown(
+                                activeDropdown === item.name ? null : item.name,
+                              )
                             }
                             className={`flex items-center justify-between w-full text-base font-medium py-3 px-4 rounded-lg transition-all duration-300 ${
                               isActiveParent(item)
-                                ? 'text-primary bg-primary/10'
-                                : 'text-text-body hover:text-primary hover:bg-primary/5'
+                                ? "text-primary bg-primary/10"
+                                : "text-text-body hover:text-primary hover:bg-primary/5"
                             }`}
                           >
                             <span>{item.name}</span>
                             <ChevronDown
                               className={`w-4 h-4 transition-transform duration-300 ${
-                                activeDropdown === item.name ? 'rotate-180' : ''
+                                activeDropdown === item.name ? "rotate-180" : ""
                               }`}
                             />
                           </button>
@@ -312,9 +338,12 @@ const Navbar = () => {
                         {activeDropdown === item.name && (
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
+                            animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            transition={{
+                              duration: 0.3,
+                              ease: [0.25, 0.46, 0.45, 0.94],
+                            }}
                             className="overflow-hidden"
                           >
                             {item.dropdown.map((subLink) => (
@@ -323,8 +352,8 @@ const Navbar = () => {
                                 to={subLink.path}
                                 className={`block text-sm font-medium py-2.5 px-8 rounded-lg transition-all duration-300 ${
                                   location.pathname === subLink.path
-                                    ? 'text-primary bg-primary/10'
-                                    : 'text-text-body hover:text-primary hover:bg-primary/5'
+                                    ? "text-primary bg-primary/10"
+                                    : "text-text-body hover:text-primary hover:bg-primary/5"
                                 }`}
                               >
                                 {subLink.name}
@@ -340,13 +369,13 @@ const Navbar = () => {
                       to={item.path}
                       className={`text-base font-medium py-3 px-4 rounded-lg transition-all duration-300 ${
                         location.pathname === item.path
-                          ? 'text-primary bg-primary/10'
-                          : 'text-text-body hover:text-primary hover:bg-primary/5'
+                          ? "text-primary bg-primary/10"
+                          : "text-text-body hover:text-primary hover:bg-primary/5"
                       }`}
                     >
                       {item.name}
                     </Link>
-                  )
+                  ),
                 )}
                 {/* Auth Buttons Mobile */}
                 <div className="pt-4 mt-4 border-t border-dark-200/30">
@@ -360,14 +389,14 @@ const Navbar = () => {
                         className="flex items-center space-x-2 text-base font-medium py-3 px-4 rounded-lg text-primary bg-primary/10 mb-2"
                       >
                         <LayoutDashboard size={18} />
-                        <span>{t('nav.dashboard')}</span>
+                        <span>{t("nav.dashboard")}</span>
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center space-x-2 w-full text-base font-medium py-3 px-4 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all"
                       >
                         <LogOut size={18} />
-                        <span>{t('nav.keluar')}</span>
+                        <span>{t("nav.keluar")}</span>
                       </button>
                     </>
                   ) : (
@@ -376,17 +405,17 @@ const Navbar = () => {
                       className="flex items-center space-x-2 text-base font-medium py-3 px-4 rounded-lg text-text-body hover:text-primary hover:bg-primary/5 transition-all"
                     >
                       <LogIn size={18} />
-                      <span>{t('nav.login')}</span>
+                      <span>{t("nav.login")}</span>
                     </Link>
                   )}
-                </div>{' '}
+                </div>{" "}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

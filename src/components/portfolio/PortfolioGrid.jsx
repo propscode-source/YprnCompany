@@ -1,15 +1,19 @@
-import { useState } from 'react'
-import PortfolioCard from './PortfolioCard'
-import { portfolioProjects } from '../../data/companyData'
+import { useState } from "react";
+import PortfolioCard from "./PortfolioCard";
+import { portfolioProjects } from "../../data/companyData";
 
 const PortfolioGrid = () => {
-  const [activeFilter, setActiveFilter] = useState('All')
-  
-  const categories = ['All', ...new Set(portfolioProjects.map(p => p.category))]
-  
-  const filteredProjects = activeFilter === 'All' 
-    ? portfolioProjects 
-    : portfolioProjects.filter(p => p.category === activeFilter)
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  const categories = [
+    "All",
+    ...new Set(portfolioProjects.map((p) => p.category)),
+  ];
+
+  const filteredProjects =
+    activeFilter === "All"
+      ? portfolioProjects
+      : portfolioProjects.filter((p) => p.category === activeFilter);
 
   return (
     <div>
@@ -21,8 +25,8 @@ const PortfolioGrid = () => {
             onClick={() => setActiveFilter(category)}
             className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
               activeFilter === category
-                ? 'bg-primary-600 text-white shadow-lg'
-                : 'bg-secondary-100 text-secondary-600 hover:bg-secondary-200'
+                ? "bg-primary-600 text-white shadow-lg"
+                : "bg-secondary-100 text-secondary-600 hover:bg-secondary-200"
             }`}
           >
             {category}
@@ -37,7 +41,7 @@ const PortfolioGrid = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PortfolioGrid
+export default PortfolioGrid;

@@ -1,5 +1,5 @@
-import ContactForm from '../components/contact/ContactForm'
-import ContactInfo from '../components/contact/ContactInfo'
+import ContactForm from "../components/contact/ContactForm";
+import ContactInfo from "../components/contact/ContactInfo";
 
 const Contact = () => {
   return (
@@ -17,7 +17,8 @@ const Contact = () => {
               Mari <span className="gradient-text">Berbicara</span>
             </h1>
             <p className="text-body">
-              Punya pertanyaan atau ingin memulai proyek? Jangan ragu untuk menghubungi kami. Tim kami siap membantu Anda.
+              Punya pertanyaan atau ingin memulai proyek? Jangan ragu untuk
+              menghubungi kami. Tim kami siap membantu Anda.
             </p>
           </div>
         </div>
@@ -58,24 +59,35 @@ const Contact = () => {
           <div className="max-w-3xl mx-auto space-y-4">
             {[
               {
-                question: 'Berapa lama waktu yang dibutuhkan untuk menyelesaikan sebuah proyek?',
-                answer: 'Waktu penyelesaian proyek bervariasi tergantung kompleksitas dan scope pekerjaan. Proyek sederhana bisa selesai dalam 2-4 minggu, sementara proyek kompleks bisa memakan waktu 3-6 bulan.'
+                question:
+                  "Berapa lama waktu yang dibutuhkan untuk menyelesaikan sebuah proyek?",
+                answer:
+                  "Waktu penyelesaian proyek bervariasi tergantung kompleksitas dan scope pekerjaan. Proyek sederhana bisa selesai dalam 2-4 minggu, sementara proyek kompleks bisa memakan waktu 3-6 bulan.",
               },
               {
-                question: 'Bagaimana proses pembayaran untuk proyek?',
-                answer: 'Kami menerapkan sistem pembayaran bertahap. Biasanya 30% di awal proyek, 40% saat progress 50%, dan 30% setelah proyek selesai.'
+                question: "Bagaimana proses pembayaran untuk proyek?",
+                answer:
+                  "Kami menerapkan sistem pembayaran bertahap. Biasanya 30% di awal proyek, 40% saat progress 50%, dan 30% setelah proyek selesai.",
               },
               {
-                question: 'Apakah ada garansi untuk proyek yang dikerjakan?',
-                answer: 'Ya, kami memberikan garansi maintenance selama 3 bulan setelah proyek selesai untuk bug fixing dan minor adjustments.'
+                question: "Apakah ada garansi untuk proyek yang dikerjakan?",
+                answer:
+                  "Ya, kami memberikan garansi maintenance selama 3 bulan setelah proyek selesai untuk bug fixing dan minor adjustments.",
               },
               {
-                question: 'Bisakah saya melihat progress proyek secara berkala?',
-                answer: 'Tentu! Kami mengadakan weekly meeting dan memberikan akses ke project management tools sehingga Anda bisa memonitor progress secara real-time.'
-              }
+                question:
+                  "Bisakah saya melihat progress proyek secara berkala?",
+                answer:
+                  "Tentu! Kami mengadakan weekly meeting dan memberikan akses ke project management tools sehingga Anda bisa memonitor progress secara real-time.",
+              },
             ].map((faq, index) => (
-              <div key={index} className="card-glow p-6 hover:border-primary/50 transition-all duration-300">
-                <h3 className="text-lg font-semibold text-text-heading mb-2">{faq.question}</h3>
+              <div
+                key={index}
+                className="card-glow p-6 hover:border-primary/50 transition-all duration-300"
+              >
+                <h3 className="text-lg font-semibold text-text-heading mb-2">
+                  {faq.question}
+                </h3>
                 <p className="text-text-body">{faq.answer}</p>
               </div>
             ))}
@@ -83,7 +95,7 @@ const Contact = () => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default Contact
+export default Contact;

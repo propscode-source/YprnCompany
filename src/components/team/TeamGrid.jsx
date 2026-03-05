@@ -1,5 +1,5 @@
-import TeamCard from './TeamCard'
-import { teamMembers } from '../../data/companyData'
+import TeamCard from "./TeamCard";
+import { teamMembers } from "../../data/companyData";
 
 const TeamGrid = () => {
   return (
@@ -8,7 +8,7 @@ const TeamGrid = () => {
         <TeamCard key={member.id} member={member} />
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default TeamGrid
+export default TeamGrid;

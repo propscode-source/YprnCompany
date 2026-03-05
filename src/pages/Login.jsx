@@ -1,97 +1,97 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
-import { useLanguage } from '../hooks/useLanguage'
-import { API_URL } from '../config/api'
-import { LogIn, Eye, EyeOff, Shield, KeyRound, ArrowLeft } from 'lucide-react'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
+import { useLanguage } from "../hooks/useLanguage";
+import { API_URL } from "../config/api";
+import { LogIn, Eye, EyeOff, Shield, KeyRound, ArrowLeft } from "lucide-react";
 
 const Login = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
-  const { t } = useLanguage()
-  const navigate = useNavigate()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
 
   // Forgot password state
-  const [isForgotPassword, setIsForgotPassword] = useState(false)
-  const [forgotUsername, setForgotUsername] = useState('')
-  const [forgotEmail, setForgotEmail] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [forgotUsername, setForgotUsername] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     try {
-      await login(username, password)
-      navigate('/admin/dashboard')
+      await login(username, password);
+      navigate("/admin/dashboard");
     } catch (err) {
-      setError(err.message || t('loginPage.errorDefault'))
+      setError(err.message || t("loginPage.errorDefault"));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleForgotPassword = async (e) => {
-    e.preventDefault()
-    setError('')
-    setSuccessMessage('')
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setSuccessMessage("");
+    setIsLoading(true);
 
     try {
       const res = await fetch(`${API_URL}/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: forgotUsername,
           email: forgotEmail,
           newPassword,
           confirmPassword,
         }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message)
+        throw new Error(data.message);
       }
 
-      setSuccessMessage(t('loginPage.forgotSuccess'))
+      setSuccessMessage(t("loginPage.forgotSuccess"));
       // Reset form setelah berhasil
-      setForgotUsername('')
-      setForgotEmail('')
-      setNewPassword('')
-      setConfirmPassword('')
+      setForgotUsername("");
+      setForgotEmail("");
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (err) {
-      setError(err.message || t('loginPage.forgotError'))
+      setError(err.message || t("loginPage.forgotError"));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const switchToForgotPassword = () => {
-    setIsForgotPassword(true)
-    setError('')
-    setSuccessMessage('')
-    setForgotUsername('')
-    setForgotEmail('')
-    setNewPassword('')
-    setConfirmPassword('')
-  }
+    setIsForgotPassword(true);
+    setError("");
+    setSuccessMessage("");
+    setForgotUsername("");
+    setForgotEmail("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
 
   const switchToLogin = () => {
-    setIsForgotPassword(false)
-    setError('')
-    setSuccessMessage('')
-  }
+    setIsForgotPassword(false);
+    setError("");
+    setSuccessMessage("");
+  };
 
   return (
     <div className="pt-20 min-h-screen bg-dark flex items-center justify-center relative overflow-hidden">
@@ -114,10 +114,14 @@ const Login = () => {
               )}
             </div>
             <h1 className="text-2xl font-bold text-text-heading mb-2">
-              {isForgotPassword ? t('loginPage.forgotTitle') : t('loginPage.title')}
+              {isForgotPassword
+                ? t("loginPage.forgotTitle")
+                : t("loginPage.title")}
             </h1>
             <p className="text-text-body text-sm">
-              {isForgotPassword ? t('loginPage.forgotDesc') : t('loginPage.description')}
+              {isForgotPassword
+                ? t("loginPage.forgotDesc")
+                : t("loginPage.description")}
             </p>
           </div>
 
@@ -140,13 +144,13 @@ const Login = () => {
             <form onSubmit={handleForgotPassword} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-text-heading mb-2">
-                  {t('loginPage.username')}
+                  {t("loginPage.username")}
                 </label>
                 <input
                   type="text"
                   value={forgotUsername}
                   onChange={(e) => setForgotUsername(e.target.value)}
-                  placeholder={t('loginPage.usernamePlaceholder')}
+                  placeholder={t("loginPage.usernamePlaceholder")}
                   className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   required
                 />
@@ -154,13 +158,13 @@ const Login = () => {
 
               <div>
                 <label className="block text-sm font-medium text-text-heading mb-2">
-                  {t('loginPage.forgotEmail')}
+                  {t("loginPage.forgotEmail")}
                 </label>
                 <input
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder={t('loginPage.forgotEmailPlaceholder')}
+                  placeholder={t("loginPage.forgotEmailPlaceholder")}
                   className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   required
                 />
@@ -168,14 +172,14 @@ const Login = () => {
 
               <div>
                 <label className="block text-sm font-medium text-text-heading mb-2">
-                  {t('loginPage.forgotNewPassword')}
+                  {t("loginPage.forgotNewPassword")}
                 </label>
                 <div className="relative">
                   <input
-                    type={showNewPassword ? 'text' : 'password'}
+                    type={showNewPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder={t('loginPage.forgotNewPasswordPlaceholder')}
+                    placeholder={t("loginPage.forgotNewPasswordPlaceholder")}
                     className="w-full px-4 py-3 pr-12 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                     required
                     minLength={6}
@@ -192,14 +196,16 @@ const Login = () => {
 
               <div>
                 <label className="block text-sm font-medium text-text-heading mb-2">
-                  {t('loginPage.forgotConfirmPassword')}
+                  {t("loginPage.forgotConfirmPassword")}
                 </label>
                 <div className="relative">
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder={t('loginPage.forgotConfirmPasswordPlaceholder')}
+                    placeholder={t(
+                      "loginPage.forgotConfirmPasswordPlaceholder",
+                    )}
                     className="w-full px-4 py-3 pr-12 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                     required
                     minLength={6}
@@ -209,7 +215,11 @@ const Login = () => {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-heading transition-colors"
                   >
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showConfirmPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
                   </button>
                 </div>
               </div>
@@ -224,7 +234,7 @@ const Login = () => {
                 ) : (
                   <>
                     <KeyRound size={20} />
-                    <span>{t('loginPage.forgotBtn')}</span>
+                    <span>{t("loginPage.forgotBtn")}</span>
                   </>
                 )}
               </button>
@@ -235,7 +245,7 @@ const Login = () => {
                 className="w-full flex items-center justify-center space-x-2 text-sm text-text-muted hover:text-primary transition-colors duration-300"
               >
                 <ArrowLeft size={16} />
-                <span>{t('loginPage.forgotBack')}</span>
+                <span>{t("loginPage.forgotBack")}</span>
               </button>
             </form>
           ) : (
@@ -243,13 +253,13 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-text-heading mb-2">
-                  {t('loginPage.username')}
+                  {t("loginPage.username")}
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder={t('loginPage.usernamePlaceholder')}
+                  placeholder={t("loginPage.usernamePlaceholder")}
                   className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                   required
                 />
@@ -257,14 +267,14 @@ const Login = () => {
 
               <div>
                 <label className="block text-sm font-medium text-text-heading mb-2">
-                  {t('loginPage.password')}
+                  {t("loginPage.password")}
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t('loginPage.passwordPlaceholder')}
+                    placeholder={t("loginPage.passwordPlaceholder")}
                     className="w-full px-4 py-3 pr-12 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                     required
                   />
@@ -284,7 +294,7 @@ const Login = () => {
                   onClick={switchToForgotPassword}
                   className="text-sm text-text-muted hover:text-primary transition-colors duration-300"
                 >
-                  {t('loginPage.forgotLink')}
+                  {t("loginPage.forgotLink")}
                 </button>
               </div>
 
@@ -298,7 +308,7 @@ const Login = () => {
                 ) : (
                   <>
                     <LogIn size={20} />
-                    <span>{t('loginPage.btnLogin')}</span>
+                    <span>{t("loginPage.btnLogin")}</span>
                   </>
                 )}
               </button>
@@ -307,7 +317,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

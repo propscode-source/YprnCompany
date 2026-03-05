@@ -1,37 +1,39 @@
-import { useState, useEffect } from 'react'
-import { translations as translationData } from '../data/translations'
-import { LanguageContext } from './LanguageContextDef'
+import { useState, useEffect } from "react";
+import { translations as translationData } from "../data/translations";
+import { LanguageContext } from "./LanguageContextDef";
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('lang') || 'id'
-  })
+    return localStorage.getItem("lang") || "id";
+  });
 
   useEffect(() => {
-    localStorage.setItem('lang', language)
-    document.documentElement.lang = language
-  }, [language])
+    localStorage.setItem("lang", language);
+    document.documentElement.lang = language;
+  }, [language]);
 
   const toggleLanguage = () => {
-    setLanguage((prev) => (prev === 'id' ? 'en' : 'id'))
-  }
+    setLanguage((prev) => (prev === "id" ? "en" : "id"));
+  };
 
   const t = (key) => {
-    const keys = key.split('.')
-    let value = translationData[language]
+    const keys = key.split(".");
+    let value = translationData[language];
     for (const k of keys) {
-      if (value && typeof value === 'object') {
-        value = value[k]
+      if (value && typeof value === "object") {
+        value = value[k];
       } else {
-        return key
+        return key;
       }
     }
-    return value || key
-  }
+    return value || key;
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, toggleLanguage, t }}
+    >
       {children}
     </LanguageContext.Provider>
-  )
-}
+  );
+};
