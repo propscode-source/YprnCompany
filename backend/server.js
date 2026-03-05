@@ -36,6 +36,12 @@ if (isProduction) {
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: "cross-origin" },
+      contentSecurityPolicy: {
+        directives: {
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          "frame-src": ["'self'", "https://www.google.com"],
+        },
+      },
     }),
   );
 }
