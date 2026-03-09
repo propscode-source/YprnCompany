@@ -21,6 +21,7 @@ import {
   Film,
   CheckCircle,
 } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
