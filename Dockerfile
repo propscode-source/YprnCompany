@@ -43,8 +43,9 @@ LABEL description="Rimba Nusantara Frontend - React SPA served by Nginx"
 # Hapus default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy custom nginx config
+# Copy custom nginx config & security headers
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/security-headers.conf /etc/nginx/security-headers.conf
 
 # Copy build output dari stage sebelumnya
 COPY --from=build /app/dist /usr/share/nginx/html
