@@ -1,7 +1,18 @@
 /* Additional custom styles */
 .App {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #2222;
+}
+
+/* Pastikan main mengisi sisa ruang, footer selalu menempel di bawah konten */
+.App > main {
+  flex: 1 0 auto;
+}
+
+.App > footer {
+  flex-shrink: 0;
 }
 /* Hero background pattern */
 .hero-pattern {
