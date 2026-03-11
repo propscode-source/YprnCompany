@@ -1066,4 +1066,5 @@ app.listen(PORT, () => {
   console.log(`✅ Server berjalan di http://localhost:${PORT}`);
   console.log(`🌍 Mode: ${isProduction ? "PRODUCTION" : "DEVELOPMENT"}`);
   console.log(`📁 Upload folder: ${uploadsDir}`);
-});
+}
+);

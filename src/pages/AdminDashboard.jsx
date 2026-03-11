@@ -24,6 +24,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { API_URL, getImageUrl } from "../config/api";
+import TipTapEditor from "../components/admin/TipTapEditor";
 
 const AdminDashboard = () => {
   const { admin, token, logout } = useAuth();
@@ -1304,14 +1305,13 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi
                     </label>
-                    <textarea
-                      value={formData.deskripsi || ""}
-                      onChange={(e) =>
-                        setFormData({ ...formData, deskripsi: e.target.value })
+                    <TipTapEditor
+                      content={formData.deskripsi || ""}
+                      onChange={(html) =>
+                        setFormData({ ...formData, deskripsi: html })
                       }
-                      rows={5}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Deskripsi kegiatan..."
+                      minHeight="180px"
                     />
                   </div>
 
@@ -1629,17 +1629,16 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi Singkat
                     </label>
-                    <textarea
-                      value={proyekFormData.deskripsi}
-                      onChange={(e) =>
+                    <TipTapEditor
+                      content={proyekFormData.deskripsi || ""}
+                      onChange={(html) =>
                         setProyekFormData({
                           ...proyekFormData,
-                          deskripsi: e.target.value,
+                          deskripsi: html,
                         })
                       }
-                      rows={2}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Deskripsi singkat yang tampil di card..."
+                      minHeight="100px"
                     />
                   </div>
 
@@ -1648,17 +1647,16 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Detail Lengkap
                     </label>
-                    <textarea
-                      value={proyekFormData.detail || ""}
-                      onChange={(e) =>
+                    <TipTapEditor
+                      content={proyekFormData.detail || ""}
+                      onChange={(html) =>
                         setProyekFormData({
                           ...proyekFormData,
-                          detail: e.target.value,
+                          detail: html,
                         })
                       }
-                      rows={5}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
+                      minHeight="180px"
                     />
                   </div>
 
@@ -1980,17 +1978,16 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi (opsional)
                     </label>
-                    <textarea
-                      value={heroFormData.deskripsi}
-                      onChange={(e) =>
+                    <TipTapEditor
+                      content={heroFormData.deskripsi || ""}
+                      onChange={(html) =>
                         setHeroFormData({
                           ...heroFormData,
-                          deskripsi: e.target.value,
+                          deskripsi: html,
                         })
                       }
-                      rows={4}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Keterangan gambar..."
+                      minHeight="150px"
                     />
                   </div>
 
@@ -2182,17 +2179,16 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi (opsional)
                     </label>
-                    <textarea
-                      value={videoFormData.deskripsi}
-                      onChange={(e) =>
+                    <TipTapEditor
+                      content={videoFormData.deskripsi || ""}
+                      onChange={(html) =>
                         setVideoFormData({
                           ...videoFormData,
-                          deskripsi: e.target.value,
+                          deskripsi: html,
                         })
                       }
-                      rows={5}
-                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Keterangan video..."
+                      minHeight="150px"
                     />
                   </div>
                 </div>
