@@ -51,25 +51,31 @@ const manualChunks = (id) => {
 };
 
 // ==================== TREE-SHAKING CONFIG ====================
-// Konfigurasi tree-shaking agresif untuk menghapus dead code
+// Konfigurasi tree-shaking — preserve React 19 module initialization
 const treeshakeOptions = {
-  // Anggap module tidak punya side effects kecuali ditandai
+  // Module side effects handling
+  // PENTING: React 19+ punya internal API (Activity, dll) yang butuh
+  // module initialization. Jangan return false untuk semua modules.
   moduleSideEffects: (id) => {
     // CSS files memiliki side effects (harus tetap di-include)
     if (id.endsWith(".css")) return true;
     // Polyfill juga punya side effects
     if (id.includes("polyfill")) return true;
+    // React ecosystem harus preserve side effects
+    if (id.includes("node_modules/react/")) return true;
+    if (id.includes("node_modules/react-dom/")) return true;
+    if (id.includes("node_modules/react-router")) return true;
+    if (id.includes("node_modules/scheduler")) return true;
     return false;
   },
-  // Anggap property reads tidak punya side effects
-  // Membantu menghapus unused object properties
-  propertyReadSideEffects: false,
+  // Property reads pada React modules PUNYA side effects
+  propertyReadSideEffects: true,
   // Jangan deoptimize tree-shaking di dalam try-catch blocks
   tryCatchDeoptimization: false,
   // Deteksi dan hapus pure function calls yang tidak digunakan
   annotations: true,
-  // Hapus unknown global side effects
-  unknownGlobalSideEffects: false,
+  // Preserve unknown global side effects untuk kompatibilitas React 19
+  unknownGlobalSideEffects: true,
 };
 
 // ==================== SECURITY & OUTPUT ====================

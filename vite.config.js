@@ -145,23 +145,33 @@ export default defineConfig({
         interop: "auto",
       },
 
-      // ==================== TREE-SHAKING AGRESIF ====================
+      // ==================== TREE-SHAKING ====================
       treeshake: {
         // Module side effects handling
+        // PENTING: React 19+ punya internal API (Activity, dll) yang butuh
+        // module initialization. Jangan return false untuk semua modules.
         moduleSideEffects: (id) => {
           // CSS dan polyfills punya side effects, harus tetap di-include
           if (id.endsWith(".css")) return true;
           if (id.includes("polyfill")) return true;
+          // React ecosystem harus preserve side effects agar module init
+          // tidak di-strip (menyebabkan "d.Activity is undefined")
+          if (id.includes("node_modules/react/")) return true;
+          if (id.includes("node_modules/react-dom/")) return true;
+          if (id.includes("node_modules/react-router")) return true;
+          if (id.includes("node_modules/scheduler")) return true;
+          // Library lain bisa di-tree-shake lebih agresif
           return false;
         },
-        // Property reads dianggap tidak punya side effects
-        propertyReadSideEffects: false,
+        // Property reads pada React modules PUNYA side effects
+        // (React 19 pakai lazy init patterns)
+        propertyReadSideEffects: true,
         // Jangan deoptimize tree-shaking di try-catch blocks
         tryCatchDeoptimization: false,
         // Gunakan annotations (/*#__PURE__*/) untuk tree-shaking
         annotations: true,
-        // Hapus unknown global side effects
-        unknownGlobalSideEffects: false,
+        // Preserve unknown global side effects untuk kompatibilitas React 19
+        unknownGlobalSideEffects: true,
       },
 
       // Suppress noisy warnings
