@@ -24,7 +24,6 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { API_URL, getImageUrl } from "../config/api";
-import QuillEditor from "../components/admin/QuillEditor";
 
 const AdminDashboard = () => {
   const { admin, token, logout } = useAuth();
@@ -1305,11 +1304,13 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi
                     </label>
-                    <QuillEditor
+                    <textarea
                       value={formData.deskripsi || ""}
-                      onChange={(html) =>
-                        setFormData({ ...formData, deskripsi: html })
+                      onChange={(e) =>
+                        setFormData({ ...formData, deskripsi: e.target.value })
                       }
+                      rows={5}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Deskripsi kegiatan..."
                     />
                   </div>
@@ -1647,14 +1648,16 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Detail Lengkap
                     </label>
-                    <QuillEditor
+                    <textarea
                       value={proyekFormData.detail || ""}
-                      onChange={(html) =>
+                      onChange={(e) =>
                         setProyekFormData({
                           ...proyekFormData,
-                          detail: html,
+                          detail: e.target.value,
                         })
                       }
+                      rows={5}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
                     />
                   </div>
