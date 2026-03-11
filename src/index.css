@@ -12,8 +12,8 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Hilangkan scroll vertikal di mobile dan tablet/iPad */
-@media (max-width: 1024px) {
+/* Hilangkan scroll vertikal di mobile phone (Android & iPhone) */
+@media (max-width: 480px) {
   html {
     overflow-y: hidden;
   }
