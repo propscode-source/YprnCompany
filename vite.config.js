@@ -2,11 +2,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import strip from '@rollup/plugin-strip'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { compression } from 'vite-plugin-compression2'
 
 const isAnalyze = process.env.ANALYZE === 'true'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    compression({
+      algorithms: ['gzip', 'brotliCompress'],
+      threshold: 1024,
+      exclude: [/\.(png|jpg|jpeg|gif|webp|svg|mp4)$/i],
+    }),
+  ],
 
   build: {
     target: 'es2020',
@@ -78,32 +86,26 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined
 
-          // React core + React-DOM: satu chunk.
-          // react-router dan framer-motion keduanya import dari react,
-          // memisahkan mereka ke chunk berbeda adalah akar dari:
-          //   1. "Circular chunk" warning saat build
-          //   2. "d.Activity is undefined" error di browser runtime
-          // karena browser tidak menjamin urutan load chunk yang saling
-          // bergantung satu sama lain.
+          // Vendor React & Ekosistem intinya
           if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-router') ||
-            id.includes('node_modules/@remix-run/') || // react-router v7 internals
-            id.includes('node_modules/framer-motion/') ||
-            id.includes('node_modules/motion/')
+            id.includes('/node_modules/react/') ||
+            id.includes('/node_modules/react-dom/') ||
+            id.includes('/node_modules/scheduler/') ||
+            id.includes('/node_modules/react-router') ||
+            id.includes('/node_modules/@remix-run/') ||
+            id.includes('/node_modules/framer-motion/') ||
+            id.includes('/node_modules/motion/')
           ) {
             return 'vendor-react'
           }
 
-          // Lucide icons: tidak import dari react secara circular,
-          // aman dipisah untuk cache independen.
-          if (id.includes('node_modules/lucide-react/')) {
+          // Vendor Icons
+          if (id.includes('/node_modules/lucide-react/')) {
             return 'vendor-icons'
           }
 
-          // Semua node_modules lain yang tidak masuk kategori di atas.
-          return 'vendor-misc'
+          // Sisa library dibiarkan agar Rollup yang mengatur pemecahannya secara otomatis.
+          // Ini yang mencegah terjadinya 'Circular chunk'.
         },
       },
 
