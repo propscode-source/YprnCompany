@@ -23,70 +23,7 @@ import {
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-
 import { API_URL, getImageUrl } from "../config/api";
-
-// Define custom styling for CKEditor and hide scrollbar
-const customStyles = `
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .hide-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-
-  /* CKEditor Custom Dark Theme Styles */
-  :root {
-    --ck-color-base-background: rgba(255, 255, 255, 0.05);
-    --ck-color-base-border: rgba(255, 255, 255, 0.1);
-    --ck-color-base-text: #f3f4f6;
-    --ck-color-toolbar-background: rgba(255, 255, 255, 0.05);
-    --ck-color-toolbar-border: rgba(255, 255, 255, 0.1);
-    --ck-color-button-default-hover-background: rgba(255, 255, 255, 0.1);
-    --ck-color-button-default-active-background: rgba(255, 255, 255, 0.15);
-    --ck-color-button-on-background: rgba(255, 255, 255, 0.2);
-    --ck-color-button-on-color: #ffffff;
-    --ck-color-dropdown-panel-background: #1f2937;
-    --ck-color-dropdown-panel-border: rgba(255, 255, 255, 0.1);
-    --ck-color-list-background: #1f2937;
-    --ck-color-list-button-hover-background: rgba(255, 255, 255, 0.1);
-    --ck-color-input-background: rgba(0, 0, 0, 0.5);
-    --ck-color-input-border: rgba(255, 255, 255, 0.1);
-    --ck-border-radius: 0.75rem;
-  }
-
-  .ck.ck-editor__main > .ck-editor__editable {
-    min-height: 150px;
-    max-height: 300px;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    border-bottom-left-radius: 0.75rem !important;
-    border-bottom-right-radius: 0.75rem !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #f3f4f6 !important;
-  }
-
-  .ck.ck-toolbar {
-    border-top-left-radius: 0.75rem !important;
-    border-top-right-radius: 0.75rem !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-  }
-
-  .ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: none !important;
-  }
-
-  /* Reset link color inside editor */
-  .ck-content a {
-    color: #3b82f6 !important;
-  }
-`;
 
 const AdminDashboard = () => {
   const { admin, token, logout } = useAuth();
@@ -1367,32 +1304,15 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Deskripsi
                     </label>
-                    <style>{customStyles}</style>
-                    <div className="custom-ckeditor">
-                      <CKEditor
-                        editor={ClassicEditor}
-                        data={formData.deskripsi || ""}
-                        onChange={(event, editor) => {
-                          const data = editor.getData();
-                          setFormData({ ...formData, deskripsi: data });
-                        }}
-                        config={{
-                          toolbar: [
-                            "heading",
-                            "|",
-                            "bold",
-                            "italic",
-                            "link",
-                            "bulletedList",
-                            "numberedList",
-                            "blockQuote",
-                            "undo",
-                            "redo",
-                          ],
-                          placeholder: "Deskripsi kegiatan...",
-                        }}
-                      />
-                    </div>
+                    <textarea
+                      value={formData.deskripsi || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, deskripsi: e.target.value })
+                      }
+                      rows={5}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Deskripsi kegiatan..."
+                    />
                   </div>
 
                   {/* Tanggal & Lokasi */}
@@ -1728,36 +1648,18 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-text-heading mb-2">
                       Detail Lengkap
                     </label>
-                    <style>{customStyles}</style>
-                    <div className="custom-ckeditor">
-                      <CKEditor
-                        editor={ClassicEditor}
-                        data={proyekFormData.detail || ""}
-                        onChange={(event, editor) => {
-                          const data = editor.getData();
-                          setProyekFormData({
-                            ...proyekFormData,
-                            detail: data,
-                          });
-                        }}
-                        config={{
-                          toolbar: [
-                            "heading",
-                            "|",
-                            "bold",
-                            "italic",
-                            "link",
-                            "bulletedList",
-                            "numberedList",
-                            "blockQuote",
-                            "undo",
-                            "redo",
-                          ],
-                          placeholder:
-                            "Penjelasan detail proyek yang akan tampil saat user mengklik...",
-                        }}
-                      />
-                    </div>
+                    <textarea
+                      value={proyekFormData.detail || ""}
+                      onChange={(e) =>
+                        setProyekFormData({
+                          ...proyekFormData,
+                          detail: e.target.value,
+                        })
+                      }
+                      rows={5}
+                      className="w-full px-4 py-3 bg-dark/50 border border-dark-200/50 rounded-xl text-text-heading placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      placeholder="Penjelasan detail proyek yang akan tampil saat user mengklik..."
+                    />
                   </div>
 
                   {/* Tags & Kategori */}

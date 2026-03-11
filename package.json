@@ -16,8 +16,6 @@
     "clean:cache": "rimraf node_modules/.vite"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-react": "latest",
-    "ckeditor5": "latest",
     "@tailwindcss/vite": "latest",
     "@vitejs/plugin-react": "latest",
     "autoprefixer": "latest",
