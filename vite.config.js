@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { compression } from "vite-plugin-compression2";
 import strip from "@rollup/plugin-strip";
 import { visualizer } from "rollup-plugin-visualizer";
 
@@ -15,20 +14,21 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Semua library yang memiliki dependency ke react HARUS
+          // masuk ke chunk yang sama dengan react itu sendiri.
+          // Memisahkan mereka adalah penyebab circular chunk warning
+          // dan race condition "Activity is undefined" di browser.
+          if (
+            id.includes('/react/') ||
+            id.includes('/react-dom/') ||
+            id.includes('/react-router') ||
+            id.includes('/@remix-run/') ||  // react-router v7 internals
+            id.includes('/framer-motion/')
+          ) {
+            return 'vendor-react'
+          }
+          // Library yang tidak bergantung pada react boleh dipisah
           if (id.includes('node_modules')) {
-            // Semua library yang depend pada React HARUS satu chunk.
-            // Memisahkan react dari framer-motion/react-router adalah
-            // penyebab circular dependency dan runtime TypeError.
-            if (
-              id.includes('/react/') ||
-              id.includes('/react-dom/') ||
-              id.includes('/react-router') ||
-              id.includes('/@remix-run/') ||
-              id.includes('/framer-motion/')
-            ) {
-              return 'vendor-react'
-            }
-            // Vendor lain yang tidak depend pada React
             return 'vendor-misc'
           }
         },
