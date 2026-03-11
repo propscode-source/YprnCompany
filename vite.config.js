@@ -10,23 +10,38 @@ const isAnalyze = process.env.ANALYZE === "true";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-
-    // Pre-compression: gzip + brotli untuk production
-    compression({
-      algorithms: ["gzip", "brotliCompress"],
-      threshold: 1024, // Hanya kompresi file > 1KB
-      exclude: [/\.(png|jpg|jpeg|gif|webp|svg|mp4)$/i],
-    }),
-  ],
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Semua library yang depend pada React HARUS satu chunk.
+            // Memisahkan react dari framer-motion/react-router adalah
+            // penyebab circular dependency dan runtime TypeError.
+            if (
+              id.includes('/react/') ||
+              id.includes('/react-dom/') ||
+              id.includes('/react-router') ||
+              id.includes('/@remix-run/') ||
+              id.includes('/framer-motion/')
+            ) {
+              return 'vendor-react'
+            }
+            // Vendor lain yang tidak depend pada React
+            return 'vendor-misc'
+          }
+        },
+      },
+    },
+  },
 
   build: {
     // Target modern browsers untuk output lebih kecil
-    target: "es2020",
+    target: 'es2020',
 
     // Minifikasi dengan terser untuk hasil lebih kecil dari esbuild default
-    minify: "terser",
+    minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: true, // Hapus console.log di production
@@ -61,13 +76,8 @@ export default defineConfig({
       plugins: [
         // Hapus debug code di production build
         strip({
-          functions: [
-            "console.log",
-            "console.debug",
-            "console.info",
-            "console.warn",
-          ],
-          include: ["**/*.js", "**/*.jsx"],
+          functions: ['console.log', 'console.debug', 'console.info', 'console.warn'],
+          include: ['**/*.js', '**/*.jsx'],
           sourceMap: false,
         }),
 
@@ -75,12 +85,12 @@ export default defineConfig({
         ...(isAnalyze
           ? [
               visualizer({
-                filename: "reports/bundle-analysis.html",
+                filename: 'reports/bundle-analysis.html',
                 open: true,
                 gzipSize: true,
                 brotliSize: true,
-                template: "treemap",
-                title: "YPRN Bundle Analysis",
+                template: 'treemap',
+                title: 'YPRN Bundle Analysis',
                 projectRoot: process.cwd(),
               }),
             ]
@@ -91,36 +101,36 @@ export default defineConfig({
         // ==================== MANUAL CHUNKS STRATEGY ====================
         // Pisahkan vendor berdasarkan frekuensi update dan ukuran
         manualChunks(id) {
-          if (!id.includes("node_modules")) return undefined;
+          if (!id.includes('node_modules')) return undefined
 
           // React core -- sangat jarang berubah, cache jangka panjang
-          if (id.includes("react-dom") || id.includes("node_modules/react/")) {
-            return "vendor-react";
+          if (id.includes('react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react'
           }
 
           // React Router -- update terpisah dari React core
-          if (id.includes("react-router-dom") || id.includes("react-router")) {
-            return "vendor-router";
+          if (id.includes('react-router-dom') || id.includes('react-router')) {
+            return 'vendor-router'
           }
 
           // Motion/Framer Motion -- library terbesar (~150KB), cache terpisah
-          if (id.includes("/motion") || id.includes("framer-motion")) {
-            return "vendor-motion";
+          if (id.includes('/motion') || id.includes('framer-motion')) {
+            return 'vendor-motion'
           }
 
           // Lucide icons -- banyak dipakai, bisa di-cache terpisah
-          if (id.includes("lucide-react")) {
-            return "vendor-icons";
+          if (id.includes('lucide-react')) {
+            return 'vendor-icons'
           }
 
           // Sisa vendor kecil -- digabung jadi satu chunk
-          return "vendor-misc";
+          return 'vendor-misc'
         },
 
         // Penamaan chunk dengan hash untuk long-term caching
-        chunkFileNames: "assets/js/[name]-[hash].js",
-        entryFileNames: "assets/js/[name]-[hash].js",
-        assetFileNames: "assets/[ext]/[name]-[hash].[ext]",
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
 
         // Compact output untuk ukuran lebih kecil
         compact: true,
@@ -136,13 +146,13 @@ export default defineConfig({
         // Sanitize nama file untuk keamanan
         sanitizeFileName: (name) => {
           return name
-            .replace(/[\x00-\x1f\x7f]/g, "")
-            .replace(/[<>:"|?*]/g, "_")
-            .replace(/\.\./g, "_");
+            .replace(/[\x00-\x1f\x7f]/g, '')
+            .replace(/[<>:"|?*]/g, '_')
+            .replace(/\.\./g, '_')
         },
 
         // Interop mode otomatis
-        interop: "auto",
+        interop: 'auto',
       },
 
       // ==================== TREE-SHAKING ====================
@@ -152,16 +162,16 @@ export default defineConfig({
         // module initialization. Jangan return false untuk semua modules.
         moduleSideEffects: (id) => {
           // CSS dan polyfills punya side effects, harus tetap di-include
-          if (id.endsWith(".css")) return true;
-          if (id.includes("polyfill")) return true;
+          if (id.endsWith('.css')) return true
+          if (id.includes('polyfill')) return true
           // React ecosystem harus preserve side effects agar module init
           // tidak di-strip (menyebabkan "d.Activity is undefined")
-          if (id.includes("node_modules/react/")) return true;
-          if (id.includes("node_modules/react-dom/")) return true;
-          if (id.includes("node_modules/react-router")) return true;
-          if (id.includes("node_modules/scheduler")) return true;
+          if (id.includes('node_modules/react/')) return true
+          if (id.includes('node_modules/react-dom/')) return true
+          if (id.includes('node_modules/react-router')) return true
+          if (id.includes('node_modules/scheduler')) return true
           // Library lain bisa di-tree-shake lebih agresif
-          return false;
+          return false
         },
         // Property reads pada React modules PUNYA side effects
         // (React 19 pakai lazy init patterns)
@@ -177,20 +187,14 @@ export default defineConfig({
       // Suppress noisy warnings
       onwarn(warning, warn) {
         // Abaikan "use client" directive warnings (dari React libraries)
-        if (
-          warning.code === "MODULE_LEVEL_DIRECTIVE" &&
-          warning.message?.includes("use client")
-        ) {
-          return;
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message?.includes('use client')) {
+          return
         }
         // Abaikan circular dependency di node_modules
-        if (
-          warning.code === "CIRCULAR_DEPENDENCY" &&
-          warning.importer?.includes("node_modules")
-        ) {
-          return;
+        if (warning.code === 'CIRCULAR_DEPENDENCY' && warning.importer?.includes('node_modules')) {
+          return
         }
-        warn(warning);
+        warn(warning)
       },
     },
 
@@ -202,23 +206,13 @@ export default defineConfig({
   server: {
     // Pre-transform dependencies untuk startup dev lebih cepat
     warmup: {
-      clientFiles: [
-        "./src/main.jsx",
-        "./src/App.jsx",
-        "./src/components/common/Navbar.jsx",
-      ],
+      clientFiles: ['./src/main.jsx', './src/App.jsx', './src/components/common/Navbar.jsx'],
     },
   },
 
   // ==================== DEPENDENCY OPTIMIZATION ====================
   optimizeDeps: {
     // Pre-bundle dependencies ini untuk dev server lebih cepat
-    include: [
-      "react",
-      "react-dom",
-      "react-router-dom",
-      "motion/react",
-      "lucide-react",
-    ],
+    include: ['react', 'react-dom', 'react-router-dom', 'motion/react', 'lucide-react'],
   },
-});
+})
