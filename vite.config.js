@@ -1,87 +1,46 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import strip from "@rollup/plugin-strip";
-import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import strip from '@rollup/plugin-strip'
+import { visualizer } from 'rollup-plugin-visualizer'
 
-// Mode detection
-const isProduction = process.env.NODE_ENV === "production";
-const isAnalyze = process.env.ANALYZE === "true";
+const isAnalyze = process.env.ANALYZE === 'true'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Semua library yang memiliki dependency ke react HARUS
-          // masuk ke chunk yang sama dengan react itu sendiri.
-          // Memisahkan mereka adalah penyebab circular chunk warning
-          // dan race condition "Activity is undefined" di browser.
-          if (
-            id.includes('/react/') ||
-            id.includes('/react-dom/') ||
-            id.includes('/react-router') ||
-            id.includes('/@remix-run/') ||  // react-router v7 internals
-            id.includes('/framer-motion/')
-          ) {
-            return 'vendor-react'
-          }
-          // Library yang tidak bergantung pada react boleh dipisah
-          if (id.includes('node_modules')) {
-            return 'vendor-misc'
-          }
-        },
-      },
-    },
-  },
 
   build: {
-    // Target modern browsers untuk output lebih kecil
     target: 'es2020',
-
-    // Minifikasi dengan terser untuk hasil lebih kecil dari esbuild default
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Hapus console.log di production
+        drop_console: true,
         drop_debugger: true,
-        // Optimasi agresif
-        passes: 2, // Multiple compression passes untuk hasil lebih kecil
-        dead_code: true, // Hapus dead code
-        collapse_vars: true, // Gabungkan variable declarations
-        reduce_vars: true, // Reduce variable references
-        unused: true, // Hapus unused variables
+        passes: 2,
+        dead_code: true,
+        collapse_vars: true,
+        reduce_vars: true,
+        unused: true,
       },
       mangle: {
-        safari10: true, // Fix Safari 10 loop iterator bug
+        safari10: true,
       },
       format: {
-        comments: false, // Hapus semua comments di production
+        comments: false,
         ecma: 2020,
       },
     },
-
-    // Tidak perlu sourcemap di production
     sourcemap: false,
-
-    // CSS code splitting
     cssCodeSplit: true,
-
-    // Batas minimum asset untuk inline sebagai base64 (4KB)
     assetsInlineLimit: 4096,
+    chunkSizeWarningLimit: 500,
 
-    // ==================== ROLLUP OPTIONS ====================
     rollupOptions: {
       plugins: [
-        // Hapus debug code di production build
         strip({
           functions: ['console.log', 'console.debug', 'console.info', 'console.warn'],
           include: ['**/*.js', '**/*.jsx'],
           sourceMap: false,
         }),
-
-        // Bundle analysis -- generate report saat ANALYZE=true
         ...(isAnalyze
           ? [
               visualizer({
@@ -98,121 +57,91 @@ export default defineConfig({
       ],
 
       output: {
-        // ==================== MANUAL CHUNKS STRATEGY ====================
-        // Pisahkan vendor berdasarkan frekuensi update dan ukuran
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined
-
-          // React core -- sangat jarang berubah, cache jangka panjang
-          if (id.includes('react-dom') || id.includes('node_modules/react/')) {
-            return 'vendor-react'
-          }
-
-          // React Router -- update terpisah dari React core
-          if (id.includes('react-router-dom') || id.includes('react-router')) {
-            return 'vendor-router'
-          }
-
-          // Motion/Framer Motion -- library terbesar (~150KB), cache terpisah
-          if (id.includes('/motion') || id.includes('framer-motion')) {
-            return 'vendor-motion'
-          }
-
-          // Lucide icons -- banyak dipakai, bisa di-cache terpisah
-          if (id.includes('lucide-react')) {
-            return 'vendor-icons'
-          }
-
-          // Sisa vendor kecil -- digabung jadi satu chunk
-          return 'vendor-misc'
-        },
-
-        // Penamaan chunk dengan hash untuk long-term caching
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
-
-        // Compact output untuk ukuran lebih kecil
         compact: true,
-
-        // Generated code optimization
         generatedCode: {
           arrowFunctions: true,
           constBindings: true,
           objectShorthand: true,
           symbols: true,
         },
-
-        // Sanitize nama file untuk keamanan
         sanitizeFileName: (name) => {
           return name
             .replace(/[\x00-\x1f\x7f]/g, '')
             .replace(/[<>:"|?*]/g, '_')
             .replace(/\.\./g, '_')
         },
-
-        // Interop mode otomatis
         interop: 'auto',
+
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+
+          // React core + React-DOM: satu chunk.
+          // react-router dan framer-motion keduanya import dari react,
+          // memisahkan mereka ke chunk berbeda adalah akar dari:
+          //   1. "Circular chunk" warning saat build
+          //   2. "d.Activity is undefined" error di browser runtime
+          // karena browser tidak menjamin urutan load chunk yang saling
+          // bergantung satu sama lain.
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router') ||
+            id.includes('node_modules/@remix-run/') || // react-router v7 internals
+            id.includes('node_modules/framer-motion/') ||
+            id.includes('node_modules/motion/')
+          ) {
+            return 'vendor-react'
+          }
+
+          // Lucide icons: tidak import dari react secara circular,
+          // aman dipisah untuk cache independen.
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'vendor-icons'
+          }
+
+          // Semua node_modules lain yang tidak masuk kategori di atas.
+          return 'vendor-misc'
+        },
       },
 
-      // ==================== TREE-SHAKING ====================
       treeshake: {
-        // Module side effects handling
-        // PENTING: React 19+ punya internal API (Activity, dll) yang butuh
-        // module initialization. Jangan return false untuk semua modules.
         moduleSideEffects: (id) => {
-          // CSS dan polyfills punya side effects, harus tetap di-include
           if (id.endsWith('.css')) return true
           if (id.includes('polyfill')) return true
-          // React ecosystem harus preserve side effects agar module init
-          // tidak di-strip (menyebabkan "d.Activity is undefined")
           if (id.includes('node_modules/react/')) return true
           if (id.includes('node_modules/react-dom/')) return true
           if (id.includes('node_modules/react-router')) return true
           if (id.includes('node_modules/scheduler')) return true
-          // Library lain bisa di-tree-shake lebih agresif
           return false
         },
-        // Property reads pada React modules PUNYA side effects
-        // (React 19 pakai lazy init patterns)
         propertyReadSideEffects: true,
-        // Jangan deoptimize tree-shaking di try-catch blocks
         tryCatchDeoptimization: false,
-        // Gunakan annotations (/*#__PURE__*/) untuk tree-shaking
         annotations: true,
-        // Preserve unknown global side effects untuk kompatibilitas React 19
         unknownGlobalSideEffects: true,
       },
 
-      // Suppress noisy warnings
       onwarn(warning, warn) {
-        // Abaikan "use client" directive warnings (dari React libraries)
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message?.includes('use client')) {
           return
         }
-        // Abaikan circular dependency di node_modules
         if (warning.code === 'CIRCULAR_DEPENDENCY' && warning.importer?.includes('node_modules')) {
           return
         }
         warn(warning)
       },
     },
-
-    // Naikkan warning limit (setelah splitting, seharusnya sudah di bawah)
-    chunkSizeWarningLimit: 500,
   },
 
-  // ==================== OPTIMASI SERVER DEV ====================
   server: {
-    // Pre-transform dependencies untuk startup dev lebih cepat
     warmup: {
       clientFiles: ['./src/main.jsx', './src/App.jsx', './src/components/common/Navbar.jsx'],
     },
   },
 
-  // ==================== DEPENDENCY OPTIMIZATION ====================
   optimizeDeps: {
-    // Pre-bundle dependencies ini untuk dev server lebih cepat
     include: ['react', 'react-dom', 'react-router-dom', 'motion/react', 'lucide-react'],
   },
 })
