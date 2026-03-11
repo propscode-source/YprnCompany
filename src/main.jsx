@@ -6,8 +6,9 @@ import { LanguageProvider } from "./context/LanguageContext";
 import "./index.css";
 import App from "./App.jsx";
 
+
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <React.StrictMode>
     <BrowserRouter>
       <LanguageProvider>
         <AuthProvider>
@@ -15,5 +16,5 @@ createRoot(document.getElementById("root")).render(
         </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>
-  </StrictMode>,
+  </React.StrictMode>,
 );
