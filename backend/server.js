@@ -32,18 +32,22 @@ if (!process.env.DATABASE_URL) {
 
 // ==================== PRODUCTION MIDDLEWARE ====================
 if (isProduction) {
-  app.set("trust proxy", 1);
+  app.set('trust proxy', 1)
   app.use(
     helmet({
-      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
       contentSecurityPolicy: {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          "frame-src": ["'self'", "https://www.google.com"],
+          'frame-src': ["'self'", 'https://www.google.com'],
         },
       },
-    }),
-  );
+    })
+  )
+  // Tangkap error jika file di dalam folder /uploads tidak ditemukan
+  app.use('/uploads', (req, res) => {
+    res.status(404).json({ message: 'File media tidak ditemukan' })
+  })
 }
 app.use(compression());
 
