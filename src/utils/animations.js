@@ -28,7 +28,7 @@ export const fadeInDown = {
 
 // ─── Fade In Left ────────────────────────────────────────────────────────
 export const fadeInLeft = {
-  hidden: { opacity: 0, x: -60 },
+  hidden: { opacity: 0, x: -20 }, // Sebelumnya -60, ubah ke -20 agar tidak terlalu keluar layar
   visible: (delay = 0) => ({
     opacity: 1,
     x: 0,
@@ -38,13 +38,13 @@ export const fadeInLeft = {
 
 // ─── Fade In Right ───────────────────────────────────────────────────────
 export const fadeInRight = {
-  hidden: { opacity: 0, x: 60 },
+  hidden: { opacity: 0, x: 20 }, // Sebelumnya 60, ubah ke 20
   visible: (delay = 0) => ({
     opacity: 1,
     x: 0,
     transition: { duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
-};
+}; 
 
 // ─── Scale In (zoom pop) ─────────────────────────────────────────────────
 export const scaleIn = {
