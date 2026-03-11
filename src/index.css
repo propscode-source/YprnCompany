@@ -10,13 +10,7 @@
 
 html {
   scroll-behavior: smooth;
-}
-
-/* Hilangkan scroll vertikal di mobile phone (Android & iPhone) */
-@media (max-width: 480px) {
-  html {
-    overflow-y: hidden;
-  }
+  overflow-y: hidden;
 }
 
 body {
