@@ -5,15 +5,6 @@ import process from "process";
 
 const SALT_ROUNDS = 12;
 
-// Admin default yang akan dibuat
-const DEFAULT_ADMIN = {
-  username: "admin",
-  password: "admin123", // Password default - SEGERA GANTI setelah login pertama!
-  nama_lengkap: "Administrator",
-  email: "admin@rimbanusantara.com",
-  role: "superadmin",
-};
-
 async function seed() {
   if (!process.env.DATABASE_URL) {
     console.error("DATABASE_URL belum diatur di .env!");
