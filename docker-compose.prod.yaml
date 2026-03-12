@@ -1,0 +1,197 @@
+# ============================================================
+# Docker Compose - YPRN Production (Stack Baru)
+# FILE INI INDEPENDEN — tidak konflik dengan stack existing
+#
+# Perbedaan dari docker-compose.yaml (existing):
+#   - Project name  : yprn-prod (bukan default yprn)
+#   - Container names: suffix -prod
+#   - Volume names  : suffix -prod
+#   - Network name  : yprn-prod-network
+#   - Ports         : 5433 (db), 5001 (api), 8181 (nginx), 8181 (pgadmin)
+#
+# Cara pakai:
+#   1. Buat file environment:
+#      cp .env.prod.example .env.prod
+#      (edit nilai sensitif: password, jwt secret, domain)
+#
+#   2. Pertama kali — build + migrasi:
+#      docker compose -f docker-compose.prod.yaml --env-file .env.prod up -d --build
+#      docker compose -f docker-compose.prod.yaml --env-file .env.prod exec api npm run db:setup
+#
+#   3. Redeploy setelah update kode (tanpa downtime DB):
+#      docker compose -f docker-compose.prod.yaml --env-file .env.prod up -d --build api frontend
+#
+#   4. Lihat log:
+#      docker compose -f docker-compose.prod.yaml --env-file .env.prod logs -f
+#
+#   5. Stop tanpa hapus data:
+#      docker compose -f docker-compose.prod.yaml --env-file .env.prod down
+#
+#   6. RESET TOTAL (hapus semua data — destructive):
+#      docker compose -f docker-compose.prod.yaml --env-file .env.prod down -v
+# ============================================================
+
+# Project name eksplisit: ini yang mencegah Docker menggabungkan
+# container dari compose file berbeda ke namespace yang sama.
+# Tanpa ini, Docker pakai nama folder sebagai prefix → collision.
+name: yprn-prod
+
+services:
+
+  # ==================== PostgreSQL Database ====================
+  db:
+    image: postgres:16-alpine
+    container_name: yprn-postgres-prod
+    restart: unless-stopped
+
+    # Port 5433 di host → 5432 di container
+    # Port 5432 sudah dipakai stack existing → conflict jika disamakan
+    ports:
+      - "${PROD_POSTGRES_PORT:-5433}:5432"
+
+    environment:
+      POSTGRES_USER: ${PROD_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${PROD_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${PROD_POSTGRES_DB:-mycompany_prod}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+
+    volumes:
+      # Volume terpisah dari existing (suffix -prod mencegah sharing data)
+      - pgdata-prod:/var/lib/postgresql/data
+      # Migration otomatis saat container pertama kali init
+      # Path relative dari lokasi file compose ini dipanggil
+      - ./backend/database/migration.sql:/docker-entrypoint-initdb.d/01-migration.sql:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PROD_POSTGRES_USER:-postgres} -d ${PROD_POSTGRES_DB:-mycompany_prod}",
+        ]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+    networks:
+      - yprn-prod-network
+
+  # ==================== Express API Backend ====================
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      # Target 'production' sesuai multi-stage Dockerfile existing
+      target: production
+    image: yprn-api-prod:latest
+    container_name: yprn-api-prod
+    restart: unless-stopped
+
+    # Port 5001 di host → 5000 di container
+    # Port 5000 sudah dipakai stack existing
+    ports:
+      - "${PROD_API_PORT:-5001}:5000"
+
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+
+      # Password di DATABASE_URL harus URL-encoded
+      # Karakter @ menjadi %40, spasi menjadi %20, dst.
+      # Gunakan PROD_POSTGRES_PASSWORD_ENCODED di .env.prod
+      DATABASE_URL: >-
+        postgresql://${PROD_POSTGRES_USER:-postgres}:${PROD_POSTGRES_PASSWORD_ENCODED}@db:5432/${PROD_POSTGRES_DB:-mycompany_prod}
+
+      JWT_SECRET: ${PROD_JWT_SECRET}
+      JWT_EXPIRES_IN: ${PROD_JWT_EXPIRES_IN:-24h}
+
+    volumes:
+      # Volume uploads terpisah — data production tidak bercampur dengan existing
+      - uploads-prod:/app/uploads
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    networks:
+      - yprn-prod-network
+
+  # ==================== React Frontend + Nginx ====================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        # /api adalah relative path — nginx di container ini yang proxy ke backend
+        VITE_API_URL: /api
+    image: yprn-frontend-prod:latest
+    container_name: yprn-frontend-prod
+    restart: unless-stopped
+
+    # Port 8181 di host → 80 di container
+    # Port 80 sudah dipakai stack existing
+    # Jika pakai Coolify + Traefik, port ini bisa diganti ke 0 (Traefik handle routing)
+    ports:
+      - "${PROD_FRONTEND_PORT:-8181}:80"
+
+    depends_on:
+      api:
+        condition: service_healthy
+
+    networks:
+      - yprn-prod-network
+
+  # ==================== pgAdmin (Opsional) ====================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: yprn-pgadmin-prod
+    restart: unless-stopped
+
+    # Port 8182 di host
+    # Port 8080 sudah dipakai stack existing
+    ports:
+      - "${PROD_PGADMIN_PORT:-8182}:80"
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PROD_PGADMIN_EMAIL:-admin@yprn.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PROD_PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+
+    volumes:
+      - pgadmin-data-prod:/var/lib/pgadmin
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    networks:
+      - yprn-prod-network
+
+    # Hanya aktif jika dipanggil dengan --profile tools
+    profiles:
+      - tools
+
+# ==================== Volumes ====================
+# Semua volume memakai suffix -prod → tidak pernah overlap
+# dengan volume existing (yprn-pgdata, yprn-uploads, yprn-pgadmin-data)
+volumes:
+  pgdata-prod:
+    driver: local
+    name: yprn-pgdata-prod
+
+  uploads-prod:
+    driver: local
+    name: yprn-uploads-prod
+
+  pgadmin-data-prod:
+    driver: local
+    name: yprn-pgadmin-data-prod
+
+# ==================== Networks ====================
+# Network terpisah: container dari dua stack tidak bisa saling akses
+# secara tidak sengaja — isolasi penuh.
+networks:
+  yprn-prod-network:
+    driver: bridge
+    name: yprn-prod-network
