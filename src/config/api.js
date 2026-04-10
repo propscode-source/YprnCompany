@@ -1,4 +1,3 @@
-// API Configuration
 // ─────────────────────────────────────────────────────────────
 // VITE_API_URL di-bake ke bundle saat Vite build (import.meta.env).
 //

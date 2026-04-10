@@ -11,6 +11,13 @@ import process from "node:process";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import {
+  initRedis,
+  getCache,
+  setCache,
+  deletePattern,
+  getRedisStatus,
+} from "./config/redisClient.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,8 +116,6 @@ const pool = new pg.Pool({
 
   // === Query Safety ===
   // Catatan:
-  // - Di Supabase / layanan managed lain, cold start atau network kadang >10s
-  // - Jika timeout terlalu agresif, query sederhana seperti SELECT bisa gagal
   // - Kita naikkan batas ke 30 detik agar lebih stabil, tapi tetap ada batas atas
   statement_timeout: 30000, // Timeout query di sisi server (PostgreSQL)
   query_timeout: 30000, // Timeout query di sisi client (node-postgres)
@@ -191,8 +196,13 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+// ==================== REDIS CONNECTION ====================
+// Inisialisasi Redis — jika REDIS_URL tidak diset atau koneksi gagal,
+// server tetap berjalan dan fallback langsung ke database (graceful degradation).
+initRedis();
+
 // ==================== HEALTH CHECK ====================
-// Endpoint untuk memantau performa pool dan latensi database.
+// Endpoint untuk memantau performa pool DB, latensi, dan status Redis.
 // Berguna untuk monitoring production dan verifikasi target <1ms.
 app.get("/api/health", async (req, res) => {
   const start = process.hrtime.bigint();
@@ -202,6 +212,8 @@ app.get("/api/health", async (req, res) => {
     const latencyMs = Number(end - start) / 1_000_000; // nanoseconds -> ms
 
     const { totalCount, idleCount, waitingCount } = pool;
+    const redis = getRedisStatus();
+
     res.json({
       status: "ok",
       db: {
@@ -211,6 +223,10 @@ app.get("/api/health", async (req, res) => {
           idle: idleCount,
           waiting: waitingCount,
         },
+      },
+      cache: {
+        redis: redis.status,
+        connected: redis.connected,
       },
     });
   } catch (error) {
@@ -369,10 +385,18 @@ const uploadHero = multer({
 
 // Get all hero images (public)
 app.get("/api/hero-beranda", cachePublicApi(300), async (req, res) => {
+  const CACHE_KEY = "hero:beranda:all";
   try {
+    // Cek Redis cache — jika HIT, kembalikan langsung tanpa query DB
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return res.json(cached);
+
     const { rows } = await pool.query(
       "SELECT * FROM hero_beranda ORDER BY urutan ASC, created_at DESC",
     );
+
+    // Simpan ke cache 5 menit
+    await setCache(CACHE_KEY, rows, 300);
     res.json(rows);
   } catch (error) {
     console.error("Get hero beranda error:", error);
@@ -398,6 +422,9 @@ app.post(
         "INSERT INTO hero_beranda (judul, deskripsi, gambar, urutan, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         [judul || null, deskripsi || null, gambar, urutan || 0, req.admin.id],
       );
+
+      // Invalidasi cache agar data baru muncul di public
+      await deletePattern("hero:beranda:*");
 
       res.status(201).json({
         message: "Hero image berhasil ditambahkan",
@@ -445,6 +472,9 @@ app.put(
         [judul || null, deskripsi || null, gambar, urutan || 0, id],
       );
 
+      // Invalidasi cache
+      await deletePattern("hero:beranda:*");
+
       res.json({ message: "Hero image berhasil diperbarui" });
     } catch (error) {
       console.error("Update hero beranda error:", error);
@@ -473,6 +503,10 @@ app.delete("/api/hero-beranda/:id", authMiddleware, async (req, res) => {
     }
 
     await pool.query("DELETE FROM hero_beranda WHERE id = $1", [req.params.id]);
+
+    // Invalidasi cache
+    await deletePattern("hero:beranda:*");
+
     res.json({ message: "Hero image berhasil dihapus" });
   } catch (error) {
     console.error("Delete hero beranda error:", error);
@@ -484,10 +518,16 @@ app.delete("/api/hero-beranda/:id", authMiddleware, async (req, res) => {
 
 // Get all kegiatan (public)
 app.get("/api/kegiatan", cachePublicApi(300), async (req, res) => {
+  const CACHE_KEY = "kegiatan:all";
   try {
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return res.json(cached);
+
     const { rows } = await pool.query(
       "SELECT * FROM kegiatan ORDER BY created_at DESC",
     );
+
+    await setCache(CACHE_KEY, rows, 300);
     res.json(rows);
   } catch (error) {
     console.error("Get kegiatan error:", error);
@@ -497,13 +537,19 @@ app.get("/api/kegiatan", cachePublicApi(300), async (req, res) => {
 
 // Get single kegiatan
 app.get("/api/kegiatan/:id", async (req, res) => {
+  const CACHE_KEY = `kegiatan:detail:${req.params.id}`;
   try {
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return res.json(cached);
+
     const { rows } = await pool.query("SELECT * FROM kegiatan WHERE id = $1", [
       req.params.id,
     ]);
     if (rows.length === 0) {
       return res.status(404).json({ message: "Kegiatan tidak ditemukan" });
     }
+
+    await setCache(CACHE_KEY, rows[0], 600);
     res.json(rows[0]);
   } catch (error) {
     console.error("Get kegiatan detail error:", error);
@@ -534,6 +580,9 @@ app.post(
           req.admin.id,
         ],
       );
+
+      // Invalidasi cache list kegiatan
+      await deletePattern("kegiatan:*");
 
       res.status(201).json({
         message: "Kegiatan berhasil ditambahkan",
@@ -591,6 +640,9 @@ app.put(
         ],
       );
 
+      // Invalidasi semua cache kegiatan (list + detail item ini)
+      await deletePattern("kegiatan:*");
+
       res.json({ message: "Kegiatan berhasil diperbarui" });
     } catch (error) {
       console.error("Update kegiatan error:", error);
@@ -619,6 +671,10 @@ app.delete("/api/kegiatan/:id", authMiddleware, async (req, res) => {
     }
 
     await pool.query("DELETE FROM kegiatan WHERE id = $1", [req.params.id]);
+
+    // Invalidasi semua cache kegiatan
+    await deletePattern("kegiatan:*");
+
     res.json({ message: "Kegiatan berhasil dihapus" });
   } catch (error) {
     console.error("Delete kegiatan error:", error);
@@ -663,8 +719,13 @@ const uploadProyek = multer({
 
 // Get all proyek (public) — optional filter by kategori
 app.get("/api/proyek", cachePublicApi(300), async (req, res) => {
+  const { kategori } = req.query;
+  // Key berbeda per kategori agar filter bisa di-cache secara terpisah
+  const CACHE_KEY = kategori ? `proyek:all:${kategori}` : "proyek:all";
   try {
-    const { kategori } = req.query;
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return res.json(cached);
+
     let query = "SELECT * FROM proyek";
     const params = [];
     if (kategori) {
@@ -673,6 +734,8 @@ app.get("/api/proyek", cachePublicApi(300), async (req, res) => {
     }
     query += " ORDER BY created_at DESC";
     const { rows } = await pool.query(query, params);
+
+    await setCache(CACHE_KEY, rows, 300);
     res.json(rows);
   } catch (error) {
     console.error("Get proyek error:", error);
@@ -682,13 +745,19 @@ app.get("/api/proyek", cachePublicApi(300), async (req, res) => {
 
 // Get single proyek (public)
 app.get("/api/proyek/:id", async (req, res) => {
+  const CACHE_KEY = `proyek:detail:${req.params.id}`;
   try {
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return res.json(cached);
+
     const { rows } = await pool.query("SELECT * FROM proyek WHERE id = $1", [
       req.params.id,
     ]);
     if (rows.length === 0) {
       return res.status(404).json({ message: "Proyek tidak ditemukan" });
     }
+
+    await setCache(CACHE_KEY, rows[0], 600);
     res.json(rows[0]);
   } catch (error) {
     console.error("Get proyek detail error:", error);
@@ -742,6 +811,9 @@ app.post(
           req.admin.id,
         ],
       );
+
+      // Invalidasi semua cache proyek (list semua kategori + yang baru)
+      await deletePattern("proyek:*");
 
       res.status(201).json({
         message: "Proyek berhasil ditambahkan",
@@ -808,6 +880,9 @@ app.put(
         [judul, deskripsi || null, detail || null, tagsArray, gambar, kat, id],
       );
 
+      // Invalidasi semua cache proyek
+      await deletePattern("proyek:*");
+
       res.json({ message: "Proyek berhasil diperbarui" });
     } catch (error) {
       console.error("Update proyek error:", error);
@@ -835,6 +910,10 @@ app.delete("/api/proyek/:id", authMiddleware, async (req, res) => {
     }
 
     await pool.query("DELETE FROM proyek WHERE id = $1", [req.params.id]);
+
+    // Invalidasi semua cache proyek
+    await deletePattern("proyek:*");
+
     res.json({ message: "Proyek berhasil dihapus" });
   } catch (error) {
     console.error("Delete proyek error:", error);
@@ -879,11 +958,19 @@ const uploadVideo = multer({
 
 // Get active video (public)
 app.get("/api/video-beranda", cachePublicApi(300), async (req, res) => {
+  const CACHE_KEY = "video:beranda:active";
   try {
+    const cached = await getCache(CACHE_KEY);
+    if (cached !== null) return res.json(cached);
+
     const { rows } = await pool.query(
       "SELECT * FROM video_beranda WHERE is_active = true ORDER BY created_at DESC LIMIT 1",
     );
-    res.json(rows[0] || null);
+    const result = rows[0] || null;
+
+    // Cache meski hasilnya null (tidak ada video aktif) — TTL lebih pendek
+    await setCache(CACHE_KEY, result, 300);
+    res.json(result);
   } catch (error) {
     console.error("Get video beranda error:", error);
     res.status(500).json({ message: "Server error" });
@@ -924,6 +1011,9 @@ app.post(
         "INSERT INTO video_beranda (judul, deskripsi, video, is_active, created_by) VALUES ($1, $2, $3, true, $4) RETURNING id",
         [judul || null, deskripsi || null, video, req.admin.id],
       );
+
+      // Invalidasi cache video aktif
+      await deletePattern("video:beranda:*");
 
       res.status(201).json({
         message: "Video berhasil ditambahkan",
@@ -971,6 +1061,9 @@ app.put(
         [judul || null, deskripsi || null, video, id],
       );
 
+      // Invalidasi cache video
+      await deletePattern("video:beranda:*");
+
       res.json({ message: "Video berhasil diperbarui" });
     } catch (error) {
       console.error("Update video beranda error:", error);
@@ -998,6 +1091,9 @@ app.put("/api/video-beranda/:id/activate", authMiddleware, async (req, res) => {
       "UPDATE video_beranda SET is_active = true WHERE id = $1",
       [id],
     );
+
+    // Invalidasi cache karena video aktif berubah
+    await deletePattern("video:beranda:*");
 
     res.json({ message: "Video berhasil diaktifkan" });
   } catch (error) {
@@ -1028,6 +1124,10 @@ app.delete("/api/video-beranda/:id", authMiddleware, async (req, res) => {
     await pool.query("DELETE FROM video_beranda WHERE id = $1", [
       req.params.id,
     ]);
+
+    // Invalidasi cache video
+    await deletePattern("video:beranda:*");
+
     res.json({ message: "Video berhasil dihapus" });
   } catch (error) {
     console.error("Delete video beranda error:", error);

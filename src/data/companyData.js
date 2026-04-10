@@ -11,7 +11,6 @@ export const companyInfo = {
   address: "Suka Bangun, Kota Palembang, Sumatera Selatan",
   socialMedia: {
     facebook: "https://facebook.com/yprn",
-    twitter: "https://twitter.com/yprn",
     instagram: "https://instagram.com/yprn",
     linkedin: "https://linkedin.com/company/yprn",
   },
