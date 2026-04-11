@@ -92,11 +92,17 @@ export default defineConfig({
             id.includes('/node_modules/react-dom/') ||
             id.includes('/node_modules/scheduler/') ||
             id.includes('/node_modules/react-router') ||
-            id.includes('/node_modules/@remix-run/') ||
+            id.includes('/node_modules/@remix-run/')
+          ) {
+            return 'vendor-react'
+          }
+
+          // Vendor Motion (framer-motion / motion) — dipisah agar tidak membebani vendor-react
+          if (
             id.includes('/node_modules/framer-motion/') ||
             id.includes('/node_modules/motion/')
           ) {
-            return 'vendor-react'
+            return 'vendor-motion'
           }
 
           // Vendor Icons

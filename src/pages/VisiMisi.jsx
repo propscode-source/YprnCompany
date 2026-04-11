@@ -189,6 +189,8 @@ const VisiMisi = () => {
                 alt="Kegiatan Yayasan Rimba Nusantara"
                 className="relative rounded-2xl shadow-2xl w-full border border-dark-200"
                 loading="lazy"
+                width="648"
+                height="424"
               />
             </motion.div>
             <motion.div

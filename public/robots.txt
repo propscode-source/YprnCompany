@@ -1,0 +1,13 @@
+# Robots.txt - Yayasan Pemerhati Rimba Nusantara
+# https://rimbanusantara.or.id
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+
+# Sitemap
+Sitemap: https://rimbanusantara.or.id/sitemap.xml

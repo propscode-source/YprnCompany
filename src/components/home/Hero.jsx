@@ -62,12 +62,14 @@ const HeroImageSlider = ({ images }) => {
 
       <button
         onClick={prev}
+        aria-label="Slide sebelumnya"
         className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-dark/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-dark transition-all duration-300 opacity-0 group-hover:opacity-100"
       >
         <ChevronLeft size={22} />
       </button>
       <button
         onClick={next}
+        aria-label="Slide berikutnya"
         className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-dark/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-dark transition-all duration-300 opacity-0 group-hover:opacity-100"
       >
         <ChevronRight size={22} />
@@ -78,6 +80,7 @@ const HeroImageSlider = ({ images }) => {
           <button
             key={index}
             onClick={() => setCurrent(index)}
+            aria-label={`Pergi ke slide ${index + 1}`}
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
               index === current
                 ? "bg-primary w-7 shadow-glow-primary"

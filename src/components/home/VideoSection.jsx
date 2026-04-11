@@ -14,6 +14,7 @@ const VideoSection = () => {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [videoData, setVideoData] = useState(null);
+  const [videoError, setVideoError] = useState(false);
   const [loading, setLoading] = useState(true);
   const videoRef = useRef(null);
   const thumbnailRef = useRef(null);
@@ -83,8 +84,8 @@ const VideoSection = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, closeModal]);
 
-  // Jangan render section jika loading atau tidak ada video
-  if (loading || !videoSrc) return null;
+  // Jangan render section jika loading, tidak ada video, atau video error (404)
+  if (loading || !videoSrc || videoError) return null;
 
   return (
     <>
@@ -140,6 +141,7 @@ const VideoSection = () => {
                 tabIndex={-1}
                 aria-hidden="true"
                 onLoadedMetadata={handleThumbnailLoaded}
+                onError={() => setVideoError(true)}
               />
 
               {/* Dark overlay */}

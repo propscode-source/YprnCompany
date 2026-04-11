@@ -36,6 +36,8 @@ const About = () => {
                 alt="Kegiatan Yayasan"
                 className="relative rounded-2xl shadow-xl w-full object-cover border border-dark-200"
                 loading="lazy"
+                width="648"
+                height="424"
               />
               <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-dark shadow-glow-primary">
                 <div className="text-center">

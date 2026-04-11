@@ -133,6 +133,7 @@ const Navbar = () => {
                             activeDropdown === item.name ? null : item.name,
                           );
                         }}
+                        aria-label={`Toggle submenu ${item.name}`}
                         className={`p-2 -ml-1 rounded-lg transition-all duration-300 ${
                           isActiveParent(item)
                             ? "text-primary hover:bg-primary/10"
@@ -252,6 +253,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
             className="md:hidden p-2 rounded-lg text-text-body hover:text-primary hover:bg-primary/10 transition-all duration-300"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -299,6 +301,7 @@ const Navbar = () => {
                                     : item.name,
                                 )
                               }
+                              aria-label={`Toggle submenu ${item.name}`}
                               className="p-3 text-text-body hover:text-primary transition-colors"
                             >
                               <ChevronDown

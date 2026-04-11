@@ -59,9 +59,9 @@ const Footer = () => {
 
           {/* Tentang Kami */}
           <motion.div variants={staggerItem}>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">
+            <h3 className="text-lg font-semibold mb-6 text-text-heading">
               {t("footer.tentangKami")}
-            </h4>
+            </h3>
             <ul className="space-y-3">
               {menuTentang.map((link) => (
                 <li key={link.path}>
@@ -78,9 +78,9 @@ const Footer = () => {
 
           {/* Kegiatan */}
           <motion.div variants={staggerItem}>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">
+            <h3 className="text-lg font-semibold mb-6 text-text-heading">
               {t("footer.kegiatan")}
-            </h4>
+            </h3>
             <ul className="space-y-3">
               {menuKegiatan.map((link) => (
                 <li key={link.path}>
@@ -97,9 +97,9 @@ const Footer = () => {
 
           {/* Contact Info */}
           <motion.div variants={staggerItem}>
-            <h4 className="text-lg font-semibold mb-6 text-text-heading">
+            <h3 className="text-lg font-semibold mb-6 text-text-heading">
               {t("footer.kontak")}
-            </h4>
+            </h3>
             <ul className="space-y-4">
               <li className="flex items-start space-x-3">
                 <MapPin size={20} className="text-primary flex-shrink-0 mt-1" />
