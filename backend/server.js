@@ -58,15 +58,79 @@ if (isProduction) {
 }
 app.use(compression());
 
-// Middleware
+// ==================== MIDDLEWARE GLOBAL ====================
+
+// CORS — izinkan semua origin (frontend + API tester tools)
 app.use(
   cors({
     origin: true,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Content-Type"],
   }),
 );
+
+/**
+ * Middleware: Deteksi dan konversi response HTML Cloudflare ke JSON.
+ *
+ * Cloudflare WAF mengembalikan halaman HTML "Attention Required!" ketika
+ * memblokir request dari API tester (Postman, curl, dll). Middleware ini
+ * mencegah HTML tersebut bocor ke client — menggantinya dengan JSON error
+ * yang informatif.
+ *
+ * Pengecualian: route upload file (multipart/form-data) di-skip agar
+ * tidak mengganggu proses upload gambar/video.
+ */
+app.use('/api', (req, res, next) => {
+  // Skip override untuk route upload file (POST/PUT dengan body multipart)
+  // agar tidak mengganggu Content-Type multipart response
+  const isUploadRoute = req.method !== 'GET' && (
+    req.path.includes('/hero-beranda') ||
+    req.path.includes('/kegiatan') ||
+    req.path.includes('/proyek') ||
+    req.path.includes('/video-beranda')
+  );
+
+  if (isUploadRoute) {
+    return next();
+  }
+
+  // Simpan referensi fungsi send asli sebelum di-override
+  const originalSend = res.send.bind(res);
+
+  /**
+   * Override res.send: intercept response body HTML dari Cloudflare.
+   * res.json() memanggil res.send() secara internal, sehingga override
+   * ini akan menangkap response apapun yang melewati Express.
+   */
+  res.send = function interceptSend(body) {
+    // Deteksi Cloudflare HTML challenge/block page
+    // Cloudflare selalu memulai response HTML dengan "<!DOCTYPE html>" atau komentar IE conditional
+    if (typeof body === 'string' && body.trimStart().startsWith('<!')) {
+      // Jangan expose HTML Cloudflare ke API client — ubah ke JSON error
+      if (!res.headersSent) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.statusCode = res.statusCode === 200 ? 403 : res.statusCode;
+      }
+      const cfRayId = res.getHeader('CF-RAY') || 'not-available';
+      return originalSend(JSON.stringify({
+        error: 'Cloudflare WAF Block',
+        message: 'Request diblokir oleh Cloudflare WAF. Pastikan menggunakan header yang valid.',
+        hint: 'Sertakan header: Accept: application/json dan Content-Type: application/json',
+        cf_ray: cfRayId,
+        status: res.statusCode,
+        docs: '/docs/CLOUDFLARE_WAF_SETUP.md',
+      }));
+    }
+
+    // Body normal (bukan HTML) — teruskan ke res.send asli
+    return originalSend(body);
+  };
+
+  next();
+});
+
 app.use(express.json());
 
 // Serve uploaded files dengan cache headers

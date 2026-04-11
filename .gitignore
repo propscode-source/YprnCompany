@@ -46,3 +46,6 @@ folder database
 
 # github prompt ignore
 .github/
+
+docs/API_testing_GUIDE.md
+docs/CLOUDFLARE_WAF_SETUP.md
