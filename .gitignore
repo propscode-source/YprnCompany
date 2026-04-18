@@ -49,3 +49,7 @@ folder database
 
 docs/API_testing_GUIDE.md
 docs/CLOUDFLARE_WAF_SETUP.md
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
