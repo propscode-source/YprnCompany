@@ -47,6 +47,7 @@ if (isProduction) {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
           'frame-src': ["'self'", 'https://www.google.com'],
+          'media-src': ["'self'", "blob:", "https://rimbanusantara.or.id"],
         },
       },
     })
