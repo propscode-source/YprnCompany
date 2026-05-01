@@ -42,16 +42,23 @@ if (isProduction) {
   app.set('trust proxy', 1)
   app.use(
     helmet({
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
       contentSecurityPolicy: {
         directives: {
-          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          'frame-src': ["'self'", 'https://www.google.com'],
-          'media-src': ["'self'", "blob:", "https://rimbanusantara.or.id"],
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com",
+          ],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'", "data:", "blob:", "https://rimbanusantara.or.id"],
+          mediaSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"], // INI KUNCI UNTUK VIDEO BLOB
+          connectSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"],
         },
       },
-    })
-  )
+    }),
+  );
   // Tangkap error jika file di dalam folder /uploads tidak ditemukan
   app.use('/uploads', (req, res) => {
     res.status(404).json({ message: 'File media tidak ditemukan' })
