@@ -69,7 +69,7 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
     volumes:
       # Persist file uploads
-      - uploads:/app/uploads
+      - ./uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy

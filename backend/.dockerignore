@@ -8,6 +8,5 @@ npm-debug.log*
 *.md
 migrate-photos.js
 migrate-to-subfolders.js
-uploads/**/*
 !uploads/.gitkeep
 TROUBLESHOOTING_DATABASE.md

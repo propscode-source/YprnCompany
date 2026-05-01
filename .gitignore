@@ -48,7 +48,6 @@ folder database
 .github/
 
 docs/API_testing_GUIDE.md
-docs/CLOUDFLARE_WAF_SETUP.md
 
 
 #Ignore vscode AI rules
