@@ -39,32 +39,60 @@ if (!process.env.DATABASE_URL) {
 
 // ==================== PRODUCTION MIDDLEWARE ====================
 if (isProduction) {
-  app.set('trust proxy', 1)
+  app.set('trust proxy', 1);
+  app.use(compression()); // Letakkan compression sebelum helmet atau route lain untuk efisiensi
+
   app.use(
     helmet({
       contentSecurityPolicy: {
+        // useDefaults: true sangat disarankan agar header CSP dasar lainnya tetap aktif
+        useDefaults: true,
         directives: {
           defaultSrc: ["'self'"],
+
+          // Mengizinkan script dari server Anda sendiri.
+          // HATI-HATI: Hapus 'unsafe-inline' dan 'unsafe-eval' jika frontend Anda (Vite build)
+          // sudah tidak membutuhkannya di Production untuk mencegah serangan XSS.
           scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+
+          // Mengatasi error (index):19 Executing inline event handler
+          scriptSrcAttr: ["'unsafe-inline'"],
+
           styleSrc: [
             "'self'",
-            "'unsafe-inline'",
+            "'unsafe-inline'", // Sering dibutuhkan oleh UI library modern (seperti Tailwind/Emotion/MUI)
             "https://fonts.googleapis.com",
           ],
-          fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:", "blob:", "https://rimbanusantara.or.id"],
-          mediaSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"], // INI KUNCI UNTUK VIDEO BLOB
-          connectSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"],
+
+          fontSrc: [
+            "'self'",
+            "https://fonts.gstatic.com"
+          ],
+
+          imgSrc: [
+            "'self'",
+            "data:",
+            "blob:",
+            "https://rimbanusantara.or.id"
+          ],
+
+          // Kunci utama untuk pemutaran video dari file statis atau Blob
+          mediaSrc: [
+            "'self'",
+            "blob:",
+            "https://rimbanusantara.or.id"
+          ],
+
+          connectSrc: [
+            "'self'",
+            "blob:",
+            "https://rimbanusantara.or.id"
+          ],
         },
       },
-    }),
+    })
   );
-  // Tangkap error jika file di dalam folder /uploads tidak ditemukan
-  app.use('/uploads', (req, res) => {
-    res.status(404).json({ message: 'File media tidak ditemukan' })
-  })
 }
-app.use(compression());
 
 // ==================== MIDDLEWARE GLOBAL ====================
 
