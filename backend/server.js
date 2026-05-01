@@ -37,155 +37,145 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-// ==================== PRODUCTION MIDDLEWARE ====================
-if (isProduction) {
-  app.set('trust proxy', 1);
-  app.use(compression()); // Letakkan compression sebelum helmet atau route lain untuk efisiensi
-
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        // useDefaults: true sangat disarankan agar header CSP dasar lainnya tetap aktif
-        useDefaults: true,
-        directives: {
-          defaultSrc: ["'self'"],
-
-          // Mengizinkan script dari server Anda sendiri.
-          // HATI-HATI: Hapus 'unsafe-inline' dan 'unsafe-eval' jika frontend Anda (Vite build)
-          // sudah tidak membutuhkannya di Production untuk mencegah serangan XSS.
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-
-          // Mengatasi error (index):19 Executing inline event handler
-          scriptSrcAttr: ["'unsafe-inline'"],
-
-          styleSrc: [
-            "'self'",
-            "'unsafe-inline'", // Sering dibutuhkan oleh UI library modern (seperti Tailwind/Emotion/MUI)
-            "https://fonts.googleapis.com",
-          ],
-
-          fontSrc: [
-            "'self'",
-            "https://fonts.gstatic.com"
-          ],
-
-          imgSrc: [
-            "'self'",
-            "data:",
-            "blob:",
-            "https://rimbanusantara.or.id"
-          ],
-
-          // Kunci utama untuk pemutaran video dari file statis atau Blob
-          mediaSrc: [
-            "'self'",
-            "blob:",
-            "https://rimbanusantara.or.id"
-          ],
-
-          connectSrc: [
-            "'self'",
-            "blob:",
-            "https://rimbanusantara.or.id"
-          ],
-        },
-      },
-    })
-  );
+// Pastikan direktori uploads ada
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // ==================== MIDDLEWARE GLOBAL ====================
 
-// CORS — izinkan semua origin (frontend + API tester tools)
+if (isProduction) {
+  app.set("trust proxy", 1);
+  app.use(compression());
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          scriptSrcAttr: ["'unsafe-inline'"],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com",
+          ],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'", "data:", "blob:", "https://rimbanusantara.or.id"],
+          mediaSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"],
+          connectSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"],
+        },
+      },
+    }),
+  );
+}
+
 app.use(
   cors({
     origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
     exposedHeaders: ["Content-Type"],
   }),
 );
 
-/**
- * Middleware: Deteksi dan konversi response HTML Cloudflare ke JSON.
- *
- * Cloudflare WAF mengembalikan halaman HTML "Attention Required!" ketika
- * memblokir request dari API tester (Postman, curl, dll). Middleware ini
- * mencegah HTML tersebut bocor ke client — menggantinya dengan JSON error
- * yang informatif.
- *
- * Pengecualian: route upload file (multipart/form-data) di-skip agar
- * tidak mengganggu proses upload gambar/video.
- */
-app.use('/api', (req, res, next) => {
-  // Skip override untuk route upload file (POST/PUT dengan body multipart)
-  // agar tidak mengganggu Content-Type multipart response
-  const isUploadRoute = req.method !== 'GET' && (
-    req.path.includes('/hero-beranda') ||
-    req.path.includes('/kegiatan') ||
-    req.path.includes('/proyek') ||
-    req.path.includes('/video-beranda')
-  );
+app.use(express.json());
+
+// Cloudflare WAF interceptor (dari kode Anda sebelumnya)
+app.use("/api", (req, res, next) => {
+  const isUploadRoute =
+    req.method !== "GET" &&
+    (req.path.includes("/hero-beranda") ||
+      req.path.includes("/kegiatan") ||
+      req.path.includes("/proyek") ||
+      req.path.includes("/video-beranda"));
 
   if (isUploadRoute) {
     return next();
   }
 
-  // Simpan referensi fungsi send asli sebelum di-override
   const originalSend = res.send.bind(res);
-
-  /**
-   * Override res.send: intercept response body HTML dari Cloudflare.
-   * res.json() memanggil res.send() secara internal, sehingga override
-   * ini akan menangkap response apapun yang melewati Express.
-   */
   res.send = function interceptSend(body) {
-    // Deteksi Cloudflare HTML challenge/block page
-    // Cloudflare selalu memulai response HTML dengan "<!DOCTYPE html>" atau komentar IE conditional
-    if (typeof body === 'string' && body.trimStart().startsWith('<!')) {
-      // Jangan expose HTML Cloudflare ke API client — ubah ke JSON error
+    if (typeof body === "string" && body.trimStart().startsWith("<!")) {
       if (!res.headersSent) {
-        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.statusCode = res.statusCode === 200 ? 403 : res.statusCode;
       }
-      const cfRayId = res.getHeader('CF-RAY') || 'not-available';
-      return originalSend(JSON.stringify({
-        error: 'Cloudflare WAF Block',
-        message: 'Request diblokir oleh Cloudflare WAF. Pastikan menggunakan header yang valid.',
-        hint: 'Sertakan header: Accept: application/json dan Content-Type: application/json',
-        cf_ray: cfRayId,
-        status: res.statusCode,
-        docs: '/docs/CLOUDFLARE_WAF_SETUP.md',
-      }));
+      const cfRayId = res.getHeader("CF-RAY") || "not-available";
+      return originalSend(
+        JSON.stringify({
+          error: "Cloudflare WAF Block",
+          message: "Request diblokir oleh Cloudflare WAF.",
+          cf_ray: cfRayId,
+          status: res.statusCode,
+        }),
+      );
     }
-
-    // Body normal (bukan HTML) — teruskan ke res.send asli
     return originalSend(body);
   };
-
   next();
 });
 
-app.use(express.json());
-
-// Serve uploaded files dengan cache headers
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// ==================== FIX #2: UPLOADS & 404 HANDLER ====================
+// Serve static uploads
 app.use(
   "/uploads",
   express.static(uploadsDir, {
-    maxAge: "30d", // Cache gambar selama 30 hari
-    immutable: true, // File tidak akan berubah (content-hashed)
-    etag: true, // Enable ETag untuk validasi cache
-    lastModified: true, // Enable Last-Modified header
+    maxAge: "30d",
+    immutable: true,
+    etag: true,
+    lastModified: true,
+    // Mencegah request "jatuh" ke router SPA jika file tidak ada
+    fallthrough: false,
   }),
 );
 
-// Cache middleware untuk public API GET routes
-// Data seperti hero, kegiatan, proyek jarang berubah -- cache 5 menit
+// Handler khusus jika file di /uploads tidak ditemukan
+app.use("/uploads", (err, req, res, next) => {
+  if (err.status === 404 || err.statusCode === 404) {
+    return res.status(404).json({
+      error: "File tidak ditemukan",
+      path: req.path,
+    });
+  }
+  next(err);
+});
+
+// ==================== DATABASE & CACHE ====================
+initRedis();
+
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 20,
+  min: 2,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  allowExitOnIdle: false,
+  statement_timeout: 30000,
+  query_timeout: 30000,
+});
+
+pool
+  .connect()
+  .then((client) => {
+    client.release();
+    console.log("Database pool warmed up");
+  })
+  .catch((err) => console.error("Database warm-up gagal:", err.message));
+
+pool.on("error", (err) =>
+  console.error("Pool idle client error:", err.message),
+);
+
 const cachePublicApi =
   (duration = 300) =>
   (req, res, next) => {
@@ -198,47 +188,7 @@ const cachePublicApi =
     next();
   };
 
-// PostgreSQL Connection Pool (Supabase)
-// Pool dikonfigurasi untuk performa koneksi <1ms pada request berikutnya
-// setelah warm-up awal (koneksi pertama tetap butuh network round-trip).
-const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-
-  // === Pool Size ===
-  max: 20, // Maksimum koneksi bersamaan
-  min: 2, // Minimum koneksi idle yang selalu siap (warm pool)
-
-  // === Timeout ===
-  idleTimeoutMillis: 30000, // Koneksi idle ditutup setelah 30 detik
-  connectionTimeoutMillis: 10000, // Waktu tunggu mendapatkan koneksi dari pool
-  allowExitOnIdle: false, // Jangan tutup pool saat idle (keep connections warm)
-
-  // === Query Safety ===
-  // Catatan:
-  // - Kita naikkan batas ke 30 detik agar lebih stabil, tapi tetap ada batas atas
-  statement_timeout: 30000, // Timeout query di sisi server (PostgreSQL)
-  query_timeout: 30000, // Timeout query di sisi client (node-postgres)
-});
-
-// Pool warm-up: buat koneksi awal saat server start
-// agar request pertama tidak perlu menunggu handshake TCP+SSL.
-pool
-  .connect()
-  .then((client) => {
-    client.release();
-    console.log("Database pool warmed up — koneksi siap");
-  })
-  .catch((err) => {
-    console.error("Database warm-up gagal:", err.message);
-  });
-
-// Pool error handler — cegah crash jika koneksi idle terputus
-pool.on("error", (err) => {
-  console.error("Pool idle client error:", err.message);
-});
-
-// Buat subfolder uploads per kategori
+// ==================== SETUP UPLOADS DIRECTORIES ====================
 const kategoriDirs = ["kegiatan", "sia", "sroi", "beranda", "video"];
 kategoriDirs.forEach((dir) => {
   const dirPath = path.join(uploadsDir, dir);
@@ -247,124 +197,104 @@ kategoriDirs.forEach((dir) => {
   }
 });
 
-// Multer config for image upload (simpan ke subfolder per kategori)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Ambil kategori dari body, default 'kegiatan'
-    const kategori = req.body.kategori || "kegiatan";
-    const destDir = path.join(uploadsDir, kategori);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    cb(null, destDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase(),
-    );
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error("Hanya file gambar yang diizinkan!"));
-    }
-  },
-});
-
 // Auth Middleware
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Token tidak ditemukan" });
-  }
+  if (!token) return res.status(401).json({ message: "Token tidak ditemukan" });
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.admin = decoded;
+    req.admin = jwt.verify(token, JWT_SECRET);
     next();
   } catch {
     return res.status(401).json({ message: "Token tidak valid" });
   }
 };
 
-// ==================== REDIS CONNECTION ====================
-// Inisialisasi Redis — jika REDIS_URL tidak diset atau koneksi gagal,
-// server tetap berjalan dan fallback langsung ke database (graceful degradation).
-initRedis();
+// Multer Configs (Umum, Hero, Proyek, Video)
+const createDiskStorage = (defaultFolder, prefix = "") =>
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      const folder = req.body.kategori || defaultFolder;
+      const destDir = path.join(uploadsDir, folder);
+      if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+      cb(null, destDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, `${prefix}${uniqueSuffix}${path.extname(file.originalname)}`);
+    },
+  });
 
-// ==================== HEALTH CHECK ====================
-// Endpoint untuk memantau performa pool DB, latensi, dan status Redis.
-// Berguna untuk monitoring production dan verifikasi target <1ms.
+const upload = multer({
+  storage: createDiskStorage("kegiatan"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/jpeg|jpg|png|gif|webp/.test(file.mimetype)) cb(null, true);
+    else cb(new Error("Hanya gambar!"));
+  },
+});
+
+const uploadHero = multer({
+  storage: createDiskStorage("beranda"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: upload.fileFilter,
+});
+
+const uploadProyek = multer({
+  storage: createDiskStorage("sia", "proyek-"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: upload.fileFilter,
+});
+
+const uploadVideo = multer({
+  storage: createDiskStorage("video", "video-"),
+  limits: { fileSize: 100 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/video\/(mp4|webm|ogg|quicktime)/.test(file.mimetype)) cb(null, true);
+    else cb(new Error("Hanya video!"));
+  },
+});
+
+// ==================== API ROUTES ====================
+// Di sini Anda bisa memanggil routes external jika ada
+// app.use("/api", require("./routes"));
+
 app.get("/api/health", async (req, res) => {
   const start = process.hrtime.bigint();
   try {
     await pool.query("SELECT 1");
     const end = process.hrtime.bigint();
-    const latencyMs = Number(end - start) / 1_000_000; // nanoseconds -> ms
-
-    const { totalCount, idleCount, waitingCount } = pool;
     const redis = getRedisStatus();
-
     res.json({
       status: "ok",
       db: {
-        latency_ms: parseFloat(latencyMs.toFixed(3)),
-        pool: {
-          total: totalCount,
-          idle: idleCount,
-          waiting: waitingCount,
-        },
+        latency_ms: parseFloat((Number(end - start) / 1_000_000).toFixed(3)),
       },
-      cache: {
-        redis: redis.status,
-        connected: redis.connected,
-      },
+      cache: { redis: redis.status, connected: redis.connected },
     });
   } catch (error) {
     res.status(503).json({ status: "error", message: error.message });
   }
 });
 
-// ==================== AUTH ROUTES ====================
-
-// Login (tanpa register)
+// --- Auth Routes ---
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+    if (!username || !password)
+      return res.status(400).json({ message: "Isi semua field" });
 
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ message: "Username dan password harus diisi" });
-    }
-
-    // Cari admin berdasarkan username saja (password diverifikasi via bcrypt)
     const { rows } = await pool.query(
       "SELECT * FROM admin WHERE username = $1",
       [username],
     );
-
-    if (rows.length === 0) {
-      return res.status(401).json({ message: "Username atau password salah" });
+    if (
+      rows.length === 0 ||
+      !(await bcrypt.compare(password, rows[0].password))
+    ) {
+      return res.status(401).json({ message: "Kredensial salah" });
     }
 
     const admin = rows[0];
-
-    // Verifikasi password dengan bcrypt
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Username atau password salah" });
-    }
-
     const token = jwt.sign(
       {
         id: admin.id,
@@ -375,7 +305,6 @@ app.post("/api/login", async (req, res) => {
       JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "24h" },
     );
-
     res.json({
       message: "Login berhasil",
       token,
@@ -387,124 +316,55 @@ app.post("/api/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Verify token
-app.get("/api/verify", authMiddleware, (req, res) => {
-  res.json({ valid: true, admin: req.admin });
-});
+app.get("/api/verify", authMiddleware, (req, res) =>
+  res.json({ valid: true, admin: req.admin }),
+);
 
-// Reset password (lupa password)
 app.post("/api/forgot-password", async (req, res) => {
   try {
     const { username, email, newPassword, confirmPassword } = req.body;
+    if (!username || !email || !newPassword || !confirmPassword)
+      return res.status(400).json({ message: "Isi semua field" });
+    if (newPassword.length < 6 || newPassword !== confirmPassword)
+      return res.status(400).json({ message: "Password tidak valid" });
 
-    // Validasi input
-    if (!username || !email || !newPassword || !confirmPassword) {
-      return res.status(400).json({ message: "Semua field harus diisi" });
-    }
-
-    // Validasi panjang password minimal 6 karakter
-    if (newPassword.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password baru minimal 6 karakter" });
-    }
-
-    // Validasi konfirmasi password
-    if (newPassword !== confirmPassword) {
-      return res
-        .status(400)
-        .json({ message: "Konfirmasi password tidak cocok" });
-    }
-
-    // Cari admin berdasarkan username DAN email (parameterized query untuk hindari SQL injection)
     const { rows } = await pool.query(
-      "SELECT id, username, email FROM admin WHERE username = $1 AND email = $2",
+      "SELECT id FROM admin WHERE username = $1 AND email = $2",
       [username, email],
     );
+    if (rows.length === 0)
+      return res.status(404).json({ message: "User tidak ditemukan" });
 
-    if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Username atau email tidak ditemukan" });
-    }
-
-    // Hash password baru dengan bcrypt
     const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-    // Update password di database (parameterized query)
     await pool.query(
       "UPDATE admin SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
       [hashedPassword, rows[0].id],
     );
-
-    res.json({ message: "Password berhasil direset" });
+    res.json({ message: "Password direset" });
   } catch (error) {
-    console.error("Forgot password error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Multer config khusus untuk hero beranda
-const heroStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const destDir = path.join(uploadsDir, "beranda");
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    cb(null, destDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const uploadHero = multer({
-  storage: heroStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase(),
-    );
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error("Hanya file gambar yang diizinkan!"));
-    }
-  },
-});
-
-// ==================== HERO BERANDA ROUTES ====================
-
-// Get all hero images (public)
+// --- Hero Beranda Routes ---
 app.get("/api/hero-beranda", cachePublicApi(300), async (req, res) => {
-  const CACHE_KEY = "hero:beranda:all";
   try {
-    // Cek Redis cache — jika HIT, kembalikan langsung tanpa query DB
-    const cached = await getCache(CACHE_KEY);
+    const cached = await getCache("hero:beranda:all");
     if (cached) return res.json(cached);
-
     const { rows } = await pool.query(
       "SELECT * FROM hero_beranda ORDER BY urutan ASC, created_at DESC",
     );
-
-    // Simpan ke cache 5 menit
-    await setCache(CACHE_KEY, rows, 300);
+    await setCache("hero:beranda:all", rows, 300);
     res.json(rows);
   } catch (error) {
-    console.error("Get hero beranda error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Create hero image (admin only)
 app.post(
   "/api/hero-beranda",
   authMiddleware,
@@ -513,571 +373,363 @@ app.post(
     try {
       const { judul, deskripsi, urutan } = req.body;
       const gambar = req.file ? `/uploads/beranda/${req.file.filename}` : null;
+      if (!gambar) return res.status(400).json({ message: "Gambar wajib" });
 
-      if (!gambar) {
-        return res.status(400).json({ message: "Gambar wajib diupload" });
-      }
-
-      const { rows: inserted } = await pool.query(
+      const { rows } = await pool.query(
         "INSERT INTO hero_beranda (judul, deskripsi, gambar, urutan, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         [judul || null, deskripsi || null, gambar, urutan || 0, req.admin.id],
       );
-
-      // Invalidasi cache agar data baru muncul di public
       await deletePattern("hero:beranda:*");
-
-      res.status(201).json({
-        message: "Hero image berhasil ditambahkan",
-        id: inserted[0].id,
-      });
+      res.status(201).json({ message: "Berhasil", id: rows[0].id });
     } catch (error) {
-      console.error("Create hero beranda error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Update hero image (admin only)
 app.put(
   "/api/hero-beranda/:id",
   authMiddleware,
   uploadHero.single("gambar"),
   async (req, res) => {
     try {
-      const { judul, deskripsi, urutan } = req.body;
       const id = req.params.id;
-
       const { rows: existing } = await pool.query(
         "SELECT * FROM hero_beranda WHERE id = $1",
         [id],
       );
-      if (existing.length === 0) {
-        return res.status(404).json({ message: "Hero image tidak ditemukan" });
-      }
+      if (existing.length === 0)
+        return res.status(404).json({ message: "Tidak ditemukan" });
 
       let gambar = existing[0].gambar;
       if (req.file) {
-        // Hapus gambar lama
-        if (gambar) {
-          const oldPath = path.join(__dirname, gambar);
-          if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-          }
-        }
+        if (gambar && fs.existsSync(path.join(__dirname, gambar)))
+          fs.unlinkSync(path.join(__dirname, gambar));
         gambar = `/uploads/beranda/${req.file.filename}`;
       }
 
       await pool.query(
         "UPDATE hero_beranda SET judul = $1, deskripsi = $2, gambar = $3, urutan = $4 WHERE id = $5",
-        [judul || null, deskripsi || null, gambar, urutan || 0, id],
+        [
+          req.body.judul || null,
+          req.body.deskripsi || null,
+          gambar,
+          req.body.urutan || 0,
+          id,
+        ],
       );
-
-      // Invalidasi cache
       await deletePattern("hero:beranda:*");
-
-      res.json({ message: "Hero image berhasil diperbarui" });
+      res.json({ message: "Berhasil" });
     } catch (error) {
-      console.error("Update hero beranda error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Delete hero image (admin only)
 app.delete("/api/hero-beranda/:id", authMiddleware, async (req, res) => {
   try {
-    const { rows: existing } = await pool.query(
-      "SELECT * FROM hero_beranda WHERE id = $1",
+    const { rows } = await pool.query(
+      "SELECT gambar FROM hero_beranda WHERE id = $1",
       [req.params.id],
     );
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Hero image tidak ditemukan" });
-    }
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
 
-    // Hapus file gambar
-    if (existing[0].gambar) {
-      const imgPath = path.join(__dirname, existing[0].gambar);
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath);
-      }
-    }
-
+    if (rows[0].gambar && fs.existsSync(path.join(__dirname, rows[0].gambar)))
+      fs.unlinkSync(path.join(__dirname, rows[0].gambar));
     await pool.query("DELETE FROM hero_beranda WHERE id = $1", [req.params.id]);
-
-    // Invalidasi cache
     await deletePattern("hero:beranda:*");
-
-    res.json({ message: "Hero image berhasil dihapus" });
+    res.json({ message: "Berhasil" });
   } catch (error) {
-    console.error("Delete hero beranda error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ==================== KEGIATAN ROUTES ====================
-
-// Get all kegiatan (public)
+// --- Kegiatan Routes ---
 app.get("/api/kegiatan", cachePublicApi(300), async (req, res) => {
-  const CACHE_KEY = "kegiatan:all";
   try {
-    const cached = await getCache(CACHE_KEY);
+    const cached = await getCache("kegiatan:all");
     if (cached) return res.json(cached);
-
     const { rows } = await pool.query(
       "SELECT * FROM kegiatan ORDER BY created_at DESC",
     );
-
-    await setCache(CACHE_KEY, rows, 300);
+    await setCache("kegiatan:all", rows, 300);
     res.json(rows);
   } catch (error) {
-    console.error("Get kegiatan error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Get single kegiatan
 app.get("/api/kegiatan/:id", async (req, res) => {
-  const CACHE_KEY = `kegiatan:detail:${req.params.id}`;
   try {
-    const cached = await getCache(CACHE_KEY);
+    const cached = await getCache(`kegiatan:detail:${req.params.id}`);
     if (cached) return res.json(cached);
-
     const { rows } = await pool.query("SELECT * FROM kegiatan WHERE id = $1", [
       req.params.id,
     ]);
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "Kegiatan tidak ditemukan" });
-    }
-
-    await setCache(CACHE_KEY, rows[0], 600);
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
+    await setCache(`kegiatan:detail:${req.params.id}`, rows[0], 600);
     res.json(rows[0]);
   } catch (error) {
-    console.error("Get kegiatan detail error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Create kegiatan (admin only)
 app.post(
   "/api/kegiatan",
   authMiddleware,
   upload.single("gambar"),
   async (req, res) => {
     try {
-      const { judul, deskripsi, tanggal, lokasi, kategori } = req.body;
-      const kat = kategori || "kegiatan";
+      const kat = req.body.kategori || "kegiatan";
       const gambar = req.file ? `/uploads/${kat}/${req.file.filename}` : null;
-
-      const { rows: inserted } = await pool.query(
+      const { rows } = await pool.query(
         "INSERT INTO kegiatan (judul, deskripsi, tanggal, lokasi, gambar, kategori, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
         [
-          judul,
-          deskripsi,
-          tanggal || null,
-          lokasi || null,
+          req.body.judul,
+          req.body.deskripsi,
+          req.body.tanggal || null,
+          req.body.lokasi || null,
           gambar,
-          kategori || "kegiatan",
+          kat,
           req.admin.id,
         ],
       );
-
-      // Invalidasi cache list kegiatan
       await deletePattern("kegiatan:*");
-
-      res.status(201).json({
-        message: "Kegiatan berhasil ditambahkan",
-        id: inserted[0].id,
-      });
+      res.status(201).json({ message: "Berhasil", id: rows[0].id });
     } catch (error) {
-      console.error("Create kegiatan error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Update kegiatan (admin only)
 app.put(
   "/api/kegiatan/:id",
   authMiddleware,
   upload.single("gambar"),
   async (req, res) => {
     try {
-      const { judul, deskripsi, tanggal, lokasi, kategori } = req.body;
-      const id = req.params.id;
-
-      // Ambil data lama
       const { rows: existing } = await pool.query(
         "SELECT * FROM kegiatan WHERE id = $1",
-        [id],
+        [req.params.id],
       );
-      if (existing.length === 0) {
-        return res.status(404).json({ message: "Kegiatan tidak ditemukan" });
-      }
+      if (existing.length === 0)
+        return res.status(404).json({ message: "Tidak ditemukan" });
 
+      const kat = req.body.kategori || "kegiatan";
       let gambar = existing[0].gambar;
-      const kat = kategori || "kegiatan";
       if (req.file) {
-        // Hapus gambar lama jika ada
-        if (gambar) {
-          const oldPath = path.join(__dirname, gambar);
-          if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-          }
-        }
+        if (gambar && fs.existsSync(path.join(__dirname, gambar)))
+          fs.unlinkSync(path.join(__dirname, gambar));
         gambar = `/uploads/${kat}/${req.file.filename}`;
       }
 
       await pool.query(
         "UPDATE kegiatan SET judul = $1, deskripsi = $2, tanggal = $3, lokasi = $4, gambar = $5, kategori = $6 WHERE id = $7",
         [
-          judul,
-          deskripsi,
-          tanggal || null,
-          lokasi || null,
+          req.body.judul,
+          req.body.deskripsi,
+          req.body.tanggal || null,
+          req.body.lokasi || null,
           gambar,
-          kategori || "kegiatan",
-          id,
+          kat,
+          req.params.id,
         ],
       );
-
-      // Invalidasi semua cache kegiatan (list + detail item ini)
       await deletePattern("kegiatan:*");
-
-      res.json({ message: "Kegiatan berhasil diperbarui" });
+      res.json({ message: "Berhasil" });
     } catch (error) {
-      console.error("Update kegiatan error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Delete kegiatan (admin only)
 app.delete("/api/kegiatan/:id", authMiddleware, async (req, res) => {
   try {
-    const { rows: existing } = await pool.query(
-      "SELECT * FROM kegiatan WHERE id = $1",
+    const { rows } = await pool.query(
+      "SELECT gambar FROM kegiatan WHERE id = $1",
       [req.params.id],
     );
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Kegiatan tidak ditemukan" });
-    }
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
 
-    // Hapus gambar
-    if (existing[0].gambar) {
-      const imgPath = path.join(__dirname, existing[0].gambar);
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath);
-      }
-    }
-
+    if (rows[0].gambar && fs.existsSync(path.join(__dirname, rows[0].gambar)))
+      fs.unlinkSync(path.join(__dirname, rows[0].gambar));
     await pool.query("DELETE FROM kegiatan WHERE id = $1", [req.params.id]);
-
-    // Invalidasi semua cache kegiatan
     await deletePattern("kegiatan:*");
-
-    res.json({ message: "Kegiatan berhasil dihapus" });
+    res.json({ message: "Berhasil" });
   } catch (error) {
-    console.error("Delete kegiatan error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Multer config khusus untuk proyek
-const proyekStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Fallback to 'sia' — file will be moved to correct folder after body is parsed
-    const destDir = path.join(uploadsDir, "sia");
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    cb(null, destDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, "proyek-" + uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const uploadProyek = multer({
-  storage: proyekStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase(),
-    );
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error("Hanya file gambar yang diizinkan!"));
-    }
-  },
-});
-
-// ==================== PROYEK ROUTES ====================
-
-// Get all proyek (public) — optional filter by kategori
+// --- Proyek Routes ---
 app.get("/api/proyek", cachePublicApi(300), async (req, res) => {
-  const { kategori } = req.query;
-  // Key berbeda per kategori agar filter bisa di-cache secara terpisah
-  const CACHE_KEY = kategori ? `proyek:all:${kategori}` : "proyek:all";
   try {
-    const cached = await getCache(CACHE_KEY);
+    const { kategori } = req.query;
+    const key = kategori ? `proyek:all:${kategori}` : "proyek:all";
+    const cached = await getCache(key);
     if (cached) return res.json(cached);
 
-    let query = "SELECT * FROM proyek";
-    const params = [];
-    if (kategori) {
-      query += " WHERE kategori = $1";
-      params.push(kategori);
-    }
-    query += " ORDER BY created_at DESC";
-    const { rows } = await pool.query(query, params);
-
-    await setCache(CACHE_KEY, rows, 300);
+    const query = kategori
+      ? "SELECT * FROM proyek WHERE kategori = $1 ORDER BY created_at DESC"
+      : "SELECT * FROM proyek ORDER BY created_at DESC";
+    const { rows } = await pool.query(query, kategori ? [kategori] : []);
+    await setCache(key, rows, 300);
     res.json(rows);
   } catch (error) {
-    console.error("Get proyek error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Get single proyek (public)
 app.get("/api/proyek/:id", async (req, res) => {
-  const CACHE_KEY = `proyek:detail:${req.params.id}`;
   try {
-    const cached = await getCache(CACHE_KEY);
+    const cached = await getCache(`proyek:detail:${req.params.id}`);
     if (cached) return res.json(cached);
-
     const { rows } = await pool.query("SELECT * FROM proyek WHERE id = $1", [
       req.params.id,
     ]);
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "Proyek tidak ditemukan" });
-    }
-
-    await setCache(CACHE_KEY, rows[0], 600);
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
+    await setCache(`proyek:detail:${req.params.id}`, rows[0], 600);
     res.json(rows[0]);
   } catch (error) {
-    console.error("Get proyek detail error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Create proyek (admin only)
 app.post(
   "/api/proyek",
   authMiddleware,
   uploadProyek.single("gambar"),
   async (req, res) => {
     try {
-      const { judul, deskripsi, detail, tags, kategori } = req.body;
-      const kat = kategori || "sia";
+      const kat = req.body.kategori || "sia";
       let gambar = null;
-
       if (req.file) {
-        // Move file to correct kategori folder if needed
-        const correctDir = path.join(uploadsDir, kat);
-        if (!fs.existsSync(correctDir)) {
-          fs.mkdirSync(correctDir, { recursive: true });
-        }
-        const currentPath = req.file.path;
-        const newPath = path.join(correctDir, req.file.filename);
-        if (currentPath !== newPath) {
-          fs.renameSync(currentPath, newPath);
-        }
+        const dir = path.join(uploadsDir, kat);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        const newPath = path.join(dir, req.file.filename);
+        if (req.file.path !== newPath) fs.renameSync(req.file.path, newPath);
         gambar = `/uploads/${kat}/${req.file.filename}`;
       }
 
-      const tagsArray = tags
-        ? typeof tags === "string"
-          ? tags
+      const tagsArray = req.body.tags
+        ? typeof req.body.tags === "string"
+          ? req.body.tags
               .split(",")
               .map((t) => t.trim())
               .filter(Boolean)
-          : tags
+          : req.body.tags
         : [];
-
-      const { rows: inserted } = await pool.query(
+      const { rows } = await pool.query(
         "INSERT INTO proyek (judul, deskripsi, detail, tags, gambar, kategori, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
         [
-          judul,
-          deskripsi || null,
-          detail || null,
+          req.body.judul,
+          req.body.deskripsi || null,
+          req.body.detail || null,
           tagsArray,
           gambar,
           kat,
           req.admin.id,
         ],
       );
-
-      // Invalidasi semua cache proyek (list semua kategori + yang baru)
       await deletePattern("proyek:*");
-
-      res.status(201).json({
-        message: "Proyek berhasil ditambahkan",
-        id: inserted[0].id,
-      });
+      res.status(201).json({ message: "Berhasil", id: rows[0].id });
     } catch (error) {
-      console.error("Create proyek error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Update proyek (admin only)
 app.put(
   "/api/proyek/:id",
   authMiddleware,
   uploadProyek.single("gambar"),
   async (req, res) => {
     try {
-      const { judul, deskripsi, detail, tags, kategori } = req.body;
-      const id = req.params.id;
-
       const { rows: existing } = await pool.query(
         "SELECT * FROM proyek WHERE id = $1",
-        [id],
+        [req.params.id],
       );
-      if (existing.length === 0) {
-        return res.status(404).json({ message: "Proyek tidak ditemukan" });
-      }
+      if (existing.length === 0)
+        return res.status(404).json({ message: "Tidak ditemukan" });
 
+      const kat = req.body.kategori || "sia";
       let gambar = existing[0].gambar;
-      const kat = kategori || "sia";
       if (req.file) {
-        if (gambar) {
-          const oldPath = path.join(__dirname, gambar);
-          if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-          }
-        }
-        // Move file to correct kategori folder if needed
-        const correctDir = path.join(uploadsDir, kat);
-        if (!fs.existsSync(correctDir)) {
-          fs.mkdirSync(correctDir, { recursive: true });
-        }
-        const currentPath = req.file.path;
-        const newPath = path.join(correctDir, req.file.filename);
-        if (currentPath !== newPath) {
-          fs.renameSync(currentPath, newPath);
-        }
+        if (gambar && fs.existsSync(path.join(__dirname, gambar)))
+          fs.unlinkSync(path.join(__dirname, gambar));
+        const dir = path.join(uploadsDir, kat);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        const newPath = path.join(dir, req.file.filename);
+        if (req.file.path !== newPath) fs.renameSync(req.file.path, newPath);
         gambar = `/uploads/${kat}/${req.file.filename}`;
       }
 
-      const tagsArray = tags
-        ? typeof tags === "string"
-          ? tags
+      const tagsArray = req.body.tags
+        ? typeof req.body.tags === "string"
+          ? req.body.tags
               .split(",")
               .map((t) => t.trim())
               .filter(Boolean)
-          : tags
+          : req.body.tags
         : existing[0].tags || [];
-
       await pool.query(
         "UPDATE proyek SET judul = $1, deskripsi = $2, detail = $3, tags = $4, gambar = $5, kategori = $6 WHERE id = $7",
-        [judul, deskripsi || null, detail || null, tagsArray, gambar, kat, id],
+        [
+          req.body.judul,
+          req.body.deskripsi || null,
+          req.body.detail || null,
+          tagsArray,
+          gambar,
+          kat,
+          req.params.id,
+        ],
       );
-
-      // Invalidasi semua cache proyek
       await deletePattern("proyek:*");
-
-      res.json({ message: "Proyek berhasil diperbarui" });
+      res.json({ message: "Berhasil" });
     } catch (error) {
-      console.error("Update proyek error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Delete proyek (admin only)
 app.delete("/api/proyek/:id", authMiddleware, async (req, res) => {
   try {
-    const { rows: existing } = await pool.query(
-      "SELECT * FROM proyek WHERE id = $1",
+    const { rows } = await pool.query(
+      "SELECT gambar FROM proyek WHERE id = $1",
       [req.params.id],
     );
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Proyek tidak ditemukan" });
-    }
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
 
-    if (existing[0].gambar) {
-      const imgPath = path.join(__dirname, existing[0].gambar);
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath);
-      }
-    }
-
+    if (rows[0].gambar && fs.existsSync(path.join(__dirname, rows[0].gambar)))
+      fs.unlinkSync(path.join(__dirname, rows[0].gambar));
     await pool.query("DELETE FROM proyek WHERE id = $1", [req.params.id]);
-
-    // Invalidasi semua cache proyek
     await deletePattern("proyek:*");
-
-    res.json({ message: "Proyek berhasil dihapus" });
+    res.json({ message: "Berhasil" });
   } catch (error) {
-    console.error("Delete proyek error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ==================== VIDEO BERANDA ====================
-
-// Multer config khusus untuk video beranda (ukuran lebih besar, format video)
-const videoStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const destDir = path.join(uploadsDir, "video");
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    cb(null, destDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, "video-" + uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const uploadVideo = multer({
-  storage: videoStorage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB untuk video
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /mp4|webm|ogg|mov/;
-    const allowedMimes = /video\/(mp4|webm|ogg|quicktime)/;
-    const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase(),
-    );
-    const mimetype = allowedMimes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error("Hanya file video (MP4, WebM, OGG, MOV) yang diizinkan!"));
-    }
-  },
-});
-
-// Get active video (public)
+// --- Video Beranda Routes ---
 app.get("/api/video-beranda", cachePublicApi(300), async (req, res) => {
-  const CACHE_KEY = "video:beranda:active";
   try {
-    const cached = await getCache(CACHE_KEY);
+    const cached = await getCache("video:beranda:active");
     if (cached !== null) return res.json(cached);
-
     const { rows } = await pool.query(
       "SELECT * FROM video_beranda WHERE is_active = true ORDER BY created_at DESC LIMIT 1",
     );
-    const result = rows[0] || null;
-
-    // Cache meski hasilnya null (tidak ada video aktif) — TTL lebih pendek
-    await setCache(CACHE_KEY, result, 300);
-    res.json(result);
+    await setCache("video:beranda:active", rows[0] || null, 300);
+    res.json(rows[0] || null);
   } catch (error) {
-    console.error("Get video beranda error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Get all videos (admin)
 app.get("/api/video-beranda/all", authMiddleware, async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -1085,184 +737,141 @@ app.get("/api/video-beranda/all", authMiddleware, async (req, res) => {
     );
     res.json(rows);
   } catch (error) {
-    console.error("Get all video beranda error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Create video (admin only)
 app.post(
   "/api/video-beranda",
   authMiddleware,
   uploadVideo.single("video"),
   async (req, res) => {
     try {
-      const { judul, deskripsi } = req.body;
       const video = req.file ? `/uploads/video/${req.file.filename}` : null;
+      if (!video) return res.status(400).json({ message: "Video wajib" });
 
-      if (!video) {
-        return res.status(400).json({ message: "File video wajib diupload" });
-      }
-
-      // Nonaktifkan semua video lain agar hanya satu yang aktif
       await pool.query("UPDATE video_beranda SET is_active = false");
-
-      const { rows: inserted } = await pool.query(
+      const { rows } = await pool.query(
         "INSERT INTO video_beranda (judul, deskripsi, video, is_active, created_by) VALUES ($1, $2, $3, true, $4) RETURNING id",
-        [judul || null, deskripsi || null, video, req.admin.id],
+        [
+          req.body.judul || null,
+          req.body.deskripsi || null,
+          video,
+          req.admin.id,
+        ],
       );
-
-      // Invalidasi cache video aktif
       await deletePattern("video:beranda:*");
-
-      res.status(201).json({
-        message: "Video berhasil ditambahkan",
-        id: inserted[0].id,
-      });
+      res.status(201).json({ message: "Berhasil", id: rows[0].id });
     } catch (error) {
-      console.error("Create video beranda error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Update video (admin only)
 app.put(
   "/api/video-beranda/:id",
   authMiddleware,
   uploadVideo.single("video"),
   async (req, res) => {
     try {
-      const { judul, deskripsi } = req.body;
-      const id = req.params.id;
-
       const { rows: existing } = await pool.query(
         "SELECT * FROM video_beranda WHERE id = $1",
-        [id],
+        [req.params.id],
       );
-      if (existing.length === 0) {
-        return res.status(404).json({ message: "Video tidak ditemukan" });
-      }
+      if (existing.length === 0)
+        return res.status(404).json({ message: "Tidak ditemukan" });
 
       let video = existing[0].video;
       if (req.file) {
-        // Hapus video lama
-        if (video) {
-          const oldPath = path.join(__dirname, video);
-          if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-          }
-        }
+        if (video && fs.existsSync(path.join(__dirname, video)))
+          fs.unlinkSync(path.join(__dirname, video));
         video = `/uploads/video/${req.file.filename}`;
       }
 
       await pool.query(
         "UPDATE video_beranda SET judul = $1, deskripsi = $2, video = $3 WHERE id = $4",
-        [judul || null, deskripsi || null, video, id],
+        [
+          req.body.judul || null,
+          req.body.deskripsi || null,
+          video,
+          req.params.id,
+        ],
       );
-
-      // Invalidasi cache video
       await deletePattern("video:beranda:*");
-
-      res.json({ message: "Video berhasil diperbarui" });
+      res.json({ message: "Berhasil" });
     } catch (error) {
-      console.error("Update video beranda error:", error);
       res.status(500).json({ message: "Server error" });
     }
   },
 );
 
-// Set active video (admin only)
 app.put("/api/video-beranda/:id/activate", authMiddleware, async (req, res) => {
   try {
-    const id = req.params.id;
-
-    const { rows: existing } = await pool.query(
-      "SELECT * FROM video_beranda WHERE id = $1",
-      [id],
+    const { rows } = await pool.query(
+      "SELECT id FROM video_beranda WHERE id = $1",
+      [req.params.id],
     );
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Video tidak ditemukan" });
-    }
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
 
-    // Nonaktifkan semua, lalu aktifkan yang dipilih
     await pool.query("UPDATE video_beranda SET is_active = false");
     await pool.query(
       "UPDATE video_beranda SET is_active = true WHERE id = $1",
-      [id],
+      [req.params.id],
     );
-
-    // Invalidasi cache karena video aktif berubah
     await deletePattern("video:beranda:*");
-
-    res.json({ message: "Video berhasil diaktifkan" });
+    res.json({ message: "Berhasil" });
   } catch (error) {
-    console.error("Activate video beranda error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Delete video (admin only)
 app.delete("/api/video-beranda/:id", authMiddleware, async (req, res) => {
   try {
-    const { rows: existing } = await pool.query(
-      "SELECT * FROM video_beranda WHERE id = $1",
+    const { rows } = await pool.query(
+      "SELECT video FROM video_beranda WHERE id = $1",
       [req.params.id],
     );
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Video tidak ditemukan" });
-    }
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Tidak ditemukan" });
 
-    // Hapus file video
-    if (existing[0].video) {
-      const videoPath = path.join(__dirname, existing[0].video);
-      if (fs.existsSync(videoPath)) {
-        fs.unlinkSync(videoPath);
-      }
-    }
-
+    if (rows[0].video && fs.existsSync(path.join(__dirname, rows[0].video)))
+      fs.unlinkSync(path.join(__dirname, rows[0].video));
     await pool.query("DELETE FROM video_beranda WHERE id = $1", [
       req.params.id,
     ]);
-
-    // Invalidasi cache video
     await deletePattern("video:beranda:*");
-
-    res.json({ message: "Video berhasil dihapus" });
+    res.json({ message: "Berhasil" });
   } catch (error) {
-    console.error("Delete video beranda error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ==================== SERVE FRONTEND (SPA) ====================
-// Jika folder dist/ ada (hasil build Vite), serve sebagai static files.
-// Ini digunakan untuk single-service deployment (nixpacks/Railway/Render)
-// dimana Express serve frontend + API dalam satu proses.
+// ==================== SPA CATCH-ALL (HARUS PALING BAWAH) ====================
 const frontendDist = path.join(__dirname, "dist");
 if (fs.existsSync(frontendDist)) {
-  // Serve static assets (JS, CSS, gambar) dengan cache headers
   app.use(
     express.static(frontendDist, {
       maxAge: "7d",
       etag: true,
       lastModified: true,
-      // Jangan cache index.html agar update langsung terlihat
       setHeaders: (res, filePath) => {
-        if (filePath.endsWith(".html")) {
+        if (filePath.endsWith(".html"))
           res.setHeader("Cache-Control", "no-cache");
-        }
       },
     }),
   );
-
-  // SPA fallback: semua route yang bukan /api atau /uploads → index.html
-  // Ini penting agar client-side routing (react-router) berfungsi
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendDist, "index.html"));
-  });
-
+  app.get("*", (req, res) =>
+    res.sendFile(path.join(frontendDist, "index.html")),
+  );
   console.log(`📦 Frontend served from: ${frontendDist}`);
+} else {
+  // Jika tidak ada folder dist, sediakan fallback SPA untuk file public
+  app.get("*", (req, res) => {
+    const publicIndex = path.join(__dirname, "../public", "index.html");
+    if (fs.existsSync(publicIndex)) res.sendFile(publicIndex);
+    else res.status(404).send("API Running. Frontend not built.");
+  });
 }
 
 // ==================== START SERVER ====================
@@ -1270,5 +879,4 @@ app.listen(PORT, () => {
   console.log(`✅ Server berjalan di http://localhost:${PORT}`);
   console.log(`🌍 Mode: ${isProduction ? "PRODUCTION" : "DEVELOPMENT"}`);
   console.log(`📁 Upload folder: ${uploadsDir}`);
-}
-);
+});
