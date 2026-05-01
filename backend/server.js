@@ -66,6 +66,8 @@ if (isProduction) {
           imgSrc: ["'self'", "data:", "blob:", "https://rimbanusantara.or.id"],
           mediaSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"],
           connectSrc: ["'self'", "blob:", "https://rimbanusantara.or.id"],
+          frameSrc: ["'self'", "https://www.google.com"],
+          workerSrc: ["'self'", "blob:"],
         },
       },
     }),
